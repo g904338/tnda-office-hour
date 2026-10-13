@@ -92,6 +92,16 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
 
   // ---------- actions ----------
   async function assign(args: { group: number; teacher: number; d: string; t: string; moveId?: number }) {
+    const moving = args.moveId ? st.appointments.find((a) => a.id === args.moveId) : null;
+    if (moving && moving.d === args.d && moving.t === args.t && moving.teacher_id === args.teacher) return;
+    if (moving?.status === 'confirmed') {
+      const ok = await confirm({
+        title: '移動已發布的場次？',
+        body: `${groupName(st.groups, moving.group_id)} 會從 ${dayLabel(moving.d)} ${moving.t} 改到 ${dayLabel(args.d)} ${args.t}（${tName(args.teacher)}）。這組和老師的畫面會立刻更新，有連結 Discord 的話也會收到通知。`,
+        ok: '移動',
+      });
+      if (!ok) return;
+    }
     const fn = args.moveId ? 'oh_admin_move' : 'oh_admin_assign';
     const payload: Record<string, unknown> = args.moveId
       ? { p_id: args.moveId, p_teacher: args.teacher, p_d: args.d, p_t: args.t }

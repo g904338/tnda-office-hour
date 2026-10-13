@@ -59,10 +59,17 @@ export function useLive<T extends { clock?: ClockInfo }>(fn: string, args: Recor
 
   useEffect(() => {
     if (!engine) return;
+    // coalesce bursts of pings, and never refetch more than every 1.5 s
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let last = 0;
     const kick = () => {
-      clearTimeout(timer);
-      timer = setTimeout(load, 180);
+      if (timer) return;
+      const wait = Math.max(150, last + 1500 - Date.now());
+      timer = setTimeout(() => {
+        timer = undefined;
+        last = Date.now();
+        load();
+      }, wait);
     };
     const off = engine.onChange(kick);
     const onVis = () => {

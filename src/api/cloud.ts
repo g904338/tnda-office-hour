@@ -16,7 +16,8 @@ export function cloudEngine(url: string, key: string): Engine {
     statuses.emit(s);
   };
 
-  sb.channel('oh-sync')
+  // a private channel: anyone may listen, only the database may speak
+  sb.channel('oh-sync', { config: { private: true } })
     .on('broadcast', { event: 'change' }, () => changes.emit())
     .subscribe((s) => {
       if (s === 'SUBSCRIBED') {

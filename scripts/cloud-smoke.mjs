@@ -46,7 +46,7 @@ ok(!fields.some((f) => /groups|sessions|requests|appointments/i.test(f)), 'Graph
 const sb = createClient(url, key);
 const status = await new Promise((resolve) => {
   const t = setTimeout(() => resolve('TIMEOUT'), 15000);
-  sb.channel('oh-sync').subscribe((s) => {
+  sb.channel('oh-sync', { config: { private: true } }).subscribe((s) => {
     if (s === 'SUBSCRIBED' || s === 'CHANNEL_ERROR') {
       clearTimeout(t);
       resolve(s);
@@ -54,6 +54,17 @@ const status = await new Promise((resolve) => {
   });
 });
 ok(status === 'SUBSCRIBED', 'realtime channel connects');
+
+// browsers must not be able to broadcast on the channel
+const spy = createClient(url, key);
+const heard = [];
+const ear = spy.channel('oh-sync', { config: { private: true } }).on('broadcast', { event: 'change' }, (m) => heard.push(m));
+await new Promise((r) => ear.subscribe((s) => s === 'SUBSCRIBED' && r()));
+const mouth = createClient(url, key).channel('oh-sync', { config: { private: true } });
+await new Promise((r) => mouth.subscribe((s) => s === 'SUBSCRIBED' && r()));
+await mouth.send({ type: 'broadcast', event: 'change', payload: { t: 'spoof' } });
+await new Promise((r) => setTimeout(r, 1500));
+ok(heard.length === 0, 'clients cannot broadcast fake changes');
 await sb.removeAllChannels();
 
 if (fails.length) {

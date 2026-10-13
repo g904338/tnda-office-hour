@@ -281,7 +281,7 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
         </section>
       ) : pendingWeek ? (
         <section class="hero calm" aria-label="預約狀態">
-          <p class="eyebrow">{pendingWeek.label} 的需求已送出</p>
+          <p class="eyebrow">{pendingWeek.label || mdPad(pendingWeek.start)} 的需求已送出</p>
           <h1 class="title-l">助教正在安排時間</h1>
           <p class="muted">時間確定後，這個畫面會即時更新，全組會同時看到。</p>
         </section>
