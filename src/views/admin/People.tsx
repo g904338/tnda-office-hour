@@ -116,7 +116,7 @@ export function GroupsPage() {
           </Btn>
         </div>
       </div>
-      <div class="qr-wall" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
+      <div class="group-grid">
         {cfg.groups.map((g) => (
           <GroupCard key={g.id} g={g} now={now} save={save} reload={reload} />
         ))}
@@ -130,7 +130,7 @@ function GroupCard({ g, now, save, reload }: { g: ConfigGroup; now: number; save
   const { run } = useBusy();
   const link = inviteLink(g.code);
   return (
-    <div class="card stack" style={{ textAlign: 'left', opacity: g.active ? 1 : 0.6 }}>
+    <div class={`card stack ${g.active ? '' : 'inactive'}`}>
       <div class="row between">
         <span class="row" style={{ gap: '10px' }}>
           <span class="gno lg">{g.no}</span>
@@ -426,7 +426,7 @@ function TeacherRow({ t, save, reload }: { t: ConfigTeacher; save: (p: Record<st
   const { run } = useBusy();
   const link = inviteLink(t.code);
   return (
-    <div class="li wrap" style={{ flexWrap: 'wrap', opacity: t.active ? 1 : 0.6 }}>
+    <div class={`li ${t.active ? '' : 'inactive'}`} style={{ flexWrap: 'wrap' }}>
       <div class="grow stack" style={{ gap: '2px', minWidth: '160px' }}>
         <b>{t.name}</b>
         <span class="tiny muted">{t.devices ? `${t.devices} 台裝置登入中` : '還沒有登入'}</span>

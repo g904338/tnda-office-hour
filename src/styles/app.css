@@ -1804,9 +1804,12 @@ ul.steps {
   }
   .clockface {
     position: absolute;
-    width: 132px;
-    right: 18px;
+    width: 112px;
+    right: 16px;
     top: 14px;
+  }
+  .welcome-art .eyebrow {
+    padding-right: 120px;
   }
   .welcome-main {
     padding: 28px 16px 48px;
@@ -2301,7 +2304,16 @@ table.t tr.mine td {
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
 }
-.qr-wall .card {
+.group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+  gap: 16px;
+}
+.card.inactive,
+.li.inactive {
+  background: var(--surface-2);
+}
+.qr-wall > .card {
   display: grid;
   gap: 10px;
   text-align: center;
@@ -2355,9 +2367,11 @@ table.t tr.mine td {
   border-color: color-mix(in srgb, var(--demo-ink) 45%, transparent);
   color: var(--demo-ink);
 }
-.demobar + .admin .side {
-  top: 46px;
-  height: calc(100dvh - 46px);
+@media (min-width: 961px) {
+  .demobar + .admin .side {
+    top: 46px;
+    height: calc(100dvh - 46px);
+  }
 }
 
 /* print: QR wall */
