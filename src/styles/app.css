@@ -2114,6 +2114,13 @@ button.lane:hover,
   text-overflow: ellipsis;
   min-width: 0;
 }
+.lane.filled.off-hours {
+  outline: 2px solid var(--danger);
+  outline-offset: 1px;
+}
+.lane.filled.off-hours svg {
+  flex: 0 0 auto;
+}
 .lane.ghost {
   border-style: dashed;
   border-color: var(--accent);

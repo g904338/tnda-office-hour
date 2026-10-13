@@ -80,6 +80,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
   }, [focus, st.requests]);
   const holidays = new Map(st.closures.filter((c) => c.teacher_id === null).map((c) => [c.d, c.reason]));
   const nowStamp = localStamp(now, tz);
+  const attention = live.filter((a) => !slotMap.get(`${a.d} ${a.t}`)?.teachers.includes(a.teacher_id) && `${a.d} ${a.t}` >= nowStamp).length;
 
   // phones show one day at a time
   const dayLoad = (d: string) => st.slots.filter((s) => s.d === d).length + live.filter((a) => a.d === d).length;
@@ -525,6 +526,12 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
           {pending.length > 0 && <span class="chip warn">待排 {pending.length} 組</span>}
           {missing.length > 0 && <span class="chip outline">未送出 {missing.length} 組</span>}
           {!week.open && <span class="chip danger">本週暫停預約</span>}
+          {attention > 0 && (
+            <span class="chip danger">
+              <Icon name="alert" size={13} />
+              {attention} 場不在開放時段
+            </span>
+          )}
         </div>
       </div>
 
@@ -555,6 +562,13 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
                     <b>{DOW[isoDow(d)]}</b>
                     <span>{md(d)}</span>
                     {holidays.has(d) && <span class="tag">{holidays.get(d) || '休息'}</span>}
+                    {st.closures
+                      .filter((c) => c.d === d && c.teacher_id !== null)
+                      .map((c) => (
+                        <span class="tag" key={c.id}>
+                          {tName(c.teacher_id!)} 請假{c.reason ? `（${c.reason}）` : ''}
+                        </span>
+                      ))}
                   </div>
                 ))}
                 {shownTimes.map((t, ti) => [
@@ -583,11 +597,14 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
                           const laneKey = `${key} ${tid}`;
                           if (a) {
                             const g = gOf(a.group_id);
+                            // e.g. the teacher took the day off after this was booked
+                            const offHours = !slot?.teachers.includes(tid);
                             return (
                               <button
                                 type="button"
                                 key={laneKey}
-                                class={`lane filled ${a.status === 'draft' ? 'draft' : ''}`}
+                                class={`lane filled ${a.status === 'draft' ? 'draft' : ''} ${offHours ? 'off-hours' : ''}`}
+                                title={offHours ? `${tName(tid)} 這個時段不在開放時間內（可能請假），請移動或取消` : undefined}
                                 draggable
                                 onDragStart={(e) => {
                                   setDragId(a.id);
@@ -603,9 +620,11 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
                                 <TeacherDot id={tid} teachers={st.teachers} />
                                 <span class="lno">{g?.no}</span>
                                 <span class="gname">{g?.name || `第 ${g?.no} 組`}</span>
+                                {offHours && <Icon name="alert" size={14} />}
                                 <span class="sr-only">
                                   ，{dayLabel(d)} {t}，{tName(tid)}
                                   {a.status === 'draft' ? '，草稿' : '，已發布'}
+                                  {offHours ? '，注意：不在老師的開放時段' : ''}
                                 </span>
                               </button>
                             );
