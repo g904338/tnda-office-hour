@@ -9,6 +9,7 @@ import { confirm } from '../../ui/dialog';
 import { toast } from '../../ui/toast';
 import { Icon } from '../../ui/icons';
 import { BrandMark, Btn, Empty, LiveBadge, Loading, Menu, safeHref } from '../../ui/kit';
+import { openCalendarDialog } from '../CalendarSubscribe';
 import { ErrorState } from '../student/StudentApp';
 
 export function TeacherApp() {
@@ -149,8 +150,8 @@ function TeacherHome({ st }: { st: TeacherState }) {
                 <Icon name="external" /> 打開雲端資料夾
               </a>
             )}
-            <Btn icon="calendar" onClick={exportAll}>
-              全部加入行事曆
+            <Btn icon="calendar" onClick={() => openCalendarDialog({ who: 'teacher', download: exportAll })}>
+              訂閱行事曆
             </Btn>
           </div>
         </section>
@@ -159,11 +160,9 @@ function TeacherHome({ st }: { st: TeacherState }) {
       <section class="section" aria-labelledby="t-agenda">
         <div class="section-head">
           <h2 id="t-agenda">我的場次</h2>
-          {upcoming.length > 0 && !next && (
-            <Btn size="sm" icon="calendar" onClick={exportAll}>
-              加入行事曆
-            </Btn>
-          )}
+          <Btn size="sm" icon="calendar" onClick={() => openCalendarDialog({ who: 'teacher', download: exportAll })}>
+            訂閱行事曆
+          </Btn>
         </div>
         {byDay.size === 0 ? (
           <Empty icon="calendar" title="還沒有排到你的場次">

@@ -43,6 +43,11 @@ const gql = await r.json().catch(() => ({}));
 const fields = gql?.data?.__schema?.queryType?.fields?.map((f) => f.name) ?? [];
 ok(!fields.some((f) => /groups|sessions|requests|appointments/i.test(f)), 'GraphQL exposes no tables');
 
+r = await fetch(`${url}/rest/v1/rpc/oh_calendar?p_feed=${'0'.repeat(32)}&apikey=${key}`);
+const cal = await r.text();
+ok(r.ok && /text\/calendar/.test(r.headers.get('content-type') ?? '') && cal.startsWith('BEGIN:VCALENDAR') && !cal.includes('VEVENT'),
+  'calendar feeds answer as text/calendar and reveal nothing for unknown links');
+
 const sb = createClient(url, key);
 const status = await new Promise((resolve) => {
   const t = setTimeout(() => resolve('TIMEOUT'), 15000);

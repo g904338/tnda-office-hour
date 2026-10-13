@@ -10,6 +10,7 @@ import { ask, confirm } from '../../ui/dialog';
 import { toast } from '../../ui/toast';
 import { Icon } from '../../ui/icons';
 import { BrandMark, Btn, Empty, LiveBadge, Loading, Menu, WeekStrip, safeHref } from '../../ui/kit';
+import { openCalendarDialog } from '../CalendarSubscribe';
 import { Book } from './Book';
 
 export function StudentApp({ route }: { route: string[] }) {
@@ -259,7 +260,7 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
             )}
           </div>
           <div class="row wrap">
-            <Btn class="solid" icon="calendar" onClick={() => addToCalendar(upcoming)}>
+            <Btn class="solid" icon="calendar" onClick={() => openCalendarDialog({ who: 'student', download: () => addToCalendar(upcoming) })}>
               加入行事曆
             </Btn>
             {next.can_cancel ? (
@@ -423,7 +424,12 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
         )}
       </section>
 
-      <History st={st} now={now} onCancel={cancel} />
+      <History
+        st={st}
+        now={now}
+        onCancel={cancel}
+        onCalendar={() => openCalendarDialog({ who: 'student', download: () => addToCalendar(st.appointments.filter((a) => a.status === 'confirmed')) })}
+      />
 
       <section class="section" aria-labelledby="sec-rules">
         <div class="section-head">
@@ -492,7 +498,17 @@ function ApptRow({ a, mins, tz, now, onCancel }: { a: StudentAppointment; mins: 
   );
 }
 
-function History({ st, now, onCancel }: { st: StudentState; now: number; onCancel: (a: StudentAppointment) => void }) {
+function History({
+  st,
+  now,
+  onCancel,
+  onCalendar,
+}: {
+  st: StudentState;
+  now: number;
+  onCancel: (a: StudentAppointment) => void;
+  onCalendar: () => void;
+}) {
   const [all, setAll] = useState(false);
   const mins = st.settings.slot_minutes;
   const list = [...st.appointments].sort((a, b) => (b.d + b.t).localeCompare(a.d + a.t));
@@ -502,9 +518,13 @@ function History({ st, now, onCancel }: { st: StudentState; now: number; onCance
     <section class="section" aria-labelledby="sec-history">
       <div class="section-head">
         <h2 id="sec-history">全部紀錄</h2>
-        <span class="small muted">
-          本學期已和 {st.settings.host_label} 討論{' '}
-          {list.filter((a) => a.status === 'confirmed' && instant(a.d, a.t, st.clock.tz) < now).length} 次
+        <span class="row wrap" style={{ gap: '12px' }}>
+          <span class="small muted">
+            本學期已和 {st.settings.host_label} 討論 {list.filter((a) => a.status === 'confirmed' && instant(a.d, a.t, st.clock.tz) < now).length} 次
+          </span>
+          <Btn size="sm" icon="calendar" onClick={onCalendar}>
+            訂閱行事曆
+          </Btn>
         </span>
       </div>
       <div class="list">
