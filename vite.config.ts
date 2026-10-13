@@ -29,7 +29,7 @@ function csp(supabaseUrl: string): Plugin {
 }
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), 'VITE_');
+  const env = loadEnv(mode, '.', 'VITE_');
   return {
     base: './',
     plugins: [preact(), csp(env.VITE_SUPABASE_URL ?? '')],
