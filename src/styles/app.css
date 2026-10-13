@@ -2005,6 +2005,12 @@ ul.steps {
   background: var(--hatch);
   opacity: 0.6;
 }
+.matrix .mc.heat {
+  background: color-mix(in srgb, var(--accent) var(--heat), var(--surface));
+}
+.matrix .mc.heat .lane:not(.filled) {
+  background: var(--surface);
+}
 .matrix .mc.past {
   background: color-mix(in srgb, var(--surface-2) 60%, transparent);
 }

@@ -80,6 +80,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
   }, [focus, st.requests]);
   const holidays = new Map(st.closures.filter((c) => c.teacher_id === null).map((c) => [c.d, c.reason]));
   const nowStamp = localStamp(now, tz);
+  const maxDemand = Math.max(1, ...[...demandMap.values()].map((rs) => rs.filter((r) => needOf(r) > 0).length));
   const attention = live.filter((a) => !slotMap.get(`${a.d} ${a.t}`)?.teachers.includes(a.teacher_id) && `${a.d} ${a.t}` >= nowStamp).length;
 
   // phones show one day at a time
@@ -590,8 +591,14 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
                     const past = `${d} ${t}` < nowStamp;
                     const want = (demandMap.get(key) ?? []).filter((r) => needOf(r) > 0 && !here.some((a) => a.group_id === r.group_id));
                     if (!lanes.length) return <div class={`mc off`} key={key} aria-hidden="true" />;
+                    // demand heat, like the original prototype: darker = more groups want this slot
+                    const heat = !past && want.length ? Math.min(1, want.length / maxDemand) : 0;
                     return (
-                      <div class={`mc ${past ? 'past' : ''} ${focusKeys.has(key) ? 'hl' : ''}`} key={key}>
+                      <div
+                        class={`mc ${past ? 'past' : ''} ${focusKeys.has(key) ? 'hl' : ''} ${heat ? 'heat' : ''}`}
+                        key={key}
+                        style={heat ? { '--heat': `${Math.round(6 + heat * 22)}%` } : undefined}
+                      >
                         {lanes.map((tid) => {
                           const a = here.find((x) => x.teacher_id === tid);
                           const laneKey = `${key} ${tid}`;
