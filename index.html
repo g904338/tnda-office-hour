@@ -1,0 +1,642 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>跨域 Office Hour 預約</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: masthead + rules strip, then a week grid (main) beside a sticky form panel; stacks on phones */
+:root {
+  --bg: #F3F5F7;
+  --surface: #FFFFFF;
+  --ink: #15202A;
+  --muted: #5A6772;
+  --line: #D7DDE2;
+  --avail: #E2EFEA;
+  --avail-line: #A3C9BC;
+  --avail-ink: #1E5A4E;
+  --pick: #EE5A1C;
+  --pick-ink: #FFFFFF;
+  --off: #E9ECEF;
+  --off-stripe: #DDE2E6;
+  --warn: #B23F12;
+  --focus: #1E66D0;
+  --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E141A; --surface: #161F28; --ink: #E5EBF0; --muted: #94A2AE; --line: #283542;
+    --avail: #15302A; --avail-line: #2E6A5B; --avail-ink: #9ED6C5;
+    --pick: #FF7638; --pick-ink: #1B0D05; --off: #18212A; --off-stripe: #1F2A35;
+    --warn: #FF9B6B; --focus: #6AA6FF; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E141A; --surface: #161F28; --ink: #E5EBF0; --muted: #94A2AE; --line: #283542;
+  --avail: #15302A; --avail-line: #2E6A5B; --avail-ink: #9ED6C5;
+  --pick: #FF7638; --pick-ink: #1B0D05; --off: #18212A; --off-stripe: #1F2A35;
+  --warn: #FF9B6B; --focus: #6AA6FF; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
+.page { max-width: 1120px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 48px; display: grid; gap: 24px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+button, input, textarea { font: inherit; color: inherit; }
+
+/* Masthead */
+.mast { display: grid; gap: 10px; }
+.eyebrow { margin: 0; color: var(--muted); font-size: 13px; letter-spacing: .02em; display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+.code { font-family: var(--font-mono); font-weight: 600; color: var(--ink); background: var(--off); padding: 1px 7px; border-radius: 4px; font-size: 12px; letter-spacing: .04em; }
+h1 { margin: 0; font-weight: 900; font-size: clamp(28px, 5vw, 40px); line-height: 1.15; letter-spacing: -.01em; text-wrap: balance; }
+h1 .oh { font-family: var(--font-mono); font-weight: 600; letter-spacing: -.03em; }
+.lede { margin: 0; max-width: 62ch; color: var(--muted); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-top: 8px; }
+.tab { border: 0; background: none; padding: 10px 14px; cursor: pointer; color: var(--muted); font-weight: 500; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--pick); font-weight: 700; }
+.tab small { font-weight: 400; color: var(--muted); }
+
+/* Rules strip */
+.rules { margin: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.rules > div { padding: 12px 16px; min-width: 0; }
+.rules > div + div { border-left: 1px solid var(--line); }
+.rules dt { font-size: 12px; color: var(--muted); letter-spacing: .06em; }
+.rules dd { margin: 2px 0 0; font-weight: 700; }
+.rules dd .mono { font-family: var(--font-mono); }
+
+/* Two columns */
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; align-items: start; }
+.col-main { display: grid; gap: 28px; min-width: 0; }
+.col-side { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 16px; min-width: 0; }
+.step { display: grid; gap: 12px; min-width: 0; }
+.step h2 { margin: 0; font-size: 17px; font-weight: 700; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.n { font-family: var(--font-mono); font-size: 13px; font-weight: 600; width: 24px; height: 24px; display: inline-grid; place-items: center; border-radius: 50%; background: var(--ink); color: var(--bg); transform: translateY(-1px); }
+.hint { font-size: 13px; color: var(--muted); font-weight: 400; }
+
+/* Week picker */
+.weeks { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
+.wk { flex: 0 0 auto; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 12px; cursor: pointer; text-align: left; display: grid; gap: 0; min-width: 104px; }
+.wk .w { font-family: var(--font-mono); font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .04em; }
+.wk .d { font-family: var(--font-mono); font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.wk[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+.wk[aria-pressed="true"] .w { color: var(--bg); opacity: .75; }
+.wk:disabled { cursor: not-allowed; opacity: .45; }
+.wk .badge { font-size: 11px; color: var(--pick); font-weight: 700; }
+.wk[aria-pressed="true"] .badge { color: var(--pick); }
+
+/* Legend */
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); margin: 0; padding: 0; list-style: none; }
+.legend li { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 16px; height: 12px; border-radius: 3px; border: 1px solid var(--line); display: inline-block; }
+.sw.avail { background: var(--avail); border-color: var(--avail-line); }
+.sw.pick { background: var(--pick); border-color: var(--pick); }
+.sw.late { background: repeating-linear-gradient(135deg, var(--off) 0 3px, var(--surface) 3px 6px); }
+.sw.off { background: var(--off); }
+
+/* Week grid */
+.grid-wrap { overflow-x: auto; }
+.grid { display: grid; grid-template-columns: 52px repeat(5, minmax(56px, 1fr)); gap: 4px; min-width: 340px; }
+.dh { text-align: center; padding: 4px 0 6px; display: grid; gap: 0; }
+.dh .dn { font-weight: 700; }
+.dh .dd { font-family: var(--font-mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.dh .hol { font-size: 11px; color: var(--warn); font-weight: 700; }
+.tl { font-family: var(--font-mono); font-size: 12px; color: var(--muted); text-align: right; padding-right: 6px; align-self: center; font-variant-numeric: tabular-nums; }
+.cell { height: 40px; border-radius: 6px; border: 1px solid transparent; display: grid; place-items: center; font-size: 12px; }
+.cell.off { background: var(--off); }
+.cell.avail { background: var(--avail); border-color: var(--avail-line); color: var(--avail-ink); cursor: pointer; transition: transform .08s ease, background .12s ease; }
+.cell.avail:hover { transform: translateY(-1px); }
+.cell.avail[aria-pressed="true"] { background: var(--pick); border-color: var(--pick); color: var(--pick-ink); font-weight: 700; }
+.cell.late { background: repeating-linear-gradient(135deg, var(--off) 0 5px, var(--surface) 5px 10px); border-color: var(--line); color: var(--muted); }
+.gap { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 12px; padding: 2px 0; }
+.gap::before, .gap::after { content: ""; flex: 1; border-top: 1px dashed var(--line); }
+.gap span { font-family: var(--font-mono); }
+.picked { margin: 0; font-size: 14px; color: var(--muted); min-height: 1.6em; }
+.picked b { color: var(--ink); font-family: var(--font-mono); }
+.picked .slots { color: var(--ink); }
+
+/* Panel + form */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+form.panel { gap: 16px; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field > label, .field legend { font-weight: 700; font-size: 14px; padding: 0; }
+.field .opt { font-weight: 400; color: var(--muted); font-size: 12px; margin-left: 4px; }
+fieldset.field { border: 0; margin: 0; padding: 0; }
+.groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 6px; }
+.grp { position: relative; }
+.grp input { position: absolute; opacity: 0; pointer-events: none; }
+.grp label { display: flex; gap: 8px; align-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; cursor: pointer; min-height: 44px; }
+.grp .gn { font-family: var(--font-mono); font-weight: 600; font-size: 15px; width: 18px; flex: 0 0 auto; }
+.grp .gt { font-size: 12px; line-height: 1.35; color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
+.grp input:checked + label { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+.grp input:checked + label .gt { color: var(--bg); opacity: .8; }
+.grp input:focus-visible + label { outline: 2px solid var(--focus); outline-offset: 2px; }
+input[type="text"], input[type="url"], textarea { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; background: var(--bg); }
+textarea { min-height: 84px; resize: vertical; }
+input::placeholder, textarea::placeholder { color: var(--muted); opacity: .75; }
+.help { font-size: 12px; color: var(--muted); margin: 0; }
+.ferr { font-size: 12px; color: var(--warn); margin: 0; font-weight: 500; }
+.field.bad input, .field.bad textarea { border-color: var(--warn); }
+.submit { border: 0; border-radius: 10px; padding: 12px 16px; background: var(--pick); color: var(--pick-ink); font-weight: 700; font-size: 16px; cursor: pointer; }
+.submit:hover { filter: brightness(1.05); }
+.formsum { font-size: 13px; color: var(--muted); margin: 0; }
+
+/* Done */
+.done { display: grid; gap: 14px; }
+.done h3 { margin: 0; font-size: 18px; }
+.done .tag { font-family: var(--font-mono); font-size: 11px; color: var(--warn); border: 1px solid var(--warn); border-radius: 4px; padding: 0 6px; width: fit-content; letter-spacing: .04em; }
+.kv { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 6px 10px; margin: 0; font-size: 14px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; overflow-wrap: anywhere; }
+.next { margin: 0; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+.ghost { border: 1px solid var(--line); background: none; border-radius: 8px; padding: 9px 14px; cursor: pointer; font-weight: 500; }
+
+/* Staff view */
+.heat .cell { cursor: default; }
+.cell.hv { border-color: var(--line); color: var(--ink); font-family: var(--font-mono); font-weight: 600; font-size: 13px; position: relative; }
+.cell.hv .cap { position: absolute; right: 4px; top: 2px; font-size: 9px; color: var(--muted); font-weight: 500; }
+.cell.hv.zero { color: var(--muted); font-weight: 400; }
+.cell.hl { outline: 2px solid var(--ink); outline-offset: -2px; }
+.pmline { font-size: 11px; color: var(--muted); line-height: 1.35; }
+.reqs { display: grid; gap: 10px; }
+.req { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; cursor: pointer; display: grid; gap: 6px; }
+.req[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.req .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.req .g { font-weight: 700; }
+.req .who { font-size: 12px; color: var(--muted); }
+.req .topic { font-weight: 500; }
+.req .prog { font-size: 13px; color: var(--muted); margin: 0; }
+.req .sl { font-family: var(--font-mono); font-size: 12px; color: var(--ink); }
+.req a { font-size: 12px; color: var(--focus); width: fit-content; }
+.sample { font-family: var(--font-mono); font-size: 11px; color: var(--muted); border: 1px dashed var(--line); border-radius: 4px; padding: 0 6px; }
+.empty { color: var(--muted); font-size: 14px; border: 1px dashed var(--line); border-radius: 12px; padding: 16px; margin: 0; }
+
+footer { color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); padding-top: 14px; }
+footer p { margin: 0; max-width: 72ch; }
+
+@media (max-width: 860px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .col-side { position: static; }
+  .rules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rules > div:nth-child(3) { border-left: 0; }
+  .rules > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+}
+@media (max-width: 420px) {
+  .grid { grid-template-columns: 42px repeat(5, minmax(48px, 1fr)); gap: 3px; }
+  .cell { height: 38px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cell.avail { transition: none; }
+  .cell.avail:hover { transform: none; }
+}
+</style>
+
+<div class="page">
+  <header class="mast">
+    <p class="eyebrow"><span class="code">TN0006</span><span>一場體驗如何發生：跨域數位製作實務</span></p>
+    <h1><span class="oh">Office Hour</span> 預約</h1>
+    <p class="lede">和叁式 PM 約一段 30 分鐘的線上討論，地點在你們組的 Discord 聊天室。勾選這週所有可以的時段，助教會從中幫你們安排並通知。</p>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-student" aria-selected="true" aria-controls="student">學生預約</button>
+      <button class="tab" role="tab" id="tab-staff" aria-selected="false" aria-controls="staff">助教總覽 <small>範例</small></button>
+    </div>
+  </header>
+
+  <section id="student" role="tabpanel" aria-labelledby="tab-student">
+    <div style="display:grid;gap:24px">
+      <dl class="rules">
+        <div><dt>地點</dt><dd>Discord 各組聊天室</dd></div>
+        <div><dt>每週上限</dt><dd>1 小時 <span class="mono">（2 格）</span></dd></div>
+        <div><dt>每天上限</dt><dd>30 分鐘 <span class="mono">（1 格）</span></dd></div>
+        <div><dt>預約截止</dt><dd>當天的 4 天前</dd></div>
+      </dl>
+
+      <div class="layout">
+        <div class="col-main">
+          <section class="step" aria-labelledby="s1">
+            <h2 id="s1"><span class="n">1</span>選擇週次</h2>
+            <div class="weeks" id="weeks"></div>
+          </section>
+
+          <section class="step" aria-labelledby="s2">
+            <h2 id="s2"><span class="n">2</span>勾選可以的時段 <span class="hint">可複選，勾越多越容易排到</span></h2>
+            <ul class="legend">
+              <li><span class="sw avail"></span>可預約</li>
+              <li><span class="sw pick"></span>已勾選</li>
+              <li><span class="sw late"></span>已過截止</li>
+              <li><span class="sw off"></span>不開放</li>
+            </ul>
+            <div class="grid-wrap"><div class="grid" id="grid" role="group" aria-label="本週時段"></div></div>
+            <p class="picked" id="picked" aria-live="polite"></p>
+          </section>
+        </div>
+
+        <aside class="col-side">
+          <form class="panel step" id="form" novalidate>
+            <h2><span class="n">3</span>填寫討論內容</h2>
+
+            <fieldset class="field" id="f-group">
+              <legend>組別</legend>
+              <div class="groups" id="groups"></div>
+              <p class="ferr" hidden></p>
+            </fieldset>
+
+            <div class="field" id="f-name">
+              <label for="name">填寫人</label>
+              <input type="text" id="name" autocomplete="name" placeholder="你的名字">
+              <p class="ferr" hidden></p>
+            </div>
+
+            <div class="field" id="f-topic">
+              <label for="topic">想討論的題目</label>
+              <input type="text" id="topic" maxlength="60" placeholder="例：互動裝置的感測器要選哪一種">
+              <p class="ferr" hidden></p>
+            </div>
+
+            <div class="field" id="f-prog">
+              <label for="prog">目前作業進度</label>
+              <textarea id="prog" placeholder="例：企劃書已完成，正在做第一版原型，卡在感測延遲"></textarea>
+              <p class="ferr" hidden></p>
+            </div>
+
+            <div class="field" id="f-link">
+              <label for="link">雲端資料夾連結 <span class="opt">選填</span></label>
+              <input type="url" id="link" inputmode="url" placeholder="https://drive.google.com/…">
+              <p class="help">請把共用設為「知道連結的任何人都能檢視」，PM 才打得開。</p>
+              <p class="ferr" hidden></p>
+            </div>
+
+            <p class="formsum" id="formsum"></p>
+            <button class="submit" type="submit" id="submit">送出預約需求</button>
+          </form>
+
+          <div class="panel done" id="done" hidden aria-live="polite"></div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section id="staff" role="tabpanel" aria-labelledby="tab-staff" hidden>
+    <div class="layout">
+      <div class="col-main">
+        <section class="step" aria-labelledby="t1">
+          <h2 id="t1">週次</h2>
+          <div class="weeks" id="sweeks"></div>
+        </section>
+        <section class="step" aria-labelledby="t2">
+          <h2 id="t2">各時段有幾組可以 <span class="hint">顏色越深，想約的組越多；點右側需求會框出該組勾的時段</span></h2>
+          <div class="grid-wrap"><div class="grid heat" id="heat"></div></div>
+        </section>
+      </div>
+      <aside class="col-side">
+        <section class="step" aria-labelledby="t3">
+          <h2 id="t3">本週預約需求 <span class="sample">範例資料</span></h2>
+          <div class="reqs" id="reqs"></div>
+        </section>
+      </aside>
+    </div>
+  </section>
+
+  <footer>
+    <p>Prototype：這個版本只用來確認畫面與流程，送出的資料不會傳到任何地方。正式上線時再接到 Notion 或試算表。</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var DAY = 86400000;
+  var DAYS = ["週一", "週二", "週三", "週四", "週五"];
+  var GROUPS = [
+    [1, "南宜到達的斜上方"], [2, "看到太陽就知道完蛋了"], [3, "這組有誠意"],
+    [4, "閃身部"], [5, "隨便打"], [6, "會努力的"], [7, ""]
+  ];
+  // PM availability (students never see names)
+  var BLOCKS = [
+    { day: 0, from: "17:00", to: "19:00", pm: ["Joseph"] },
+    { day: 1, from: "17:00", to: "19:00", pm: ["Joseph"] },
+    { day: 2, from: "10:00", to: "12:00", pm: ["Prolong", "Joseph"] },
+    { day: 3, from: "10:00", to: "12:00", pm: ["Prolong"] },
+    { day: 3, from: "16:00", to: "18:00", pm: ["Tim"] },
+    { day: 4, from: "10:00", to: "12:00", pm: ["Prolong"] }
+  ];
+  var ROWS = ["10:00", "10:30", "11:00", "11:30", "|", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"];
+  var HOLIDAYS = { "2027-01-01": "元旦" };
+  var LEAD_DAYS = 4;
+
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function utc(y, m, d) { return Date.UTC(y, m - 1, d); }
+  function ymd(ms) { var d = new Date(ms); return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate()); }
+  function md(ms) { var d = new Date(ms); return (d.getUTCMonth() + 1) + "/" + d.getUTCDate(); }
+  function mdPad(ms) { var d = new Date(ms); return pad(d.getUTCMonth() + 1) + "/" + pad(d.getUTCDate()); }
+  function toMin(t) { var p = t.split(":"); return +p[0] * 60 + +p[1]; }
+  function endOf(t) { var m = toMin(t) + 30; return pad(Math.floor(m / 60)) + ":" + pad(m % 60); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
+  function todayTaipei() {
+    try {
+      var s = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+      var p = s.split("-"); return utc(+p[0], +p[1], +p[2]);
+    } catch (e) { var n = new Date(); return utc(n.getFullYear(), n.getMonth() + 1, n.getDate()); }
+  }
+  var TODAY = todayTaipei();
+
+  // Weeks: 10/19 (W7) through W18 (1/11–1/15); 1/4 week has no Thursday class
+  var WEEKS = [];
+  for (var i = 0; i < 13; i++) {
+    var start = utc(2026, 10, 19) + i * 7 * DAY;
+    var code = i <= 10 ? "W" + (7 + i) : (i === 12 ? "W18" : "—");
+    WEEKS.push({ start: start, code: code, label: mdPad(start) + "–" + mdPad(start + 4 * DAY) });
+  }
+
+  function blockFor(day, time) {
+    var t = toMin(time);
+    for (var i = 0; i < BLOCKS.length; i++) {
+      var b = BLOCKS[i];
+      if (b.day === day && t >= toMin(b.from) && t < toMin(b.to)) return b;
+    }
+    return null;
+  }
+  function dayMs(w, day) { return WEEKS[w].start + day * DAY; }
+  function holiday(w, day) { return HOLIDAYS[ymd(dayMs(w, day))] || ""; }
+  function isLate(w, day) { return (dayMs(w, day) - TODAY) / DAY < LEAD_DAYS; }
+  function weekOpen(w) {
+    for (var d = 0; d < 5; d++) if (!isLate(w, d) && !holiday(w, d)) return true;
+    return false;
+  }
+
+  // ---------- state ----------
+  var state = { week: 0, picks: {}, group: null, staffWeek: 0, focusReq: null };
+  for (var k = 0; k < WEEKS.length; k++) if (weekOpen(k)) { state.week = k; break; }
+  function picks() { return state.picks[state.week] || (state.picks[state.week] = {}); }
+
+  // ---------- week picker ----------
+  function renderWeeks(el, active, onPick, studentMode) {
+    el.innerHTML = "";
+    WEEKS.forEach(function (wk, idx) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "wk";
+      b.setAttribute("aria-pressed", idx === active ? "true" : "false");
+      var open = weekOpen(idx);
+      var n = studentMode ? Object.keys(state.picks[idx] || {}).length : 0;
+      b.innerHTML = '<span class="w">' + wk.code + '</span><span class="d">' + wk.label + "</span>" +
+        (studentMode && !open ? '<span class="badge" style="color:var(--muted)">已截止</span>' : "") +
+        (n ? '<span class="badge">已勾 ' + n + " 格</span>" : "");
+      if (studentMode && !open) b.disabled = true;
+      b.addEventListener("click", function () { onPick(idx); });
+      el.appendChild(b);
+      if (idx === active) setTimeout(function () { try { b.scrollIntoView({ block: "nearest", inline: "nearest" }); } catch (e) {} }, 0);
+    });
+  }
+
+  function dayHeader(w, d, extra) {
+    var h = document.createElement("div");
+    h.className = "dh";
+    var hol = holiday(w, d);
+    h.innerHTML = '<span class="dn">' + DAYS[d] + '</span><span class="dd">' + md(dayMs(w, d)) + "</span>" +
+      (hol ? '<span class="hol">' + hol + "</span>" : "") + (extra || "");
+    return h;
+  }
+
+  // ---------- student grid ----------
+  var gridEl = document.getElementById("grid");
+  function renderGrid() {
+    var w = state.week, p = picks();
+    gridEl.innerHTML = "";
+    gridEl.appendChild(document.createElement("div"));
+    for (var d = 0; d < 5; d++) gridEl.appendChild(dayHeader(w, d));
+    ROWS.forEach(function (t) {
+      if (t === "|") {
+        var g = document.createElement("div"); g.className = "gap";
+        g.innerHTML = "<span>12:00–16:00</span>不開放";
+        gridEl.appendChild(g); return;
+      }
+      var tl = document.createElement("div"); tl.className = "tl"; tl.textContent = t;
+      gridEl.appendChild(tl);
+      for (var d2 = 0; d2 < 5; d2++) {
+        var b = blockFor(d2, t), key = d2 + "|" + t, hol = holiday(w, d2);
+        var label = DAYS[d2] + " " + md(dayMs(w, d2)) + " " + t + "–" + endOf(t);
+        if (!b || hol) {
+          var off = document.createElement("div"); off.className = "cell off"; off.setAttribute("aria-hidden", "true");
+          gridEl.appendChild(off);
+        } else if (isLate(w, d2)) {
+          var late = document.createElement("div"); late.className = "cell late"; late.textContent = "截止";
+          late.title = label + "（已過 4 天前截止）";
+          gridEl.appendChild(late);
+        } else {
+          var c = document.createElement("button");
+          c.type = "button"; c.className = "cell avail"; c.dataset.key = key;
+          c.setAttribute("aria-pressed", p[key] ? "true" : "false");
+          c.setAttribute("aria-label", label);
+          c.title = label;
+          c.textContent = p[key] ? "✓" : "";
+          c.addEventListener("click", toggle);
+          gridEl.appendChild(c);
+        }
+      }
+    });
+    renderPicked();
+  }
+  function toggle(e) {
+    var key = e.currentTarget.dataset.key, p = picks();
+    if (p[key]) delete p[key]; else p[key] = true;
+    e.currentTarget.setAttribute("aria-pressed", p[key] ? "true" : "false");
+    e.currentTarget.textContent = p[key] ? "✓" : "";
+    renderPicked();
+    renderWeeks(document.getElementById("weeks"), state.week, pickWeek, true);
+    clearErr("f-slots");
+  }
+  function slotSummary(keys, w) {
+    var byDay = {};
+    keys.forEach(function (k) { var s = k.split("|"); (byDay[s[0]] = byDay[s[0]] || []).push(s[1]); });
+    return Object.keys(byDay).sort().map(function (d) {
+      var times = byDay[d].sort(function (a, b) { return toMin(a) - toMin(b); });
+      return DAYS[d] + " " + md(dayMs(w, +d)) + " " + times.join("、");
+    });
+  }
+  function renderPicked() {
+    var keys = Object.keys(picks()), el = document.getElementById("picked");
+    if (!keys.length) { el.innerHTML = "還沒勾選時段。點綠色格子就能勾選，再點一次取消。"; updateFormSum(); return; }
+    var days = {}; keys.forEach(function (k) { days[k.split("|")[0]] = 1; });
+    var nd = Object.keys(days).length;
+    el.innerHTML = "已勾選 <b>" + keys.length + "</b> 格，分布在 <b>" + nd + "</b> 天：<span class=\"slots\">" +
+      slotSummary(keys, state.week).map(esc).join("；") + "</span>" +
+      (nd < 2 ? "<br>多勾幾天會比較好排。" : "");
+    updateFormSum();
+  }
+  function pickWeek(idx) {
+    state.week = idx;
+    renderWeeks(document.getElementById("weeks"), idx, pickWeek, true);
+    renderGrid();
+  }
+
+  // ---------- form ----------
+  var groupsEl = document.getElementById("groups");
+  GROUPS.forEach(function (g) {
+    var wrap = document.createElement("div"); wrap.className = "grp";
+    var id = "g" + g[0];
+    wrap.innerHTML = '<input type="radio" name="group" id="' + id + '" value="' + g[0] + '">' +
+      '<label for="' + id + '"><span class="gn">' + g[0] + '</span><span class="gt">' + (g[1] ? esc(g[1]) : "第 7 組") + "</span></label>";
+    groupsEl.appendChild(wrap);
+  });
+  groupsEl.addEventListener("change", function (e) { state.group = +e.target.value; clearErr("f-group"); updateFormSum(); });
+  ["name", "topic", "prog", "link"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", function () { clearErr(fieldOf(id)); });
+  });
+  function fieldOf(id) { return { name: "f-name", topic: "f-topic", prog: "f-prog", link: "f-link" }[id]; }
+  function setErr(fid, msg) {
+    var f = document.getElementById(fid); if (!f) return;
+    f.classList.add("bad"); var e = f.querySelector(".ferr"); e.textContent = msg; e.hidden = false;
+  }
+  function clearErr(fid) {
+    var f = document.getElementById(fid); if (!f) return;
+    f.classList.remove("bad"); var e = f.querySelector(".ferr"); if (e) e.hidden = true;
+  }
+  function updateFormSum() {
+    var n = Object.keys(picks()).length, wk = WEEKS[state.week];
+    document.getElementById("formsum").textContent =
+      "將送出：" + wk.code + "（" + wk.label + "）· " + (n ? n + " 個可以的時段" : "尚未勾選時段") +
+      (state.group ? " · 第 " + state.group + " 組" : "");
+  }
+
+  document.getElementById("form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var ok = true;
+    var name = document.getElementById("name").value.trim();
+    var topic = document.getElementById("topic").value.trim();
+    var prog = document.getElementById("prog").value.trim();
+    var link = document.getElementById("link").value.trim();
+    var keys = Object.keys(picks());
+    if (!state.group) { setErr("f-group", "請選擇組別"); ok = false; }
+    if (!name) { setErr("f-name", "請填寫你的名字"); ok = false; }
+    if (!topic) { setErr("f-topic", "請寫下想討論的題目，PM 可以先準備"); ok = false; }
+    if (!prog) { setErr("f-prog", "請簡單說明目前做到哪裡"); ok = false; }
+    if (link) {
+      if (!/^https?:\/\/\S+$/i.test(link)) { setErr("f-link", "連結格式不對，請貼完整網址（https:// 開頭）"); ok = false; }
+      else if (!/(drive|docs)\.google\.com/i.test(link)) { setErr("f-link", "建議使用 Google 雲端連結；若是其他網站也可以，請確認 PM 打得開"); }
+    }
+    if (!keys.length) {
+      var pk = document.getElementById("picked");
+      pk.innerHTML = '<span style="color:var(--warn);font-weight:500">請在左邊的時段表至少勾選一格</span>';
+      ok = false;
+    }
+    if (!ok) {
+      var first = document.querySelector(".field.bad input, .field.bad textarea");
+      if (first) first.focus();
+      return;
+    }
+    showDone({ group: state.group, name: name, topic: topic, prog: prog, link: link, keys: keys, week: state.week });
+  });
+
+  function showDone(r) {
+    var wk = WEEKS[r.week], g = GROUPS[r.group - 1];
+    var done = document.getElementById("done");
+    done.innerHTML =
+      '<span class="tag">DEMO · 未實際送出</span>' +
+      "<h3>第 " + r.group + " 組的預約需求已送出</h3>" +
+      '<dl class="kv">' +
+      "<dt>週次</dt><dd>" + wk.code + "（" + wk.label + "）</dd>" +
+      "<dt>組別</dt><dd>第 " + r.group + " 組" + (g[1] ? " " + esc(g[1]) : "") + "</dd>" +
+      "<dt>填寫人</dt><dd>" + esc(r.name) + "</dd>" +
+      "<dt>題目</dt><dd>" + esc(r.topic) + "</dd>" +
+      "<dt>進度</dt><dd>" + esc(r.prog) + "</dd>" +
+      "<dt>連結</dt><dd>" + (r.link ? esc(r.link) : "（未提供）") + "</dd>" +
+      "<dt>可以的時段</dt><dd>" + slotSummary(r.keys, r.week).map(esc).join("<br>") + "</dd>" +
+      "</dl>" +
+      '<p class="next">接下來：助教會從你們勾的時段中排好 30 分鐘到 1 小時，並在你們組的 Discord 聊天室通知時間。每組每週只需要填一次。</p>' +
+      '<button type="button" class="ghost" id="again">再填一筆</button>';
+    document.getElementById("form").hidden = true;
+    done.hidden = false;
+    document.getElementById("again").addEventListener("click", function () {
+      done.hidden = true; document.getElementById("form").hidden = false;
+      document.getElementById("form").reset(); state.group = null; state.picks[state.week] = {};
+      renderGrid(); renderWeeks(document.getElementById("weeks"), state.week, pickWeek, true);
+    });
+    try { done.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) {}
+  }
+
+  // ---------- staff view (sample data) ----------
+  var SAMPLE = {
+    0: [
+      { group: 2, who: "範例同學 A", topic: "展場動線要怎麼配合互動裝置", prog: "企劃書完成，正在畫展場平面圖", link: "https://drive.google.com/drive/folders/example-a", keys: ["0|17:00", "0|17:30", "2|10:00", "3|16:00"] },
+      { group: 5, who: "範例同學 B", topic: "感測器延遲太大，要換方案嗎", prog: "第一版原型可以動，但反應慢約 1 秒", link: "", keys: ["2|10:00", "2|10:30", "3|10:00", "4|11:00"] },
+      { group: 1, who: "範例同學 C", topic: "估價單的人力怎麼抓", prog: "估價草稿寫到一半", link: "https://drive.google.com/drive/folders/example-c", keys: ["1|18:00", "2|10:00", "4|10:00", "4|10:30"] },
+      { group: 6, who: "範例同學 D", topic: "影像內容的風格方向", prog: "做了三版 moodboard，還沒決定", link: "https://drive.google.com/drive/folders/example-d", keys: ["3|16:30", "3|17:00", "0|18:30"] }
+    ],
+    1: [
+      { group: 3, who: "範例同學 E", topic: "互動流程測試要找誰來試", prog: "流程圖完成，準備第一次測試", link: "", keys: ["1|17:00", "3|10:30"] }
+    ]
+  };
+
+  function renderStaff() {
+    var w = state.staffWeek, reqs = SAMPLE[w] || [];
+    renderWeeks(document.getElementById("sweeks"), w, function (i) { state.staffWeek = i; state.focusReq = null; renderStaff(); }, false);
+    var counts = {}, max = 0;
+    reqs.forEach(function (r) { r.keys.forEach(function (k) { counts[k] = (counts[k] || 0) + 1; if (counts[k] > max) max = counts[k]; }); });
+    var focus = state.focusReq != null ? reqs[state.focusReq] : null;
+    var focusSet = {}; if (focus) focus.keys.forEach(function (k) { focusSet[k] = 1; });
+
+    var heat = document.getElementById("heat");
+    heat.innerHTML = "";
+    heat.appendChild(document.createElement("div"));
+    for (var d = 0; d < 5; d++) {
+      var pms = BLOCKS.filter(function (b) { return b.day === d; })
+        .map(function (b) { return b.from.slice(0, 2) + "–" + b.to.slice(0, 2) + " " + b.pm.join("、"); });
+      heat.appendChild(dayHeader(w, d, '<span class="pmline">' + pms.join("<br>") + "</span>"));
+    }
+    ROWS.forEach(function (t) {
+      if (t === "|") { var g = document.createElement("div"); g.className = "gap"; g.innerHTML = "<span>12:00–16:00</span>不開放"; heat.appendChild(g); return; }
+      var tl = document.createElement("div"); tl.className = "tl"; tl.textContent = t; heat.appendChild(tl);
+      for (var d2 = 0; d2 < 5; d2++) {
+        var b = blockFor(d2, t), key = d2 + "|" + t, c = document.createElement("div");
+        if (!b || holiday(w, d2)) { c.className = "cell off"; heat.appendChild(c); continue; }
+        var n = counts[key] || 0;
+        c.className = "cell hv" + (n ? "" : " zero") + (focusSet[key] ? " hl" : "");
+        var pct = max ? Math.round(18 + 62 * n / max) : 0;
+        c.style.background = n ? "color-mix(in srgb, var(--pick) " + pct + "%, var(--surface))" : "var(--avail)";
+        if (n && pct > 55) c.style.color = "var(--pick-ink)";
+        c.innerHTML = (n ? n + " 組" : "0") + (b.pm.length > 1 ? '<span class="cap">×' + b.pm.length + "</span>" : "");
+        c.title = DAYS[d2] + " " + t + "–" + endOf(t) + "：" + n + " 組可以；PM " + b.pm.join("、");
+        heat.appendChild(c);
+      }
+    });
+
+    var list = document.getElementById("reqs");
+    list.innerHTML = "";
+    if (!reqs.length) { list.innerHTML = '<p class="empty">這週還沒有預約需求。</p>'; return; }
+    reqs.forEach(function (r, i) {
+      var g = GROUPS[r.group - 1];
+      var b = document.createElement("div");
+      b.className = "req"; b.tabIndex = 0; b.setAttribute("role", "button");
+      b.setAttribute("aria-pressed", state.focusReq === i ? "true" : "false");
+      b.innerHTML = '<div class="top"><span class="g">第 ' + r.group + " 組" + (g[1] ? " " + esc(g[1]) : "") + '</span><span class="who">' + esc(r.who) + "</span></div>" +
+        '<span class="topic">' + esc(r.topic) + "</span>" +
+        '<p class="prog">' + esc(r.prog) + "</p>" +
+        '<span class="sl">' + slotSummary(r.keys, w).map(esc).join("<br>") + "</span>" +
+        (r.link ? '<a href="' + esc(r.link) + '" target="_blank" rel="noopener">雲端資料夾</a>' : '<span class="who">未附連結</span>');
+      function act() { state.focusReq = state.focusReq === i ? null : i; renderStaff(); }
+      b.addEventListener("click", function (e) { if (e.target.tagName !== "A") act(); });
+      b.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } });
+      list.appendChild(b);
+    });
+  }
+
+  // ---------- tabs ----------
+  function showTab(which) {
+    var stu = which === "student";
+    document.getElementById("tab-student").setAttribute("aria-selected", stu ? "true" : "false");
+    document.getElementById("tab-staff").setAttribute("aria-selected", stu ? "false" : "true");
+    document.getElementById("student").hidden = !stu;
+    document.getElementById("staff").hidden = stu;
+    if (!stu) renderStaff();
+  }
+  document.getElementById("tab-student").addEventListener("click", function () { showTab("student"); });
+  document.getElementById("tab-staff").addEventListener("click", function () { showTab("staff"); });
+
+  renderWeeks(document.getElementById("weeks"), state.week, pickWeek, true);
+  renderGrid();
+  updateFormSum();
+})();
+</script>
+
+</body></html>
