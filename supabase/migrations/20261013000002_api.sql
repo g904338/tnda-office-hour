@@ -425,6 +425,13 @@ end $$;
 -- Public API · everyone
 -- =====================================================================
 
+-- Course name and rules for the sign-in screen. Nothing private.
+create or replace function public.oh_public() returns jsonb
+language plpgsql security definer set search_path = '' as $$
+begin
+  return jsonb_build_object('settings', app.settings_json(), 'clock', app.clock());
+end $$;
+
 -- Looks up a code without signing in, so the join screen can say
 -- "you are joining group 2" before asking for a name.
 create or replace function public.oh_peek(p_code text) returns jsonb

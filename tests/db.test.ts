@@ -71,7 +71,8 @@ describe('joining', () => {
     const { groups } = await db.codes();
     const token = await join(db, groups[3], '阿華');
     const rows = await db.sql('select token_hash from app.sessions');
-    for (const r of rows) expect(Buffer.from(r.token_hash).toString('hex')).not.toBe(token);
+    const hex = (b: Uint8Array) => Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
+    for (const r of rows) expect(hex(r.token_hash)).not.toBe(token);
   });
 
   it('throttles repeated wrong guesses', async () => {
