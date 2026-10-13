@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'preact/hooks';
 import type { AdminState, Appointment, Request } from '../../api/types';
 import { clock, useApi, useBusy, useDiff, useLive, useMedia, useTick } from '../../app/hooks';
 import { ISSUE } from '../../app/messages';
-import { go } from '../../app/router';
+import { go, href } from '../../app/router';
+import { local } from '../../app/store';
 import { csvText, download } from '../../lib/files';
 import { minutesText, slotLines, timeRange } from '../../lib/format';
 import { autoSchedule } from '../../lib/scheduler';
@@ -536,6 +537,8 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
         </div>
       </div>
 
+      <SetupGuide st={st} />
+
       <div class="board">
         <section aria-label="排程表" class="stack">
           {times.length === 0 ? (
@@ -810,5 +813,69 @@ export function TeacherDot({ id, teachers }: { id: number; teachers: Array<{ id:
     <span class="tdot" style={{ '--tc': TEACHER_HUES[i % TEACHER_HUES.length] }} title={name} aria-hidden="true">
       {[...name][0]?.toUpperCase()}
     </span>
+  );
+}
+
+/** First-week checklist until every group has someone in it. */
+function SetupGuide({ st }: { st: AdminState }) {
+  const [hidden, setHidden] = useState(() => local.get<boolean>('oh.setup.hidden') === true);
+  const active = st.groups.filter((g) => g.active);
+  const joined = active.filter((g) => g.members > 0).length;
+  if (hidden || (active.length > 0 && joined === active.length)) return null;
+  const steps: Array<{ done: boolean; title: string; body: string; href: string; cta: string }> = [
+    {
+      done: joined === active.length && active.length > 0,
+      title: `邀請各組加入（${joined}/${active.length} 組已有人加入）`,
+      body: '把每組的邀請連結貼到該組的 Discord，或在課堂上投影 QR Code 讓大家掃描。',
+      href: href('admin/groups'),
+      cta: '小組與邀請',
+    },
+    {
+      done: false,
+      title: '把專屬連結傳給老師',
+      body: '老師打開就能看到自己的場次，也能訂閱行事曆，不需要任何設定。',
+      href: href('admin/teachers'),
+      cta: '老師',
+    },
+    {
+      done: false,
+      title: '確認開放時段與週次',
+      body: '國定假日、老師請假、哪幾週開放預約，都在這裡調整。',
+      href: href('admin/calendar'),
+      cta: '時段與週次',
+    },
+  ];
+  return (
+    <section class="card stack" aria-labelledby="setup-title">
+      <div class="row between">
+        <h2 id="setup-title" class="title-s">開始使用</h2>
+        <button
+          type="button"
+          class="link-btn tiny"
+          onClick={() => {
+            local.set('oh.setup.hidden', true);
+            setHidden(true);
+          }}
+        >
+          不再顯示
+        </button>
+      </div>
+      <ol class="stack" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+        {steps.map((x, i) => (
+          <li key={x.title} class="row top" style={{ gap: '12px' }}>
+            <span class={`gno ${x.done ? '' : 'soft'}`} aria-hidden="true">
+              {x.done ? <Icon name="check" size={14} /> : i + 1}
+            </span>
+            <div class="grow stack tight">
+              <b class="small">{x.title}</b>
+              <span class="small muted">{x.body}</span>
+            </div>
+            <a class="btn sm" href={x.href}>
+              {x.cta}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
