@@ -118,7 +118,7 @@ try {
   });
 
   await run('a revoked device is signed out', async () => {
-    await admin.getByRole('link', { name: '小組與邀請' }).click();
+    await admin.getByRole('complementary', { name: '管理選單' }).getByRole('link', { name: '小組與邀請' }).click();
     const chip = admin.locator('button.chip', { hasText: `組員乙-${RUN}` }).first();
     await chip.click();
     await admin.getByRole('button', { name: '登出這個裝置' }).click();

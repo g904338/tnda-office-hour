@@ -164,7 +164,7 @@ try {
       ['時段與週次', '什麼時候可以約'],
       ['設定', '課程與規則'],
     ]) {
-      await page.getByRole('link', { name: label }).click();
+      await page.getByRole('complementary', { name: '管理選單' }).getByRole('link', { name: label }).click();
       await page.getByRole('heading', { name: heading }).first().waitFor();
     }
   });
@@ -176,7 +176,7 @@ try {
   });
 
   await run('admin adds availability and a holiday', async () => {
-    await page.getByRole('link', { name: '時段與週次' }).click();
+    await page.getByRole('complementary', { name: '管理選單' }).getByRole('link', { name: '時段與週次' }).click();
     await page.getByRole('button', { name: '新增時段' }).click();
     const d = page.getByRole('dialog');
     await d.getByLabel('星期').selectOption('6');
@@ -198,7 +198,7 @@ try {
   });
 
   await run('admin opens the QR wall', async () => {
-    await page.getByRole('link', { name: '小組與邀請' }).click();
+    await page.getByRole('complementary', { name: '管理選單' }).getByRole('link', { name: '小組與邀請' }).click();
     await page.getByRole('button', { name: '投影邀請 QR' }).click();
     await page.getByRole('dialog').locator('.qr svg').first().waitFor();
     await page.getByRole('dialog').getByRole('button', { name: '關閉' }).click();
