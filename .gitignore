@@ -1,0 +1,8 @@
+node_modules
+dist
+tmp
+.secrets
+.env.local
+supabase/.temp
+supabase/.branches
+.DS_Store

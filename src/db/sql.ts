@@ -1,0 +1,19 @@
+// The SQL that defines the backend. The same files are pushed to Supabase,
+// run by the test suite, and executed in the browser for the demo.
+import schema from '../../supabase/migrations/20261013000001_schema.sql?raw';
+import api from '../../supabase/migrations/20261013000002_api.sql?raw';
+import seed from '../../supabase/seed.sql?raw';
+
+// Supabase provides these roles and the realtime schema; a bare Postgres
+// (PGlite) needs stand-ins. realtime.send becomes a NOTIFY so the demo
+// engine can still push changes to the UI.
+export const BOOTSTRAP = `
+create role anon nologin;
+create role authenticated nologin;
+create schema realtime;
+create function realtime.send(payload jsonb, event text, topic text, private boolean default true)
+returns void language sql as $$ select pg_notify('oh_sync', payload::text) $$;
+`;
+
+export const MIGRATIONS = [schema, api];
+export const SEED = seed;
