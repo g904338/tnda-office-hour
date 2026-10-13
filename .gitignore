@@ -6,3 +6,4 @@ tmp
 supabase/.temp
 supabase/.branches
 .DS_Store
+public/pglite

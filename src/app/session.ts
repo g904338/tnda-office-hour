@@ -22,6 +22,8 @@ interface AppState {
   demo: Demo | null;
   /** loading the in-browser database */
   demoLoading: boolean;
+  /** 0…1 while the demo database downloads */
+  demoProgress: number;
 }
 
 const AUTH_KEY = 'oh.auth.v1';
@@ -45,6 +47,7 @@ export const app = store<AppState>({
   auth: HAS_CLOUD ? local.get<Auth>(AUTH_KEY) : null,
   demo: null,
   demoLoading: false,
+  demoProgress: 0,
 });
 
 export function useApp() {
@@ -112,9 +115,16 @@ export async function startDemo(role: Role = 'student') {
   if (s.demoLoading) return;
   try {
     if (!demoEngine) {
-      app.set({ ...s, demoLoading: true });
+      app.set({ ...s, demoLoading: true, demoProgress: 0 });
       const { demoEngine: make } = await import('../api/demo');
-      demoEngine = await make();
+      let last = 0;
+      demoEngine = await make((f) => {
+        // repaint at most every 2%
+        if (f - last >= 0.02 || f === 1) {
+          last = f;
+          app.set((x) => ({ ...x, demoProgress: f }));
+        }
+      });
     }
     app.set((x) => ({ ...x, engine: demoEngine, demo: { role, tokens: {} }, demoLoading: false }));
     await switchDemoRole(role);
@@ -140,7 +150,7 @@ export async function switchDemoRole(role: Role) {
 }
 
 export function exitDemo() {
-  app.set({ engine: cloudOrNull(), auth: HAS_CLOUD ? local.get<Auth>(AUTH_KEY) : null, demo: null, demoLoading: false });
+  app.set({ engine: cloudOrNull(), auth: HAS_CLOUD ? local.get<Auth>(AUTH_KEY) : null, demo: null, demoLoading: false, demoProgress: 0 });
   go('', { replace: true });
 }
 

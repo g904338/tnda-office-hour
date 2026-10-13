@@ -4,7 +4,7 @@ import { go, route } from './app/router';
 import { exitDemo, resetDemo, signOut, startDemo, switchDemoRole, useApp, verifySession } from './app/session';
 import { confirm, Dialogs } from './ui/dialog';
 import { Icon } from './ui/icons';
-import { Btn, Loading, Seg } from './ui/kit';
+import { Btn, Seg } from './ui/kit';
 import { Toasts } from './ui/toast';
 import { AdminApp } from './views/admin/AdminApp';
 import { StudentApp } from './views/student/StudentApp';
@@ -44,8 +44,31 @@ function DemoBar() {
   );
 }
 
+function DemoLoading({ progress }: { progress: number }) {
+  const pct = Math.round(progress * 100);
+  return (
+    <div class="center-screen">
+      <div class="stack" style={{ justifyItems: 'center', width: 'min(320px, 100%)' }}>
+        <span class="brand-mark" aria-hidden="true">
+          OH
+        </span>
+        <p class="title-s">正在啟動示範模式</p>
+        <p class="small muted">
+          {progress < 1 ? `下載資料庫引擎 ${pct}%` : '建立示範資料…'}
+        </p>
+        <div class="meter" style={{ width: '100%' }} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="示範模式載入進度">
+          <i style={{ width: `${Math.max(4, pct)}%`, background: 'var(--accent)', transition: 'width .2s' }} />
+        </div>
+        <p class="tiny faint" style={{ textAlign: 'center' }}>
+          一個完整的 Postgres 資料庫會在你的瀏覽器裡執行，第一次約需下載 5 MB。
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function App() {
-  const { auth, demo, demoLoading } = useApp();
+  const { auth, demo, demoLoading, demoProgress } = useApp();
   const r = route.use();
 
   useEffect(() => {
@@ -80,7 +103,7 @@ export function App() {
 
   let body;
   if (demoLoading || (r[0] === 'demo' && !demo)) {
-    body = <Loading label="正在你的瀏覽器裡啟動一個完整的資料庫…" />;
+    body = <DemoLoading progress={demoProgress} />;
   } else if (!auth) {
     body = <Welcome key={r[1] ?? ''} initialCode={r[0] === 'join' ? r[1] : undefined} />;
   } else if (auth.session.role === 'admin') {

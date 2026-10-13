@@ -7,7 +7,7 @@ import preact from '@preact/preset-vite';
 // only to the Supabase project, fonts only from Google Fonts.
 function csp(supabaseUrl: string): Plugin {
   const api = supabaseUrl ? new URL(supabaseUrl) : null;
-  const connect = ["'self'", api ? api.origin : '', api ? `wss://${api.host}` : ''].filter(Boolean).join(' ');
+  const connect = ["'self'", api ? api.origin : '', api ? `wss://${api.host}` : '', 'https://cdn.jsdelivr.net'].filter(Boolean).join(' ');
   const policy = [
     "default-src 'self'",
     "script-src 'self' 'wasm-unsafe-eval'",

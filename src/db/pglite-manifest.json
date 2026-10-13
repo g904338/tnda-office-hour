@@ -1,0 +1,17 @@
+{
+  "version": "0.5.9",
+  "files": {
+    "pglite.wasm": {
+      "size": 10123271,
+      "sha256": "yoCZ6F5sMQ/flKUbBLJVY92JdU/s+f8q0Vt6fIPYBIE="
+    },
+    "initdb.wasm": {
+      "size": 395284,
+      "sha256": "OdAJbKT55zPVZqP2s675K3jfjBXT96ofsFfKKczhsQY="
+    },
+    "pglite.data": {
+      "size": 6291000,
+      "sha256": "R/8pva3w39ivYLsBMTx/kYwiUY7kh3L8QO1JAoqBzMQ="
+    }
+  }
+}

@@ -10,7 +10,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "e2e": "node scripts/e2e.mjs",
-    "db:test-cloud": "node scripts/cloud-smoke.mjs"
+    "db:test-cloud": "node scripts/cloud-smoke.mjs",
+    "predev": "node scripts/prepare-pglite.mjs",
+    "prebuild": "node scripts/prepare-pglite.mjs",
+    "pretest": "node scripts/prepare-pglite.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.9",

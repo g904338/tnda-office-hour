@@ -194,7 +194,7 @@ try {
   console.log('mobile');
   const m = await session({ width: 390, height: 844 }, true);
   await run('mobile demo + booking grid', async () => {
-    await m.page.goto(base + '#/demo', { waitUntil: 'networkidle' });
+    await m.page.goto(base + '#/demo', { waitUntil: 'domcontentloaded' });
     await m.page.locator('.demobar').waitFor({ timeout: 60000 });
     const overflow = await m.page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     check(overflow <= 0, `page scrolls sideways by ${overflow}px`);
