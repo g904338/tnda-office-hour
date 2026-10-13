@@ -159,7 +159,7 @@ export function Book({ st, weekId, reload }: { st: StudentState; weekId: number;
   return (
     <main class="page">
       <div class="stack">
-        <button type="button" class="link-btn small row" style={{ gap: 4, textDecoration: 'none', width: 'fit-content' }} onClick={back}>
+        <button type="button" class="link-btn small row" style={{ gap: '4px', textDecoration: 'none', width: 'fit-content' }} onClick={back}>
           <Icon name="back" size={16} /> 返回
         </button>
         <div class="row between wrap">
@@ -207,7 +207,7 @@ export function Book({ st, weekId, reload }: { st: StudentState; weekId: number;
         <section class="section" aria-labelledby="grid-title" id="grid-top">
           <div class="section-head">
             <h2 id="grid-title">
-              <span class="gno soft" style={{ marginRight: 8 }}>
+              <span class="gno soft" style={{ marginRight: '8px' }}>
                 1
               </span>
               勾選可以的時段

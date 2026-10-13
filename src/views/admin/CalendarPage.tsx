@@ -36,7 +36,7 @@ export function CalendarPage() {
       <div class="stack tight">
         <p class="eyebrow">時段與週次</p>
         <h1 class="title-l">什麼時候可以約</h1>
-        <p class="muted small" style={{ maxWidth: 600 }}>
+        <p class="muted small" style={{ maxWidth: '600px' }}>
           開放時段決定學生能勾哪些格子；休息日會整天關閉；週次決定學生可以預約哪幾週。改動會立刻同步到所有人的畫面。
         </p>
       </div>
@@ -55,7 +55,7 @@ export function CalendarPage() {
             {[1, 2, 3, 4, 5, 6, 7]
               .filter((dow) => recurring.some((b) => b.dow === dow))
               .map((dow) => (
-                <div class="tile" key={dow} style={{ gap: 10 }}>
+                <div class="tile" key={dow} style={{ gap: '10px' }}>
                   <b>{DOW[dow]}</b>
                   {recurring
                     .filter((b) => b.dow === dow)
@@ -112,8 +112,8 @@ export function CalendarPage() {
 
 function BlockRow({ b, name, onEdit, onDelete }: { b: Block; name: string; onEdit: () => void; onDelete: () => void }) {
   return (
-    <div class="row" style={{ gap: 6 }}>
-      <div class="grow stack" style={{ gap: 0 }}>
+    <div class="row" style={{ gap: '6px' }}>
+      <div class="grow stack" style={{ gap: '0px' }}>
         <span class="mono small">
           {b.on_date ? `${md(b.on_date)} ` : ''}
           {b.start}–{b.end}
@@ -211,7 +211,7 @@ function BlockForm({ cfg, b, close, save }: { cfg: AdminConfig; b: Block | null;
             ))}
           </select>
         </Field>
-        <span class="muted" style={{ paddingBottom: 12 }}>
+        <span class="muted" style={{ paddingBottom: '12px' }}>
           –
         </span>
         <Field label="結束" error={bad ? '結束要晚於開始' : null}>
@@ -227,7 +227,7 @@ function BlockForm({ cfg, b, close, save }: { cfg: AdminConfig; b: Block | null;
           <summary class="small muted" style={{ cursor: 'pointer' }}>
             只在某段期間有效（選填）
           </summary>
-          <div class="row" style={{ marginTop: 10 }}>
+          <div class="row" style={{ marginTop: '10px' }}>
             <Field label="從">
               <input class="input" type="date" value={from} onInput={(e) => setFrom((e.target as HTMLInputElement).value)} />
             </Field>
@@ -331,7 +331,7 @@ function Weeks({ cfg, save, del, reload }: { cfg: AdminConfig; save: Save; del: 
                   <td>
                     <input
                       class="input sm mono"
-                      style={{ width: 76 }}
+                      style={{ width: '76px' }}
                       value={w.label}
                       maxLength={12}
                       aria-label="週次名稱"

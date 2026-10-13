@@ -101,7 +101,7 @@ export function GroupsPage() {
         <div class="stack tight">
           <p class="eyebrow">小組與邀請</p>
           <h1 class="title-l">{cfg.groups.length} 個小組</h1>
-          <p class="muted small" style={{ maxWidth: 560 }}>
+          <p class="muted small" style={{ maxWidth: '560px' }}>
             每組一個邀請代碼。把邀請連結貼到各組的 Discord，同學點開、輸入名字就能加入，整組共用同一份預約。
           </p>
         </div>
@@ -130,7 +130,7 @@ function GroupCard({ g, now, save, reload }: { g: ConfigGroup; now: number; save
   return (
     <div class="card stack" style={{ textAlign: 'left', opacity: g.active ? 1 : 0.6 }}>
       <div class="row between">
-        <span class="row" style={{ gap: 10 }}>
+        <span class="row" style={{ gap: '10px' }}>
           <span class="gno lg">{g.no}</span>
           <b>{g.name || <span class="muted">未命名</span>}</b>
         </span>
@@ -195,8 +195,9 @@ function GroupCard({ g, now, save, reload }: { g: ConfigGroup; now: number; save
           )}
         </Menu>
       </div>
-      <div class="card sunk tight row between wrap">
-        <span class="mono" style={{ fontSize: 17, letterSpacing: '0.1em', fontWeight: 500 }}>
+      <div class="card sunk tight stack tight">
+        <span class="eyebrow">邀請代碼</span>
+        <span class="mono" style={{ fontSize: '19px', letterSpacing: '0.12em', fontWeight: 500 }}>
           {prettyCode(g.code)}
         </span>
         <span class="row">
@@ -278,7 +279,7 @@ export function TeachersPage() {
         <div class="stack tight">
           <p class="eyebrow">老師</p>
           <h1 class="title-l">{host}</h1>
-          <p class="muted small" style={{ maxWidth: 560 }}>
+          <p class="muted small" style={{ maxWidth: '560px' }}>
             每位老師一個專屬連結。打開就能看到自己的場次、各組題目與進度，也能一鍵加入行事曆。老師不需要做任何設定。
           </p>
         </div>
@@ -313,7 +314,7 @@ function TeacherRow({ t, save, reload }: { t: ConfigTeacher; save: (p: Record<st
   const link = inviteLink(t.code);
   return (
     <div class="li wrap" style={{ flexWrap: 'wrap', opacity: t.active ? 1 : 0.6 }}>
-      <div class="grow stack" style={{ gap: 2, minWidth: 160 }}>
+      <div class="grow stack" style={{ gap: '2px', minWidth: '160px' }}>
         <b>{t.name}</b>
         <span class="tiny muted">{t.devices ? `${t.devices} 台裝置登入中` : '還沒有登入'}</span>
       </div>

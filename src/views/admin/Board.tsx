@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import type { AdminState, Appointment, Request } from '../../api/types';
-import { clock, useApi, useBusy, useLive, useTick } from '../../app/hooks';
+import { clock, useApi, useBusy, useLive, useMedia, useTick } from '../../app/hooks';
 import { ISSUE } from '../../app/messages';
 import { go } from '../../app/router';
 import { csvText, download } from '../../lib/files';
 import { minutesText, slotLines, timeRange } from '../../lib/format';
 import { autoSchedule } from '../../lib/scheduler';
-import { addDays, addMinutes, agoText, dayLabel, DOW, instant, isoDow, localStamp, md, mdPad, minutes } from '../../lib/time';
+import { addDays, addMinutes, agoText, dayLabel, DOW, isoDow, localStamp, md, mdPad, minutes } from '../../lib/time';
 import { ask, confirm, openDialog } from '../../ui/dialog';
 import { Icon } from '../../ui/icons';
 import { Btn, CopyBtn, Empty, Loading, Menu, WeekStrip, copyText, safeHref } from '../../ui/kit';
@@ -27,7 +27,12 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
   const [focus, setFocus] = useState<number | null>(null);
   const [dragId, setDragId] = useState<number | null>(null);
   const [dropKey, setDropKey] = useState<string | null>(null);
-  useEffect(() => setFocus(null), [st.week_id]);
+  const compact = useMedia('(max-width: 720px)');
+  const [day, setDay] = useState<string | null>(null);
+  useEffect(() => {
+    setFocus(null);
+    setDay(null);
+  }, [st.week_id]);
 
   const week = st.weeks.find((w) => w.id === st.week_id) ?? null;
   const mins = st.settings.slot_minutes;
@@ -70,6 +75,15 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
   const holidays = new Map(st.closures.filter((c) => c.teacher_id === null).map((c) => [c.d, c.reason]));
   const nowStamp = localStamp(now, tz);
 
+  // phones show one day at a time
+  const dayLoad = (d: string) => st.slots.filter((s) => s.d === d).length + live.filter((a) => a.d === d).length;
+  const dayWant = (d: string) => openReqs.filter((r) => needOf(r) > 0 && r.slots.some((s) => s.d === d)).length;
+  const defaultDay = days.find((d) => dayWant(d) > 0) ?? days.find((d) => d >= clock.today && dayLoad(d) > 0) ?? days.find((d) => dayLoad(d) > 0) ?? days[0];
+  const shownDays = compact && days.length ? [day && days.includes(day) ? day : defaultDay] : days;
+  const shownTimes = compact
+    ? times.filter((t) => shownDays.some((d) => slotMap.has(`${d} ${t}`) || live.some((a) => a.d === d && a.t === t)))
+    : times;
+
   // ---------- actions ----------
   async function assign(args: { group: number; teacher: number; d: string; t: string; moveId?: number }) {
     const fn = args.moveId ? 'oh_admin_move' : 'oh_admin_assign';
@@ -90,7 +104,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
         title: '這樣安排會打破規則',
         body: (
           <>
-            <ul style={{ margin: 0, paddingLeft: 18 }}>
+            <ul style={{ margin: '0px', paddingLeft: '18px' }}>
               {list.map((x) => (
                 <li key={x}>{x}</li>
               ))}
@@ -218,7 +232,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
         <div class="stack">
           {texts.map(({ gid, text }) => (
             <div class="card sunk tight stack tight" key={gid}>
-              <pre class="pre small" style={{ margin: 0, fontFamily: 'inherit' }}>
+              <pre class="pre small" style={{ margin: '0px', fontFamily: 'inherit' }}>
                 {text}
               </pre>
               <div>
@@ -268,7 +282,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
               return (
                 <div class="li" key={r.id}>
                   <span class="gno">{g.no}</span>
-                  <div class="grow stack" style={{ gap: 0 }}>
+                  <div class="grow stack" style={{ gap: '0px' }}>
                     <b class="small">{g.name || `第 ${g.no} 組`}</b>
                     <span class="tiny muted clamp-2">{r.topic}</span>
                   </div>
@@ -290,10 +304,10 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
             <summary class="small muted" style={{ cursor: 'pointer' }}>
               其他小組（沒有勾選這格）
             </summary>
-            <div class="row wrap" style={{ marginTop: 10 }}>
+            <div class="row wrap" style={{ marginTop: '10px' }}>
               {others.map((g) => (
                 <Btn size="sm" key={g.id} disabled={busyGroups.has(g.id)} onClick={() => close(g.id)}>
-                  <span class="gno soft" style={{ minWidth: 20, height: 20, fontSize: 11 }}>
+                  <span class="gno soft" style={{ minWidth: '20px', height: '20px', fontSize: '11px' }}>
                     {g.no}
                   </span>
                   {g.name || `第 ${g.no} 組`}
@@ -413,7 +427,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
   });
 
   return (
-    <main class="page" style={{ gap: 20 }}>
+    <main class="page" style={{ gap: '20px' }}>
       <div class="stack">
         <div class="row between wrap">
           <div class="stack tight">
@@ -505,26 +519,38 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
               到「時段與週次」設定老師的開放時段。
             </Empty>
           ) : (
-            <div class="matrix-scroll">
-              <div class="matrix" style={{ '--cols': days.length }}>
-                <div class="corner" />
+            <>
+            {compact && (
+              <div class="weeks" role="group" aria-label="選擇日期">
                 {days.map((d) => (
+                  <button type="button" key={d} class="wk" style={{ minWidth: '72px' }} aria-pressed={d === shownDays[0]} onClick={() => setDay(d)}>
+                    <span class="w">{DOW[isoDow(d)]}</span>
+                    <span class="d">{md(d)}</span>
+                    <span class={`s ${dayWant(d) ? 'on' : ''}`}>{dayWant(d) ? `${dayWant(d)} 組想要` : dayLoad(d) ? `${live.filter((a) => a.d === d).length} 場` : '—'}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            <div class="matrix-scroll">
+              <div class="matrix" style={{ '--cols': shownDays.length }}>
+                <div class="corner" />
+                {shownDays.map((d) => (
                   <div class="mh" key={d}>
                     <b>{DOW[isoDow(d)]}</b>
                     <span>{md(d)}</span>
                     {holidays.has(d) && <span class="tag">{holidays.get(d) || '休息'}</span>}
                   </div>
                 ))}
-                {times.map((t, ti) => [
-                  ti > 0 && minutes(t) - minutes(times[ti - 1]) > mins ? (
+                {shownTimes.map((t, ti) => [
+                  ti > 0 && minutes(t) - minutes(shownTimes[ti - 1]) > mins ? (
                     <div class="gapr" key={`gap-${t}`}>
-                      {addMinutes(times[ti - 1], mins)}–{t} 不開放
+                      {addMinutes(shownTimes[ti - 1], mins)}–{t} 不開放
                     </div>
                   ) : null,
                   <div class="mt" key={`t-${t}`}>
                     {t}
                   </div>,
-                  ...days.map((d) => {
+                  ...shownDays.map((d) => {
                     const key = `${d} ${t}`;
                     const slot = slotMap.get(key);
                     const here = live.filter((a) => a.d === d && a.t === t);
@@ -559,11 +585,9 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
                                 onClick={() => openAppt(a)}
                                 aria-label={`${dayLabel(d)} ${t} ${tName(tid)}：${groupName(st.groups, a.group_id)}${a.status === 'draft' ? '（草稿）' : ''}`}
                               >
-                                <span class="gno" style={{ minWidth: 20, height: 20, fontSize: 11, background: 'var(--bg)', color: 'var(--ink)' }}>
-                                  {g?.no}
-                                </span>
+                                <TeacherDot id={tid} teachers={st.teachers} />
+                                <span class="lno">{g?.no}</span>
                                 <span class="gname">{g?.name || `第 ${g?.no} 組`}</span>
-                                <span class="who">{tName(tid)}</span>
                               </button>
                             );
                           }
@@ -590,15 +614,12 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
                               }}
                               aria-label={`${dayLabel(d)} ${t} ${tName(tid)}：空檔${want.length ? `，${want.length} 組想要` : ''}`}
                             >
+                              <TeacherDot id={tid} teachers={st.teachers} />
                               {want.length > 0 ? (
-                                <span class="want">
-                                  <Icon name="plus" size={12} />
-                                  {want.length} 組想要
-                                </span>
+                                <span class="want">{want.length} 組想要</span>
                               ) : (
                                 <span class="faint">空檔</span>
                               )}
-                              <span class="who">{tName(tid)}</span>
                             </button>
                           );
                         })}
@@ -608,8 +629,17 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
                 ])}
               </div>
             </div>
+            </>
           )}
           <ul class="legend">
+            {st.teachers
+              .filter((x) => x.active)
+              .map((x) => (
+                <li key={x.id}>
+                  <TeacherDot id={x.id} teachers={st.teachers} />
+                  {x.name}
+                </li>
+              ))}
             <li>
               <span class="sw" style={{ background: 'var(--ink)', borderColor: 'var(--ink)' }} />
               已發布
@@ -660,7 +690,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
             return (
               <button type="button" key={r.id} class={`req ${focus === r.group_id ? 'on' : ''}`} onClick={() => setFocus(focus === r.group_id ? null : r.group_id)} aria-pressed={focus === r.group_id}>
                 <div class="row between">
-                  <span class="row" style={{ gap: 8 }}>
+                  <span class="row" style={{ gap: '8px' }}>
                     <span class="gno">{g?.no}</span>
                     <b class="small">{g?.name || `第 ${g?.no} 組`}</b>
                   </span>
@@ -707,7 +737,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
               <summary class="muted" style={{ cursor: 'pointer' }}>
                 本週已取消 {cancelled.length} 場
               </summary>
-              <div class="stack tight" style={{ marginTop: 8 }}>
+              <div class="stack tight" style={{ marginTop: '8px' }}>
                 {cancelled.map((a) => (
                   <span key={a.id} class="muted">
                     {groupName(st.groups, a.group_id)} {dayLabel(a.d)} {a.t}：{a.cancelled_by} 取消{a.cancel_reason ? `（${a.cancel_reason}）` : ''}
@@ -722,6 +752,15 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
   );
 }
 
-export function isPast(d: string, t: string, tz: string, now: number) {
-  return instant(d, t, tz) < now;
+const TEACHER_HUES = ['#2f5bd3', '#0f8a6a', '#b4237a', '#b45309', '#0e7490', '#6d28d9', '#4d7c0f'];
+
+/** A small coloured initial, so each teacher's lane reads at a glance. */
+export function TeacherDot({ id, teachers }: { id: number; teachers: Array<{ id: number; name: string }> }) {
+  const i = Math.max(0, teachers.findIndex((t) => t.id === id));
+  const name = teachers[i]?.name ?? '?';
+  return (
+    <span class="tdot" style={{ '--tc': TEACHER_HUES[i % TEACHER_HUES.length] }} title={name} aria-hidden="true">
+      {[...name][0]?.toUpperCase()}
+    </span>
+  );
 }

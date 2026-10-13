@@ -20,6 +20,8 @@ export function Overview() {
   const maxTotal = Math.max(1, ...groups.map((g) => g.total));
   const waiting = st.weeks.reduce((n, w) => n + Math.max(0, w.requests - w.scheduled), 0);
   const tName = (id: number) => st.teachers.find((t) => t.id === id)?.name ?? '';
+  // staff signing in on a new device is noise in the feed
+  const feed = st.events.filter((e) => !(e.kind === 'member.joined' && e.role !== 'student'));
 
   const exportAll = async () => {
     const r = await run('export', () => call<{ requests: any[]; appointments: any[] }>('oh_admin_export'));
@@ -88,7 +90,7 @@ export function Overview() {
         <div class="tile">
           <span class="v">
             {engaged}
-            <span class="muted" style={{ fontSize: 18 }}>/{groups.length}</span>
+            <span class="muted" style={{ fontSize: '18px' }}>/{groups.length}</span>
           </span>
           <span class="k">至少約過一次的組</span>
         </div>
@@ -120,7 +122,7 @@ export function Overview() {
                 {groups.map((g) => (
                   <tr key={g.id}>
                     <td>
-                      <span class="row" style={{ gap: 8 }}>
+                      <span class="row" style={{ gap: '8px' }}>
                         <span class="gno">{g.no}</span>
                         <span>{g.name || `第 ${g.no} 組`}</span>
                       </span>
@@ -153,9 +155,9 @@ export function Overview() {
             </span>
           </div>
           <div class="card tight">
-            {st.events.length ? (
+            {feed.length ? (
               <div class="feed">
-                {st.events.map((e) => (
+                {feed.map((e) => (
                   <div class={`ev ${eventClass(e.kind)}`} key={e.id}>
                     <i aria-hidden="true" />
                     <div>

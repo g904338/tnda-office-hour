@@ -43,7 +43,7 @@ export function StudentApp({ route }: { route: string[] }) {
 export function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
     <div class="center-screen">
-      <div class="stack" style={{ justifyItems: 'center', maxWidth: 360 }}>
+      <div class="stack" style={{ justifyItems: 'center', maxWidth: '360px' }}>
         <Icon name="wave" size={28} />
         <p class="title-m">暫時連不上</p>
         <p class="muted small">可能是網路不穩，資料都還在。恢復連線後會自動更新。</p>
@@ -73,7 +73,7 @@ function StudentTop({ st }: { st?: StudentState }) {
             trigger={
               <>
                 <span class="gno">{g.no}</span>
-                <span class="nowrap" style={{ maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <span class="nowrap" style={{ maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {st.me.name}
                 </span>
                 <Icon name="down" size={14} />
@@ -347,7 +347,7 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
                 </div>
                 <p class="pre muted clamp-3">{req.progress}</p>
                 {safeHref(req.link) && (
-                  <a class="small row" style={{ gap: 6, width: 'fit-content' }} href={safeHref(req.link)} target="_blank" rel="noopener noreferrer">
+                  <a class="small row" style={{ gap: '6px', width: 'fit-content' }} href={safeHref(req.link)} target="_blank" rel="noopener noreferrer">
                     <Icon name="external" size={15} />
                     雲端資料夾
                   </a>

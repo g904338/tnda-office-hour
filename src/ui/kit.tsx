@@ -1,5 +1,5 @@
-import type { ButtonHTMLAttributes, ComponentChildren } from 'preact';
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { cloneElement, isValidElement, type ButtonHTMLAttributes, type ComponentChildren, type VNode } from 'preact';
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { renderSVG } from 'uqr';
 import { useEngineStatus } from '../app/hooks';
 import { useApp } from '../app/session';
@@ -13,7 +13,7 @@ export function BrandMark({ code, sub }: { code?: string; sub?: string }) {
       <span class="brand-mark" aria-hidden="true">
         OH
       </span>
-      <span class="stack" style={{ gap: 0, lineHeight: 1.2 }}>
+      <span class="stack" style={{ gap: '0px', lineHeight: 1.2 }}>
         <span class="brand-name">Office Hour</span>
         {(code || sub) && <span class="brand-code">{[code, sub].filter(Boolean).join(' · ')}</span>}
       </span>
@@ -87,24 +87,38 @@ export function Field({
   optional?: boolean;
   count?: number;
   max?: number;
-  children: ComponentChildren;
+  children: VNode<any>;
 }) {
+  const id = useId();
+  const noteId = `${id}-note`;
+  const note = error || help;
+  const control = isValidElement(children)
+    ? cloneElement(children, { id, 'aria-invalid': error ? true : undefined, 'aria-describedby': note ? noteId : undefined })
+    : children;
   return (
-    <label class={`field ${error ? 'bad' : ''}`}>
-      <span class="label">
+    <div class={`field ${error ? 'bad' : ''}`}>
+      <label class="label" for={id}>
         <span>
           {label}
           {optional && <span class="opt"> 選填</span>}
         </span>
         {max !== undefined && count !== undefined && (
-          <span class="count">
+          <span class="count" aria-hidden="true">
             {count}/{max}
           </span>
         )}
-      </span>
-      {children}
-      {error ? <span class="err">{error}</span> : help ? <span class="help">{help}</span> : null}
-    </label>
+      </label>
+      {control}
+      {error ? (
+        <span class="err" id={noteId} role="alert">
+          {error}
+        </span>
+      ) : help ? (
+        <span class="help" id={noteId}>
+          {help}
+        </span>
+      ) : null}
+    </div>
   );
 }
 
@@ -266,7 +280,7 @@ export function WeekStrip({ items, value, onPick, label = '選擇週次' }: { it
 
 export function GroupTag({ no, name, soft }: { no: number; name?: string; soft?: boolean }) {
   return (
-    <span class="row" style={{ gap: 8 }}>
+    <span class="row" style={{ gap: '8px' }}>
       <span class={`gno ${soft ? 'soft' : ''}`}>{no}</span>
       {name !== undefined && <span class="nowrap" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{name || `第 ${no} 組`}</span>}
     </span>

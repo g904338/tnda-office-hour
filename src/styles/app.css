@@ -232,6 +232,7 @@ p {
   display: grid;
   gap: 12px;
   min-width: 0;
+  align-content: start;
 }
 .stack.tight {
   gap: 6px;
@@ -356,7 +357,7 @@ p {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 16px;
+  padding: 0;
   padding-top: env(safe-area-inset-top, 0);
   box-sizing: content-box;
   background: color-mix(in srgb, var(--bg) 82%, transparent);
@@ -368,6 +369,7 @@ p {
   width: 100%;
   max-width: 1120px;
   margin: 0 auto;
+  padding: 0 16px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1964,6 +1966,9 @@ ul.steps {
   border-bottom: 1px solid var(--line);
   border-right: 1px solid var(--line);
 }
+.matrix > * {
+  min-width: 0;
+}
 .matrix .mc {
   padding: 6px;
   border-bottom: 1px solid var(--line);
@@ -1997,6 +2002,8 @@ ul.steps {
   display: flex;
   align-items: center;
   gap: 6px;
+  min-width: 0;
+  overflow: hidden;
   min-height: 34px;
   border-radius: 8px;
   padding: 0 6px 0 8px;
@@ -2013,6 +2020,35 @@ button.lane:hover,
   border-color: var(--ink);
   border-style: solid;
   background: var(--surface-2);
+}
+.tdot {
+  --tc: var(--muted);
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--tc);
+  background: color-mix(in srgb, var(--tc) 16%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--tc) 35%, transparent);
+}
+.lane.filled .tdot {
+  background: color-mix(in srgb, var(--tc) 55%, var(--ink));
+  color: #fff;
+  border-color: transparent;
+}
+.lane.filled.draft .tdot {
+  background: var(--surface);
+  color: var(--tc);
+}
+.lane .lno {
+  font-family: var(--mono);
+  font-weight: 600;
+  flex: 0 0 auto;
 }
 .lane .who {
   font-size: 11px;

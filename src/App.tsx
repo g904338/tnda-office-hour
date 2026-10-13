@@ -16,7 +16,7 @@ function DemoBar() {
   if (!demo) return null;
   return (
     <div class="demobar" role="region" aria-label="示範模式">
-      <span class="row" style={{ gap: 6 }}>
+      <span class="row" style={{ gap: '6px' }}>
         <Icon name="play" size={14} />
         示範模式
       </span>

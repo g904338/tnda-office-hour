@@ -61,7 +61,7 @@ export function AdminApp({ route }: { route: string[] }) {
         <div class="foot">
           <LiveBadge />
           <div class="row between">
-            <span class="row" style={{ gap: 6 }}>
+            <span class="row" style={{ gap: '6px' }}>
               <Icon name="user" size={16} />
               {auth?.session.name}
             </span>

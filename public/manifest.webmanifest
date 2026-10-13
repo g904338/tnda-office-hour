@@ -1,12 +1,17 @@
 {
   "name": "Office Hour · 跨域數位製作實務",
   "short_name": "Office Hour",
+  "description": "和叁式 PM 約 30 分鐘。勾選可以的時段，助教排好後全組即時同步。",
+  "lang": "zh-Hant-TW",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f5f4f0",
   "theme_color": "#161514",
   "icons": [
     { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

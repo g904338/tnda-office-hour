@@ -61,24 +61,24 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
         <section class="card pad-l stack">
           <h2 class="title-s">課程資訊</h2>
           <div class="row top wrap">
-            <div style={{ width: 140 }}>
+            <div style={{ width: '140px' }}>
               <Field label="課號">
                 <input class="input mono" value={s.course_code} maxLength={20} onInput={(e) => set('course_code', (e.target as HTMLInputElement).value)} />
               </Field>
             </div>
-            <div class="grow" style={{ minWidth: 220 }}>
+            <div class="grow" style={{ minWidth: '220px' }}>
               <Field label="課名">
                 <input class="input" value={s.course_title} maxLength={80} onInput={(e) => set('course_title', (e.target as HTMLInputElement).value)} />
               </Field>
             </div>
           </div>
           <div class="row top wrap">
-            <div class="grow" style={{ minWidth: 180 }}>
+            <div class="grow" style={{ minWidth: '180px' }}>
               <Field label="老師的稱呼" help="顯示給學生看，例如「叁式 PM」、「業師」。">
                 <input class="input" value={s.host_label} maxLength={20} onInput={(e) => set('host_label', (e.target as HTMLInputElement).value)} />
               </Field>
             </div>
-            <div class="grow" style={{ minWidth: 180 }}>
+            <div class="grow" style={{ minWidth: '180px' }}>
               <Field label="地點">
                 <input class="input" value={s.location} maxLength={60} onInput={(e) => set('location', (e.target as HTMLInputElement).value)} />
               </Field>
@@ -92,18 +92,18 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
         <section class="card pad-l stack">
           <h2 class="title-s">預約規則</h2>
           <div class="row top wrap">
-            <div class="grow" style={{ minWidth: 200 }}>
+            <div class="grow" style={{ minWidth: '200px' }}>
               {num('week_cap', '每組每週上限（格）', 1, 8, `目前 = ${minutesText(s.week_cap * s.slot_minutes)}`)}
             </div>
-            <div class="grow" style={{ minWidth: 200 }}>
+            <div class="grow" style={{ minWidth: '200px' }}>
               {num('day_cap', '每組每天上限（格）', 1, 8, `目前 = ${minutesText(s.day_cap * s.slot_minutes)}`)}
             </div>
           </div>
           <div class="row top wrap">
-            <div class="grow" style={{ minWidth: 200 }}>
+            <div class="grow" style={{ minWidth: '200px' }}>
               {num('lead_days', '預約截止（天前）', 0, 60, '學生最晚要在當天的幾天前勾選。')}
             </div>
-            <div class="grow" style={{ minWidth: 200 }}>
+            <div class="grow" style={{ minWidth: '200px' }}>
               {num('cancel_hours', '學生可取消（小時前）', 0, 336, '超過這個時間，只能請助教取消。')}
             </div>
           </div>
@@ -111,7 +111,7 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
           <p class="tiny muted">每格固定 {s.slot_minutes} 分鐘。規則只影響之後的操作；已經排定的場次不會變動。</p>
         </section>
 
-        <div class="row" style={{ position: 'sticky', bottom: 16, justifyContent: 'flex-end' }}>
+        <div class="row" style={{ position: 'sticky', bottom: '16px', justifyContent: 'flex-end' }}>
           {dirty && (
             <Btn variant="ghost" onClick={() => setS(cfg.settings)}>
               還原
@@ -146,7 +146,7 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
         <div class="list">
           {cfg.admins.map((a) => (
             <div class="li" key={a.id} style={{ flexWrap: 'wrap' }}>
-              <div class="grow stack" style={{ gap: 0, minWidth: 140 }}>
+              <div class="grow stack" style={{ gap: '0px', minWidth: '140px' }}>
                 <b>
                   {a.name} {a.me && <span class="chip">你</span>}
                 </b>

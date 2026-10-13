@@ -132,3 +132,17 @@ export function useEngineStatus() {
   }, [engine]);
   return s;
 }
+
+/** Tracks a CSS media query. */
+export function useMedia(query: string): boolean {
+  const get = () => (typeof matchMedia === 'function' ? matchMedia(query).matches : false);
+  const [v, set] = useState(get);
+  useEffect(() => {
+    const m = matchMedia(query);
+    const on = () => set(m.matches);
+    on();
+    m.addEventListener('change', on);
+    return () => m.removeEventListener('change', on);
+  }, [query]);
+  return v;
+}

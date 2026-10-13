@@ -177,7 +177,7 @@ function TeacherHome({ st }: { st: TeacherState }) {
         )}
       </section>
 
-      <TeamWeek st={st} />
+      <TeamWeek st={st} now={now} />
 
       <section class="section" aria-labelledby="t-avail">
         <div class="section-head">
@@ -226,7 +226,7 @@ function SessionCard({ s, mins, now }: { s: TeacherSession; mins: number; now: n
         <span class="mono">{addMinutes(s.t, mins)}</span>
       </div>
       <div class="grow stack tight">
-        <div class="row wrap" style={{ gap: 8 }}>
+        <div class="row wrap" style={{ gap: '8px' }}>
           <span class="gno">{s.group.no}</span>
           <b>{s.group.name || `第 ${s.group.no} 組`}</b>
           {cancelled && <span class="chip danger">已取消{s.cancel_reason ? `：${s.cancel_reason}` : ''}</span>}
@@ -242,7 +242,7 @@ function SessionCard({ s, mins, now }: { s: TeacherSession; mins: number; now: n
                 </button>
               )}
               {safeHref(r.link) && (
-                <a href={safeHref(r.link)} target="_blank" rel="noopener noreferrer" class="row" style={{ gap: 4 }}>
+                <a href={safeHref(r.link)} target="_blank" rel="noopener noreferrer" class="row" style={{ gap: '4px' }}>
                   <Icon name="external" size={14} /> 雲端資料夾
                 </a>
               )}
@@ -259,42 +259,37 @@ function SessionCard({ s, mins, now }: { s: TeacherSession; mins: number; now: n
   );
 }
 
-function TeamWeek({ st }: { st: TeacherState }) {
+function TeamWeek({ st, now }: { st: TeacherState; now: number }) {
   if (!st.team.length) return null;
+  const mins = st.settings.slot_minutes;
   return (
     <section class="section" aria-labelledby="t-team">
       <div class="section-head">
         <h2 id="t-team">這兩週全部場次</h2>
-        <span class="small muted">橘色是你的場次</span>
+        <span class="small muted">標示橘色的是你的場次</span>
       </div>
-      <div class="table-wrap">
-        <table class="t">
-          <thead>
-            <tr>
-              <th>時間</th>
-              <th>{st.settings.host_label}</th>
-              <th>小組</th>
-              <th>題目</th>
-            </tr>
-          </thead>
-          <tbody>
-            {st.team.map((x, i) => (
-              <tr key={i} class={x.mine ? 'mine' : ''}>
-                <td class="nowrap">
-                  {dayLabel(x.d)} <span class="mono">{x.t}</span>
-                </td>
-                <td class="nowrap">{x.teacher}</td>
-                <td class="nowrap">
-                  <span class="gno soft" style={{ marginRight: 6 }}>
-                    {x.group.no}
+      <div class="list">
+        {st.team.map((x, i) => {
+          const past = instant(x.d, addMinutes(x.t, mins), st.clock.tz) <= now;
+          return (
+            <div key={i} class={`li ${past ? 'past' : ''}`} style={x.mine ? { background: 'var(--accent-soft)' } : undefined}>
+              <div class="when">
+                <b>{x.t}</b>
+                <span>{dayLabel(x.d)}</span>
+              </div>
+              <div class="grow stack" style={{ gap: '2px' }}>
+                <span class="row" style={{ gap: '8px' }}>
+                  <span class="gno soft">{x.group.no}</span>
+                  <span class="small" style={{ fontWeight: 600 }}>
+                    {x.group.name || `第 ${x.group.no} 組`}
                   </span>
-                  {x.group.name}
-                </td>
-                <td>{x.topic ?? '—'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </span>
+                {x.topic && <span class="small muted clamp-2">{x.topic}</span>}
+              </div>
+              <span class={`chip ${x.mine ? 'accent' : ''}`}>{x.teacher}</span>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
@@ -319,7 +314,7 @@ function PastSessions({ list }: { list: TeacherSession[] }) {
                 <span>{dayLabel(s.d)}</span>
               </div>
               <div class="grow">
-                <span class="gno soft" style={{ marginRight: 8 }}>
+                <span class="gno soft" style={{ marginRight: '8px' }}>
                   {s.group.no}
                 </span>
                 {s.request?.topic ?? '—'}

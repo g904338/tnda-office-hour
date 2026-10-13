@@ -137,7 +137,7 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
       <section class="welcome-art">
         <BrandMark />
         <ClockArt />
-        <div class="stack loose" style={{ maxWidth: 520 }}>
+        <div class="stack loose" style={{ maxWidth: '520px' }}>
           {settings?.course_code && (
             <p class="eyebrow">
               {settings.course_code} · {settings.course_title}
