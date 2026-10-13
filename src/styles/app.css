@@ -360,9 +360,11 @@ p {
   padding: 0;
   padding-top: env(safe-area-inset-top, 0);
   box-sizing: content-box;
+  background: var(--bg);
   background: color-mix(in srgb, var(--bg) 82%, transparent);
   backdrop-filter: saturate(1.4) blur(14px);
   -webkit-backdrop-filter: saturate(1.4) blur(14px);
+  border-bottom: 1px solid var(--line);
   border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
 }
 .topbar-inner {
@@ -954,6 +956,7 @@ p {
 }
 .wk[aria-pressed='true'] .w,
 .wk[aria-pressed='true'] .s {
+  color: var(--bg);
   color: color-mix(in srgb, var(--bg) 70%, transparent);
 }
 .wk[aria-pressed='true'] .s.on {
@@ -1081,6 +1084,7 @@ p {
   font-size: 11px;
 }
 .cell.late.mine {
+  background: var(--accent-soft);
   background: color-mix(in srgb, var(--accent) 35%, var(--surface));
   color: var(--accent-ink);
   border-color: transparent;
@@ -1224,6 +1228,7 @@ button.cell[aria-pressed='true'] .cap {
   filter: blur(10px);
 }
 .hero .eyebrow {
+  color: var(--bg);
   color: color-mix(in srgb, var(--bg) 62%, transparent);
 }
 .hero .when {
@@ -1240,6 +1245,7 @@ button.cell[aria-pressed='true'] .cap {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 18px;
+  color: var(--bg);
   color: color-mix(in srgb, var(--bg) 75%, transparent);
   font-size: 14px;
 }
@@ -1249,7 +1255,9 @@ button.cell[aria-pressed='true'] .cap {
   gap: 6px;
 }
 .hero .btn {
+  background: transparent;
   background: color-mix(in srgb, var(--bg) 12%, transparent);
+  border-color: var(--bg);
   border-color: color-mix(in srgb, var(--bg) 22%, transparent);
   color: var(--bg);
 }
@@ -1640,6 +1648,7 @@ ul.steps {
   z-index: 20;
   margin: 0 -16px;
   padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0));
+  background: var(--bg);
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -2009,12 +2018,14 @@ ul.steps {
   opacity: 0.6;
 }
 .matrix .mc.heat {
+  background: var(--accent-soft);
   background: color-mix(in srgb, var(--accent) var(--heat), var(--surface));
 }
 .matrix .mc.heat .lane:not(.filled) {
   background: var(--surface);
 }
 .matrix .mc.past {
+  background: var(--surface-2);
   background: color-mix(in srgb, var(--surface-2) 60%, transparent);
 }
 .matrix .mc.hl {
@@ -2064,10 +2075,13 @@ button.lane:hover,
   font-size: 10.5px;
   font-weight: 600;
   color: var(--tc);
+  background: var(--surface-2);
   background: color-mix(in srgb, var(--tc) 16%, var(--surface));
+  border: 1px solid var(--line-2);
   border: 1px solid color-mix(in srgb, var(--tc) 35%, transparent);
 }
 .lane.filled .tdot {
+  background: var(--tc);
   background: color-mix(in srgb, var(--tc) 55%, var(--ink));
   color: #fff;
   border-color: transparent;
@@ -2104,6 +2118,7 @@ button.lane:hover,
   cursor: pointer;
 }
 .lane.filled .who {
+  color: var(--bg);
   color: color-mix(in srgb, var(--bg) 65%, transparent);
 }
 .lane.filled.draft {
@@ -2348,6 +2363,7 @@ table.t tr.mine td {
 }
 .demobar .seg {
   width: auto;
+  background: rgb(255 255 255 / 0.16);
   background: color-mix(in srgb, var(--demo-ink) 16%, var(--demo));
   padding: 3px;
 }
@@ -2364,6 +2380,7 @@ table.t tr.mine td {
 .demobar .btn {
   --h: 30px;
   background: transparent;
+  border-color: var(--demo-ink);
   border-color: color-mix(in srgb, var(--demo-ink) 45%, transparent);
   color: var(--demo-ink);
 }
