@@ -327,7 +327,7 @@ function Weeks({ cfg, save, del, reload }: { cfg: AdminConfig; save: Save; del: 
             </thead>
             <tbody>
               {cfg.weeks.map((w) => (
-                <tr key={w.id} style={addDays(w.start, 6) < clock.today ? { opacity: 0.55 } : undefined}>
+                <tr key={w.id} class={addDays(w.start, 6) < clock.today ? 'muted' : undefined}>
                   <td>
                     <input
                       class="input sm mono"
@@ -352,7 +352,12 @@ function Weeks({ cfg, save, del, reload }: { cfg: AdminConfig; save: Save; del: 
                     />
                   </td>
                   <td>
-                    <Switch checked={w.open} onChange={(v) => save('week', { id: w.id, open: v }, v ? '已開放。' : '已暫停這週的預約。')} label="" />
+                    <Switch
+                      checked={w.open}
+                      name={`${w.label || mdPad(w.start)} 開放預約`}
+                      onChange={(v) => save('week', { id: w.id, open: v }, v ? '已開放。' : '已暫停這週的預約。')}
+                      label=""
+                    />
                   </td>
                   <td>
                     {!w.used && <Btn size="sm" variant="ghost" icon="trash" aria-label="刪除週次" onClick={() => del('week', w.id, `刪除 ${w.label || mdPad(w.start)}？`)} />}

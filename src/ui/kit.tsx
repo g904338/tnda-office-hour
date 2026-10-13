@@ -122,10 +122,30 @@ export function Field({
   );
 }
 
-export function Switch({ checked, onChange, label, disabled }: { checked: boolean; onChange: (v: boolean) => void; label: ComponentChildren; disabled?: boolean }) {
+export function Switch({
+  checked,
+  onChange,
+  label,
+  disabled,
+  name,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: ComponentChildren;
+  disabled?: boolean;
+  /** accessible name when `label` is empty */
+  name?: string;
+}) {
   return (
     <label class="switch" style={disabled ? { opacity: 0.5 } : undefined}>
-      <input type="checkbox" role="switch" checked={checked} disabled={disabled} onChange={(e) => onChange((e.target as HTMLInputElement).checked)} />
+      <input
+        type="checkbox"
+        role="switch"
+        checked={checked}
+        disabled={disabled}
+        aria-label={name}
+        onChange={(e) => onChange((e.target as HTMLInputElement).checked)}
+      />
       <span class="track" aria-hidden="true" />
       <span>{label}</span>
     </label>
@@ -165,7 +185,18 @@ export function Empty({ icon = 'calendar', title, children }: { icon?: IconName;
   );
 }
 
-export function Menu({ label, trigger, children }: { label: string; trigger: ComponentChildren; children: (close: () => void) => ComponentChildren }) {
+export function Menu({
+  label,
+  trigger,
+  children,
+  iconOnly = true,
+}: {
+  label: string;
+  trigger: ComponentChildren;
+  children: (close: () => void) => ComponentChildren;
+  /** the trigger shows only an icon, so it needs `label` as its name */
+  iconOnly?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -185,7 +216,15 @@ export function Menu({ label, trigger, children }: { label: string; trigger: Com
   }, [open]);
   return (
     <div class="menu-wrap" ref={ref}>
-      <button type="button" class="btn ghost sm" aria-haspopup="menu" aria-expanded={open} aria-label={label} onClick={() => setOpen(!open)}>
+      <button
+        type="button"
+        class="btn ghost sm"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={iconOnly ? label : undefined}
+        title={label}
+        onClick={() => setOpen(!open)}
+      >
         {trigger}
       </button>
       {open && (
@@ -264,7 +303,6 @@ export function WeekStrip({ items, value, onPick, label = '選擇週次' }: { it
           aria-pressed={w.id === value}
           disabled={w.disabled}
           onClick={() => onPick(w.id)}
-          aria-label={`${w.label || ''} ${mdPad(w.start)} 到 ${mdPad(addDays(w.start, 4))}`}
         >
           <span class="w">{w.label || '—'}</span>
           <span class="d">

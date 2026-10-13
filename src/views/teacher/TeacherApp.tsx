@@ -31,6 +31,7 @@ export function TeacherApp() {
           {data && (
             <Menu
               label="帳號選單"
+              iconOnly={false}
               trigger={
                 <>
                   <Icon name="user" size={16} />

@@ -599,11 +599,14 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
                                   setDropKey(null);
                                 }}
                                 onClick={() => openAppt(a)}
-                                aria-label={`${dayLabel(d)} ${t} ${tName(tid)}：${groupName(st.groups, a.group_id)}${a.status === 'draft' ? '（草稿）' : ''}`}
                               >
                                 <TeacherDot id={tid} teachers={st.teachers} />
                                 <span class="lno">{g?.no}</span>
                                 <span class="gname">{g?.name || `第 ${g?.no} 組`}</span>
+                                <span class="sr-only">
+                                  ，{dayLabel(d)} {t}，{tName(tid)}
+                                  {a.status === 'draft' ? '，草稿' : '，已發布'}
+                                </span>
                               </button>
                             );
                           }
@@ -628,7 +631,6 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
                                 setDropKey(null);
                                 if (a) assign({ group: a.group_id, teacher: tid, d, t, moveId: a.id });
                               }}
-                              aria-label={`${dayLabel(d)} ${t} ${tName(tid)}：空檔${want.length ? `，${want.length} 組想要` : ''}`}
                             >
                               <TeacherDot id={tid} teachers={st.teachers} />
                               {want.length > 0 ? (
@@ -636,6 +638,10 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
                               ) : (
                                 <span class="faint">空檔</span>
                               )}
+                              <span class="sr-only">
+                                ，{dayLabel(d)} {t}，{tName(tid)}
+                                {want.length > 0 ? '，空檔' : ''}
+                              </span>
                             </button>
                           );
                         })}

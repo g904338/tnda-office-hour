@@ -15,10 +15,16 @@ function check(cond, msg) {
   if (!cond) throw new Error(`${step}: ${msg}`);
 }
 
+let current = null; // the page under test, for failure screenshots
 async function run(name, fn) {
   step = name;
   const t0 = Date.now();
-  await fn();
+  try {
+    await fn();
+  } catch (e) {
+    if (current) await current.screenshot({ path: `e2e-failure.png`, fullPage: true }).catch(() => {});
+    throw e;
+  }
   console.log(`  ✓ ${name} (${Date.now() - t0} ms)`);
 }
 
@@ -35,6 +41,7 @@ async function session(viewport, isMobile = false) {
     colorScheme: 'light',
   });
   const page = await ctx.newPage();
+  current = page;
   page.on('pageerror', (e) => problems.push(`[${step}] page error: ${e.message}`));
   page.on('console', (m) => {
     if (m.type() === 'error' && !/favicon|fonts\.g/.test(m.text())) problems.push(`[${step}] console: ${m.text()}`);

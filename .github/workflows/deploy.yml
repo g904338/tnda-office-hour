@@ -31,15 +31,23 @@ jobs:
       - name: Database and scheduler tests
         run: npm test
       - run: npm run build
-      - name: End-to-end test (production build, demo mode)
+      - name: End-to-end and accessibility tests (production build, demo mode)
         run: |
           npx playwright install --with-deps chromium
           npx vite preview --port 4173 --strictPort &
           for i in $(seq 1 30); do curl -sf http://localhost:4173/ > /dev/null && break; sleep 1; done
           node scripts/e2e.mjs http://localhost:4173/
+          node scripts/a11y.mjs http://localhost:4173/
         env:
           CI: '1'
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: ''
+      - name: Keep the failure screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-failure
+          path: e2e-failure.png
+          if-no-files-found: ignore
       - uses: actions/upload-pages-artifact@v4
         if: github.ref == 'refs/heads/main'
         with:

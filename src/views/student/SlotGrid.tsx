@@ -122,7 +122,7 @@ export function SlotGrid({ weekStart, today, slots, closures, picks, saved, slot
                     key={k}
                     class="cell"
                     aria-pressed={on}
-                    aria-label={`${label}${s.demand ? `，已有 ${s.demand} 組勾選` : ''}${lockedOn ? '，已過截止，只能取消' : ''}`}
+                    aria-label={`${label}${s.cap > 1 ? `，×${s.cap} 位 PM` : ''}${s.demand ? `，已有 ${s.demand} 組勾選` : ''}${lockedOn ? '，已過截止，只能取消' : ''}`}
                     title={`${label}${s.cap > 1 ? ` · ${s.cap} 位 PM` : ''}${s.demand ? ` · 已有 ${s.demand} 組勾選` : ''}`}
                     data-k={k}
                     data-r={ri}

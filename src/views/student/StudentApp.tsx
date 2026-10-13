@@ -83,14 +83,16 @@ function StudentTop({ st }: { st?: StudentState }) {
   return (
     <header class="topbar">
       <div class="topbar-inner">
-        <a href="#/" class="brand" aria-label="回到首頁" style={{ textDecoration: 'none' }}>
+        <a href="#/" class="brand" style={{ textDecoration: 'none' }}>
           <BrandMark code={st?.settings.course_code} />
+          <span class="sr-only">（回到首頁）</span>
         </a>
         <span class="grow" />
         <LiveBadge />
         {st && g && (
           <Menu
             label="帳號選單"
+            iconOnly={false}
             trigger={
               <>
                 <span class="gno">{g.no}</span>

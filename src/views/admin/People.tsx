@@ -437,7 +437,7 @@ function TeacherRow({ t, save, reload }: { t: ConfigTeacher; save: (p: Record<st
       <Btn size="sm" icon="copy" onClick={() => copyText(link, `已複製 ${t.name} 的專屬連結`)}>
         專屬連結
       </Btn>
-      <Switch checked={t.active} onChange={(v) => save({ id: t.id, active: v }, v ? '已啟用。' : '已停用：這位老師的時段不再開放。')} label="" />
+      <Switch checked={t.active} name={`${t.name} 啟用中`} onChange={(v) => save({ id: t.id, active: v }, v ? '已啟用。' : '已停用：這位老師的時段不再開放。')} label="" />
       <Menu label={`${t.name} 選單`} trigger={<Icon name="more" />}>
         {(close) => (
           <>
