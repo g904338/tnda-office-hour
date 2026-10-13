@@ -4,7 +4,7 @@ import { clock, useDiff, useLive, useTick } from '../../app/hooks';
 import { signOut } from '../../app/session';
 import { downloadIcs } from '../../lib/files';
 import { greeting, timeRange } from '../../lib/format';
-import { addMinutes, agoText, DOW, dayLabel, instant, md, relativeDay, untilText } from '../../lib/time';
+import { addMinutes, agoText, DOW, dayLabel, instant, md, relativeDay, tzNote, untilText } from '../../lib/time';
 import { confirm } from '../../ui/dialog';
 import { toast } from '../../ui/toast';
 import { Icon } from '../../ui/icons';
@@ -122,6 +122,7 @@ function TeacherHome({ st }: { st: TeacherState }) {
               {dayLabel(next.d)}
             </span>
             <span class="num-xl">{timeRange(next.t, mins)}</span>
+            {tzNote(tz) && <span class="small" style={{ opacity: 0.7 }}>以上為{tzNote(tz)}</span>}
           </div>
           <div class="stack tight">
             <p class="title-m">

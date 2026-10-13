@@ -149,3 +149,15 @@ export class Clock {
     return Date.now() + this.offset;
   }
 }
+
+/** A hint like "台北時間" when the viewer's device is in another timezone. */
+export function tzNote(tz: string): string | null {
+  try {
+    const mine = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (!mine || mine === tz) return null;
+    if (tzOffset(mine, Date.now()) === tzOffset(tz, Date.now())) return null;
+    return tz === 'Asia/Taipei' ? '台北時間' : tz;
+  } catch {
+    return null;
+  }
+}

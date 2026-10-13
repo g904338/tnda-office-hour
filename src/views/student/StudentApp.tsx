@@ -5,7 +5,7 @@ import { go } from '../../app/router';
 import { signOut, updateSession } from '../../app/session';
 import { downloadIcs } from '../../lib/files';
 import { slotLines, timeRange, minutesText } from '../../lib/format';
-import { addDays, addMinutes, agoText, dayLabel, instant, mdPad, relativeDay, untilText } from '../../lib/time';
+import { addDays, addMinutes, agoText, dayLabel, instant, mdPad, relativeDay, tzNote, untilText } from '../../lib/time';
 import { ask, confirm } from '../../ui/dialog';
 import { toast } from '../../ui/toast';
 import { Icon } from '../../ui/icons';
@@ -235,6 +235,7 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
                 {dayLabel(next.d)}
               </span>
               <span class="num-xl">{timeRange(next.t, mins)}</span>
+              {tzNote(tz) && <span class="small" style={{ opacity: 0.7 }}>以上為{tzNote(tz)}</span>}
             </div>
           </div>
           <div class="meta">
