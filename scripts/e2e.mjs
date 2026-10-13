@@ -75,6 +75,18 @@ try {
     await cells.nth(0).click();
     await cells.nth(3).click(); // nth re-evaluates; picks another free cell
     check((await page.locator('button.cell[aria-pressed="true"]').count()) === 2, 'two cells should be picked');
+    // keyboard: arrows move focus, space toggles
+    const firstCell = page.locator('button.cell[data-r]').first();
+    await firstCell.focus();
+    const before = await page.evaluate(() => document.activeElement?.getAttribute('data-k'));
+    await page.keyboard.press('ArrowDown');
+    const after = await page.evaluate(() => document.activeElement?.getAttribute('data-k'));
+    check(before && after && before !== after, 'arrow keys should move between cells');
+    const wasOn = await page.evaluate(() => document.activeElement?.getAttribute('aria-pressed'));
+    await page.keyboard.press('Space');
+    const nowOn = await page.evaluate(() => document.activeElement?.getAttribute('aria-pressed'));
+    check(wasOn !== nowOn, 'space should toggle a cell');
+    await page.keyboard.press('Space');
     // validation: empty topic
     await page.getByRole('button', { name: '送出預約需求' }).click();
     await page.getByText('請寫下想討論的題目').waitFor();

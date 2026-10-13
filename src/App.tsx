@@ -1,4 +1,5 @@
-import { useEffect } from 'preact/hooks';
+import type { ComponentChildren } from 'preact';
+import { useEffect, useErrorBoundary } from 'preact/hooks';
 import type { Role } from './api/types';
 import { go, route } from './app/router';
 import { exitDemo, resetDemo, signOut, startDemo, switchDemoRole, useApp, verifySession } from './app/session';
@@ -40,6 +41,32 @@ function DemoBar() {
       <Btn size="sm" icon="door" onClick={exitDemo}>
         離開
       </Btn>
+    </div>
+  );
+}
+
+/** A bug in one screen should never leave a blank page. */
+function Guard({ children, reset }: { children: ComponentChildren; reset: string }) {
+  const [error, retry] = useErrorBoundary((e) => console.error(e));
+  useEffect(() => {
+    if (error) retry();
+  }, [reset]);
+  if (!error) return <>{children}</>;
+  return (
+    <div class="center-screen">
+      <div class="stack" style={{ justifyItems: 'center', maxWidth: '380px' }}>
+        <span class="brand-mark" aria-hidden="true">
+          OH
+        </span>
+        <p class="title-m">這個畫面出了點問題</p>
+        <p class="small muted">資料都還在。重新整理通常就能解決；如果一直發生，請截圖給助教。</p>
+        <div class="row">
+          <Btn variant="primary" icon="rotate" onClick={() => location.reload()}>
+            重新整理
+          </Btn>
+          <Btn onClick={() => retry()}>再試一次</Btn>
+        </div>
+      </div>
     </div>
   );
 }
@@ -117,7 +144,7 @@ export function App() {
   return (
     <>
       <DemoBar />
-      {body}
+      <Guard reset={r.join('/') + (auth?.token ?? '')}>{body}</Guard>
       <Toasts />
       <Dialogs />
     </>

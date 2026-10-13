@@ -51,9 +51,31 @@ export function SlotGrid({ weekStart, today, slots, closures, picks, saved, slot
     return <p class="empty">這週沒有開放的時段。</p>;
   }
 
+  // arrow keys move between cells like a spreadsheet
+  const onKeyDown = (e: KeyboardEvent) => {
+    const keys: Record<string, [number, number]> = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
+    const step = keys[e.key];
+    const from = (e.target as HTMLElement).closest<HTMLElement>('[data-r]');
+    if (!step || !from) return;
+    e.preventDefault();
+    let r = Number(from.dataset.r);
+    let c = Number(from.dataset.c);
+    const grid = e.currentTarget as HTMLElement;
+    for (let i = 0; i < 40; i++) {
+      r += step[0];
+      c += step[1];
+      if (r < 0 || c < 0 || r >= times.length || c >= days.length) return;
+      const next = grid.querySelector<HTMLElement>(`button[data-r="${r}"][data-c="${c}"]`);
+      if (next) {
+        next.focus();
+        return;
+      }
+    }
+  };
+
   return (
     <div class="grid-scroll">
-      <div class="sgrid" style={{ '--cols': days.length }} role="group" aria-label="可預約時段">
+      <div class="sgrid" style={{ '--cols': days.length }} role="group" aria-label="可預約時段，可用方向鍵移動" onKeyDown={onKeyDown}>
         <div aria-hidden="true" />
         {days.map((d) => (
           <div class={`dh ${d === today ? 'today' : ''}`} key={d}>
@@ -75,8 +97,9 @@ export function SlotGrid({ weekStart, today, slots, closures, picks, saved, slot
               <div class="tl" key={`t-${r}`}>
                 {r}
               </div>,
-              ...days.map((d) => {
+              ...days.map((d, ci) => {
                 const k = slotKey(d, r);
+                const ri = times.indexOf(r);
                 const s = bySlot.get(k);
                 const label = `${DOW[isoDow(d)]} ${md(d)} ${r}–${addMinutes(r, slotMinutes)}`;
                 if (!s) return <div class="cell none" key={k} aria-hidden="true" />;
@@ -102,6 +125,8 @@ export function SlotGrid({ weekStart, today, slots, closures, picks, saved, slot
                     aria-label={`${label}${s.demand ? `，已有 ${s.demand} 組勾選` : ''}${lockedOn ? '，已過截止，只能取消' : ''}`}
                     title={`${label}${s.cap > 1 ? ` · ${s.cap} 位 PM` : ''}${s.demand ? ` · 已有 ${s.demand} 組勾選` : ''}`}
                     data-k={k}
+                    data-r={ri}
+                    data-c={ci}
                     onPointerDown={(e) => {
                       if (e.pointerType !== 'mouse' || e.button !== 0) return;
                       e.preventDefault();
