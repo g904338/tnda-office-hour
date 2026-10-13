@@ -164,6 +164,18 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
               <Btn
                 size="sm"
                 variant="ghost"
+                icon="edit"
+                aria-label="修改名字"
+                onClick={async () => {
+                  const name = await ask({ title: '修改助教名字', label: '名字', initial: a.name, maxLength: 40, ok: '儲存', body: '新名字會出現在動態紀錄和排程紀錄裡。' });
+                  if (!name) return;
+                  await run('rename', () => call('oh_admin_save', { p_kind: 'admin', p: { id: a.id, name } }), { ok: '已更新名字。' });
+                  reload();
+                }}
+              />
+              <Btn
+                size="sm"
+                variant="ghost"
                 icon="rotate"
                 aria-label="更換代碼"
                 onClick={async () => {
