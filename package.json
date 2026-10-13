@@ -13,7 +13,9 @@
     "db:test-cloud": "node scripts/cloud-smoke.mjs",
     "predev": "node scripts/prepare-pglite.mjs",
     "prebuild": "node scripts/prepare-pglite.mjs",
-    "pretest": "node scripts/prepare-pglite.mjs"
+    "pretest": "node scripts/prepare-pglite.mjs",
+    "e2e:cloud": "node scripts/e2e-cloud.mjs",
+    "db:reset-local": "sh scripts/local-reset.sh"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.9",

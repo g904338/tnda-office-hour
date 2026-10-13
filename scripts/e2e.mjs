@@ -109,7 +109,7 @@ try {
     await page.getByRole('button', { name: '直接發布' }).click();
     await page.getByRole('dialog', { name: /已發布/ }).waitFor();
     check((await page.getByRole('dialog').locator('pre').count()) > 0, 'no notice messages');
-    await page.getByRole('button', { name: '完成' }).click();
+    await page.getByRole('button', { name: '完成', exact: true }).click();
     await page.waitForTimeout(400);
     check(!(await page.getByRole('button', { name: /發布 \d+ 筆/ }).count()), 'drafts should be gone after publish');
   });
