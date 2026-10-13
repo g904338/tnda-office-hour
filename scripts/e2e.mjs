@@ -42,6 +42,8 @@ async function session(viewport, isMobile = false) {
   });
   const page = await ctx.newPage();
   current = page;
+  // FAKE_TIME=2026-10-14T00:30:00+08:00 runs the whole walk at that moment
+  if (process.env.FAKE_TIME) await page.clock.install({ time: new Date(process.env.FAKE_TIME) });
   page.on('pageerror', (e) => problems.push(`[${step}] page error: ${e.message}`));
   page.on('console', (m) => {
     if (m.type() === 'error' && !/favicon|fonts\.g/.test(m.text())) problems.push(`[${step}] console: ${m.text()}`);
@@ -184,8 +186,14 @@ try {
     await page.getByText('已儲存時段').waitFor();
     await page.getByText('週六').waitFor();
     await page.getByRole('button', { name: '新增休息日' }).click();
-    await page.getByRole('dialog').getByLabel('說明').fill('E2E 休息');
+    const reason = page.getByRole('dialog').getByLabel('說明');
+    await reason.fill('E2E 休息');
+    if (process.env.DEBUG) console.log('    reason value:', await reason.inputValue(), '| date:', await page.getByRole('dialog').getByLabel('日期').inputValue());
     await page.getByRole('dialog').getByRole('button', { name: '儲存' }).click();
+    if (process.env.DEBUG) {
+      await page.waitForTimeout(1200);
+      console.log('    toasts:', await page.locator('.toast').allTextContents(), '| dialogs:', await page.getByRole('dialog').count());
+    }
     await page.getByText('E2E 休息').waitFor();
   });
 

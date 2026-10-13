@@ -1,5 +1,5 @@
 import type { ComponentChildren, VNode } from 'preact';
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { store } from '../app/store';
 
 interface Entry {
@@ -30,7 +30,8 @@ function closeDialog(id: number, value?: unknown) {
   dialogs.set((l) => l.filter((d) => d.id !== id));
   if (e) {
     e.resolve(value);
-    if (e.opener instanceof HTMLElement && document.contains(e.opener)) e.opener.focus({ preventScroll: true });
+    const stillOpen = dialogs.get().length > 0;
+    if (!stillOpen && e.opener instanceof HTMLElement && document.contains(e.opener)) e.opener.focus({ preventScroll: true });
   }
 }
 
@@ -113,9 +114,11 @@ function AskForm({ opts, close }: { opts: Parameters<typeof ask>[0]; close: (v?:
 
 function DialogFrame({ entry, top }: { entry: Entry; top: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
+  // focus before the first paint, so it can never steal focus from
+  // whatever the person (or a test) starts typing into right away
+  useLayoutEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || el.contains(document.activeElement)) return;
     const target = el.querySelector<HTMLElement>('[data-autofocus]') ?? el.querySelector<HTMLElement>('button, input, textarea, select, a[href]');
     target?.focus({ preventScroll: true });
   }, []);

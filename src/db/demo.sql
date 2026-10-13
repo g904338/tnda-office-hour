@@ -115,6 +115,8 @@ begin
     '做了三版 moodboard，組內還沒有共識，想聽聽 PM 的看法。', 'https://drive.google.com/drive/folders/demo-group-6', 2,
     array['1 18:00', '2 18:00', '4 16:30', '5 10:30'], interval '40 minutes');
   perform app._demo_appt(w_next, 4, 'Prolong', 4, '10:00');
+  -- group 2 (the demo student) always has something coming up, whatever the weekday
+  perform app._demo_appt(w_next, 2, 'Joseph', 1, '17:00');
 end $$;
 
 drop function app._demo_request(int, int, text, text, text, text, int, text[], interval);

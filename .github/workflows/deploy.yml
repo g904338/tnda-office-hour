@@ -37,6 +37,9 @@ jobs:
           npx vite preview --port 4173 --strictPort &
           for i in $(seq 1 30); do curl -sf http://localhost:4173/ > /dev/null && break; sleep 1; done
           node scripts/e2e.mjs http://localhost:4173/
+          # the demo data is relative to "today": also walk it on a Friday evening and a Sunday
+          FAKE_TIME=2026-10-23T19:00:00+08:00 node scripts/e2e.mjs http://localhost:4173/
+          FAKE_TIME=2026-10-25T12:00:00+08:00 node scripts/e2e.mjs http://localhost:4173/
           node scripts/a11y.mjs http://localhost:4173/
         env:
           CI: '1'

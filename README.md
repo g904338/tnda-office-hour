@@ -103,6 +103,19 @@ supabase db push
 
 推到 `main` 後，GitHub Actions 會依序執行型別檢查、單元與資料庫測試、正式建置、真實瀏覽器端對端測試，全部通過才部署到 GitHub Pages。另有每日排程呼叫一次 API，避免 Supabase 免費方案因閒置而暫停。
 
+## 費用：全部免費
+
+| 服務 | 用途 | 方案 |
+|---|---|---|
+| GitHub Pages | 網站 | 公開 repo 免費 |
+| GitHub Actions | 自動測試、部署、每日喚醒 | 公開 repo 不限分鐘數 |
+| Supabase | 資料庫、API、即時同步、Discord 通知 | Free 方案（組織沒有綁定任何付款方式，不可能產生費用） |
+| jsDelivr | 示範模式的資料庫引擎 | 免費 |
+| Google Fonts | Noto Sans TC、IBM Plex Mono | 免費 |
+| Discord Webhook | 自動通知 | 免費 |
+
+Supabase 免費方案提供 500 MB 資料庫、每月 5 GB 流量、200 個同時連線。一門課約 7 組、40 人，一整學期的資料量大約只有幾 MB，連上限的百分之一都不到。免費專案閒置 7 天會暫停，所以 GitHub Actions 每天會呼叫一次 API 讓它保持運作。
+
 ## 專案結構
 
 ```
