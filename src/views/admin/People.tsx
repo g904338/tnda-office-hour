@@ -1,9 +1,11 @@
+import { useState } from 'preact/hooks';
 import type { AdminConfig, ConfigGroup, ConfigTeacher } from '../../api/types';
 import { useApi, useBusy, useLive, useTick } from '../../app/hooks';
 import { agoText } from '../../lib/time';
 import { ask, confirm, openDialog } from '../../ui/dialog';
 import { Icon } from '../../ui/icons';
-import { Btn, CopyBtn, Empty, Loading, Menu, QR, Switch, copyText } from '../../ui/kit';
+import { Btn, CopyBtn, Empty, Field, Loading, Menu, QR, Switch, copyText } from '../../ui/kit';
+import { toast } from '../../ui/toast';
 import { ErrorState } from '../student/StudentApp';
 import { siteUrl } from './common';
 
@@ -256,8 +258,119 @@ function GroupCard({ g, now, save, reload }: { g: ConfigGroup; now: number; save
           <span class="small muted">還沒有人加入。把邀請連結傳給這組吧。</span>
         )}
       </div>
+      <DiscordRow g={g} save={save} />
       <Switch checked={g.active} onChange={(v) => save({ id: g.id, active: v }, v ? '已啟用。' : '已停用，這組的成員會被登出。')} label={g.active ? '啟用中' : '已停用'} />
     </div>
+  );
+}
+
+const HOOK_RE = /^https:\/\/(discord\.com|discordapp\.com|ptb\.discord\.com|canary\.discord\.com)\/api\/webhooks\/[0-9]+\/[A-Za-z0-9_-]+$/;
+
+function DiscordRow({ g, save }: { g: ConfigGroup; save: (p: Record<string, unknown>, ok?: string) => Promise<unknown> }) {
+  const { call } = useApi();
+  const { busy, run } = useBusy();
+
+  const link = () =>
+    openDialog('連結 Discord 頻道', (close) => <WebhookForm g={g} close={close} save={save} />);
+
+  const test = async () => {
+    const r = await run('test', () => call<{ request_id: number | null; available: boolean }>('oh_admin_webhook_test', { p_group: g.id }));
+    if (!r) return;
+    if (!r.available || !r.request_id) {
+      toast('這個環境不會真的傳送 Discord 訊息（示範模式）。');
+      return;
+    }
+    toast('已送出測試訊息，確認中…');
+    for (const wait of [1500, 2500, 4000]) {
+      await new Promise((res) => setTimeout(res, wait));
+      const s = await call<{ state: string; code?: number }>('oh_admin_webhook_status', { p_request: r.request_id }).catch(() => null);
+      if (!s || s.state === 'pending') continue;
+      if (s.state === 'ok') toast(`Discord 已收到：第 ${g.no} 組的頻道會收到通知。`, { ms: 5000 });
+      else
+        toast(
+          s.code === 404 || s.code === 401
+            ? '這個 Webhook 已失效，請在 Discord 重新建立後再貼上。'
+            : `Discord 沒有收到（狀態碼 ${s.code ?? '未知'}），請檢查 Webhook。`,
+          { kind: 'error', ms: 8000 },
+        );
+      return;
+    }
+    toast('Discord 還沒回應，請稍後到頻道確認是否收到測試訊息。');
+  };
+
+  return (
+    <div class="row between wrap" style={{ gap: '8px' }}>
+      <span class="row small" style={{ gap: '6px' }}>
+        <Icon name="chat" size={16} />
+        {g.webhook ? (
+          <span class="chip ok">
+            <span class="dot" />
+            Discord 自動通知
+          </span>
+        ) : (
+          <span class="muted">Discord 未連結</span>
+        )}
+      </span>
+      <span class="row" style={{ gap: '6px' }}>
+        {g.webhook && (
+          <Btn size="sm" variant="ghost" loading={busy === 'test'} onClick={test}>
+            傳送測試
+          </Btn>
+        )}
+        <Btn size="sm" variant={g.webhook ? 'ghost' : undefined} onClick={link}>
+          {g.webhook ? '更改' : '連結頻道'}
+        </Btn>
+      </span>
+    </div>
+  );
+}
+
+function WebhookForm({ g, close, save }: { g: ConfigGroup; close: () => void; save: (p: Record<string, unknown>, ok?: string) => Promise<unknown> }) {
+  const [url, setUrl] = useState(g.webhook ?? '');
+  const v = url.trim();
+  const bad = v !== '' && !HOOK_RE.test(v);
+  return (
+    <form
+      class="stack"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        if (bad) return;
+        const r = await save({ id: g.id, webhook: v || null }, v ? '已連結 Discord，之後的排程會自動通知。' : '已取消 Discord 連結。');
+        if (r) close();
+      }}
+    >
+      <h2>
+        第 {g.no} 組的 Discord 通知
+      </h2>
+      <ol class="small muted" style={{ margin: 0, paddingLeft: '20px', display: 'grid', gap: '4px' }}>
+        <li>在 Discord 對這組的頻道按「編輯頻道」→「整合」→「Webhook」。</li>
+        <li>按「新 Webhook」，再按「複製 Webhook 網址」。</li>
+        <li>貼到下面。之後時間確定、異動或取消時，這個頻道會自動收到訊息。</li>
+      </ol>
+      <Field label="Webhook 網址" error={bad ? '這不是 Discord 的 Webhook 網址。' : null} help="只有助教看得到這個網址。">
+        <input
+          class="input mono"
+          style={{ fontSize: '13px' }}
+          value={url}
+          placeholder="https://discord.com/api/webhooks/…"
+          spellcheck={false}
+          onInput={(e) => setUrl((e.target as HTMLInputElement).value)}
+        />
+      </Field>
+      <div class="actions">
+        {g.webhook && (
+          <button type="button" class="btn danger" onClick={() => setUrl('')}>
+            清除
+          </button>
+        )}
+        <button type="button" class="btn" onClick={close}>
+          取消
+        </button>
+        <button type="submit" class="btn primary" disabled={bad}>
+          儲存
+        </button>
+      </div>
+    </form>
   );
 }
 

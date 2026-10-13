@@ -98,6 +98,16 @@ describe('joining', () => {
     await expectCode(db.call('oh_me', { p_token: tok }), 'AUTH');
   });
 
+  it('expires sessions unused for 180 days', async () => {
+    const { groups } = await db.codes();
+    const tok = await join(db, groups[6], '久未登入');
+    await db.setNow('2027-04-10T09:00:00+08:00'); // 178 days later
+    expect((await db.call('oh_me', { p_token: tok })).session.name).toBe('久未登入');
+    await db.setNow('2027-10-10T09:00:00+08:00'); // 183 days after that use
+    await expectCode(db.call('oh_me', { p_token: tok }), 'AUTH');
+    await db.setNow(WED);
+  });
+
   it('keeps roles apart', async () => {
     const { groups, teachers } = await db.codes();
     const stu = await join(db, groups[5], '學生');

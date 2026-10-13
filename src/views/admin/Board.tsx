@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import type { AdminState, Appointment, Request } from '../../api/types';
-import { clock, useApi, useBusy, useLive, useMedia, useTick } from '../../app/hooks';
+import { clock, useApi, useBusy, useDiff, useLive, useMedia, useTick } from '../../app/hooks';
 import { ISSUE } from '../../app/messages';
 import { go } from '../../app/router';
 import { csvText, download } from '../../lib/files';
@@ -12,10 +12,16 @@ import { Icon } from '../../ui/icons';
 import { Btn, CopyBtn, Empty, Loading, Menu, WeekStrip, copyText, safeHref } from '../../ui/kit';
 import { toast } from '../../ui/toast';
 import { ErrorState } from '../student/StudentApp';
-import { groupName, noticeText, siteUrl } from './common';
+import { eventText, groupName, noticeText, siteUrl } from './common';
 
 export function Board({ weekParam }: { weekParam: number | null }) {
   const { data, error, reload } = useLive<AdminState>('oh_admin_state', { p_week: weekParam });
+  // announce what students did while this board was open
+  useDiff(data, (prev, next) => {
+    const seen = prev.events[0]?.id ?? 0;
+    const fresh = next.events.filter((e) => e.id > seen && e.role === 'student' && /^(request\.|appt\.cancelled)/.test(e.kind));
+    for (const e of fresh.slice(0, 3).reverse()) toast(eventText(e, next.groups), { ms: 6000 });
+  });
   if (!data) return error ? <ErrorState onRetry={reload} /> : <Loading />;
   return <BoardView st={data} reload={reload} />;
 }
@@ -227,7 +233,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
       <>
         <div class="stack tight">
           <h2>{title}</h2>
-          <p class="muted small">各組在平台上已經看得到。如果也想在 Discord 通知，可以複製下面的訊息貼到各組聊天室。</p>
+          <p class="muted small">各組在平台上已經看得到；有連結 Discord 的組別也已經自動收到通知。其他組可以複製下面的訊息，貼到他們的聊天室。</p>
         </div>
         <div class="stack">
           {texts.map(({ gid, text }) => (

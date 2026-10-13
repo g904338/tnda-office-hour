@@ -146,3 +146,16 @@ export function useMedia(query: string): boolean {
   }, [query]);
   return v;
 }
+
+/**
+ * Calls `onChange(prev, next)` whenever fresh data replaces older data
+ * (never on the first load), so views can announce what just happened.
+ */
+export function useDiff<T>(data: T | undefined, onChange: (prev: T, next: T) => void) {
+  const prev = useRef<T | undefined>(undefined);
+  useEffect(() => {
+    if (data === undefined) return;
+    if (prev.current !== undefined && prev.current !== data) onChange(prev.current, data);
+    prev.current = data;
+  }, [data]);
+}

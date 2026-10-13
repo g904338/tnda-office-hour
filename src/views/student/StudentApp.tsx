@@ -1,12 +1,13 @@
 import { useState } from 'preact/hooks';
 import type { SessionInfo, StudentAppointment, StudentState } from '../../api/types';
-import { clock, useApi, useBusy, useLive, useTick } from '../../app/hooks';
+import { clock, useApi, useBusy, useDiff, useLive, useTick } from '../../app/hooks';
 import { go } from '../../app/router';
 import { signOut, updateSession } from '../../app/session';
 import { downloadIcs } from '../../lib/files';
 import { slotLines, timeRange, minutesText } from '../../lib/format';
 import { addDays, addMinutes, agoText, dayLabel, instant, mdPad, relativeDay, untilText } from '../../lib/time';
 import { ask, confirm } from '../../ui/dialog';
+import { toast } from '../../ui/toast';
 import { Icon } from '../../ui/icons';
 import { BrandMark, Btn, Empty, LiveBadge, Loading, Menu, WeekStrip, safeHref } from '../../ui/kit';
 import { Book } from './Book';
@@ -15,6 +16,26 @@ export function StudentApp({ route }: { route: string[] }) {
   const [week, setWeek] = useState<number | null>(null);
   const bookWeek = route[0] === 'book' ? Number(route[1]) || null : null;
   const { data, error, reload } = useLive<StudentState>('oh_student_state', { p_week: bookWeek ?? week });
+
+  // say out loud what changed while the page was open
+  useDiff(data, (prev, next) => {
+    const before = new Map(prev.appointments.map((a) => [a.id, a]));
+    for (const a of next.appointments) {
+      const old = before.get(a.id);
+      if (a.status === 'confirmed' && (!old || old.status !== 'confirmed')) {
+        toast(`時間確定了：${dayLabel(a.d)} ${a.t}`, { ms: 7000 });
+      } else if (a.status === 'cancelled' && old?.status === 'confirmed' && a.cancelled_by !== next.me.name) {
+        toast(`${a.cancelled_by ?? '助教'} 取消了 ${dayLabel(a.d)} ${a.t} 的場次`, { kind: 'error', ms: 8000 });
+      }
+    }
+    const r = next.request;
+    const o = prev.request;
+    if (r && o && r.id === o.id && r.version > o.version && r.author !== next.me.name) {
+      toast(r.status === 'withdrawn' ? `${r.author} 撤回了這週的需求` : `${r.author} 更新了這週的需求`);
+    } else if (r && !o && prev.week_id === next.week_id && r.author !== next.me.name) {
+      toast(`${r.author} 送出了這週的需求`);
+    }
+  });
 
   if (!data) {
     return (

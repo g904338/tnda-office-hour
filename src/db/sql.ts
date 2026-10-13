@@ -2,6 +2,8 @@
 // run by the test suite, and executed in the browser for the demo.
 import schema from '../../supabase/migrations/20261013000001_schema.sql?raw';
 import api from '../../supabase/migrations/20261013000002_api.sql?raw';
+import discord from '../../supabase/migrations/20261014000003_discord.sql?raw';
+import expiry from '../../supabase/migrations/20261014000004_session_expiry.sql?raw';
 import seed from '../../supabase/seed.sql?raw';
 
 // Supabase provides these roles and the realtime schema; a bare Postgres
@@ -15,5 +17,5 @@ create function realtime.send(payload jsonb, event text, topic text, private boo
 returns void language sql as $$ select pg_notify('oh_sync', payload::text) $$;
 `;
 
-export const MIGRATIONS = [schema, api];
+export const MIGRATIONS = [schema, api, discord, expiry];
 export const SEED = seed;

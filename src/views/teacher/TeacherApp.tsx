@@ -1,17 +1,26 @@
 import { useState } from 'preact/hooks';
 import type { TeacherSession, TeacherState } from '../../api/types';
-import { clock, useLive, useTick } from '../../app/hooks';
+import { clock, useDiff, useLive, useTick } from '../../app/hooks';
 import { signOut } from '../../app/session';
 import { downloadIcs } from '../../lib/files';
 import { greeting, timeRange } from '../../lib/format';
 import { addMinutes, agoText, DOW, dayLabel, instant, md, relativeDay, untilText } from '../../lib/time';
 import { confirm } from '../../ui/dialog';
+import { toast } from '../../ui/toast';
 import { Icon } from '../../ui/icons';
 import { BrandMark, Btn, Empty, LiveBadge, Loading, Menu, safeHref } from '../../ui/kit';
 import { ErrorState } from '../student/StudentApp';
 
 export function TeacherApp() {
   const { data, error, reload } = useLive<TeacherState>('oh_teacher_state');
+  useDiff(data, (prev, next) => {
+    const before = new Map(prev.mine.map((m) => [m.id, m]));
+    for (const m of next.mine) {
+      const old = before.get(m.id);
+      if (m.status === 'confirmed' && !old) toast(`新的場次：${dayLabel(m.d)} ${m.t} 第 ${m.group.no} 組`, { ms: 7000 });
+      if (m.status === 'cancelled' && old?.status === 'confirmed') toast(`第 ${m.group.no} 組取消了 ${dayLabel(m.d)} ${m.t}`, { kind: 'error', ms: 8000 });
+    }
+  });
   return (
     <>
       <header class="topbar">
