@@ -8,3 +8,5 @@ supabase/.branches
 .DS_Store
 public/pglite
 e2e-failure.png
+dist-preview
+cue-demo.html

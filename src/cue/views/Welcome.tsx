@@ -14,6 +14,7 @@ import { GitHub, GitHubError, parseRepo, repoFromPagesUrl, tokenTemplateUrl } fr
 import { DiscordPreview } from '../ui/DiscordPreview';
 import { Brand } from '../ui/parts';
 import { samples } from '../ui/samples';
+import { PREVIEW } from '../app/env';
 
 const TZ = 'Asia/Taipei';
 const DEFAULT_REPO = 'g904338/tnda-office-hour';
@@ -262,7 +263,7 @@ export function Welcome() {
 
       <footer class="foot-cue">
         <span>Cue · TN0006 一場體驗如何發生：跨域數位製作實務</span>
-        <a href="../">Office Hour 預約平台</a>
+        {!PREVIEW && <a href="../">Office Hour 預約平台</a>}
       </footer>
     </div>
   );

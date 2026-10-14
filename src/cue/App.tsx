@@ -16,6 +16,7 @@ import { SettingsPage } from './views/Settings';
 import { Connect, Welcome } from './views/Welcome';
 import { SchedulerMini } from './views/Scheduler';
 import { useShortcuts } from './ui/shortcuts';
+import { PREVIEW, SITE_URL } from './app/env';
 
 const NAV: Array<{ id: string; label: string; icon: IconName }> = [
   { id: '', label: '總覽', icon: 'home' },
@@ -65,7 +66,7 @@ function DemoBanner() {
       <button type="button" class="btn sm" onClick={restartDemo}>
         重設
       </button>
-      <a class="btn sm solid" href={href('connect')} onClick={() => close()}>
+      <a class="btn sm solid" href={href('connect')} onClick={() => !PREVIEW && close()}>
         正式使用
       </a>
     </div>
@@ -240,6 +241,31 @@ function ConnectError() {
   );
 }
 
+/** The sandboxed preview cannot reach GitHub: explain where the real thing lives. */
+function PreviewOnly() {
+  return (
+    <div class="center-screen">
+      <div class="card pad-l stack" style={{ maxWidth: '520px', textAlign: 'left' }}>
+        <Brand />
+        <h1 class="title-m">這是預覽版</h1>
+        <p class="muted">預覽版只能使用示範模式，資料存在這個瀏覽器裡。正式版放在 GitHub Pages 上，連接 GitHub 之後就會真的在指定時間發到 Discord：</p>
+        <p class="mono small" style={{ userSelect: 'all', overflowWrap: 'anywhere' }}>
+          {SITE_URL}
+        </p>
+        <div class="row wrap">
+          <Btn variant="accent" icon="play" onClick={() => (app.get().session?.mode === 'demo' ? go('') : open({ mode: 'demo' }))}>
+            使用示範模式
+          </Btn>
+          <a class="btn" href={SITE_URL} target="_blank" rel="noopener noreferrer">
+            <Icon name="external" />
+            開啟正式版
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function App() {
   const st = app.use();
   const r = route.use();
@@ -270,7 +296,8 @@ export function App() {
   }, [r[0]]);
 
   let body;
-  if (st.phase === 'ready') body = <Shell r={r} />;
+  if (PREVIEW && r[0] === 'connect') body = <PreviewOnly />;
+  else if (st.phase === 'ready') body = <Shell r={r} />;
   else if (st.phase === 'loading') body = <Loading label="正在載入資料…" />;
   else if (st.phase === 'needs-init') body = <InitData />;
   else if (st.phase === 'error') body = <ConnectError />;

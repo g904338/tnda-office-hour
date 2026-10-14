@@ -10,6 +10,7 @@ import { postTime } from '../core/ops';
 import { calendarDays, dayKey, fmtDate, isoLocal } from '../core/time';
 import { PageHead, useData, useNow } from '../ui/parts';
 import { PostRow } from './PostRow';
+import { PREVIEW } from '../app/env';
 
 type Filter = 'all' | 'scheduled' | 'sent' | 'attention' | 'draft';
 const FILTERS: Array<{ id: Filter; label: string }> = [
@@ -127,9 +128,11 @@ export function PostsPage({ filter }: { filter: string | null }) {
   return (
     <div class="cue-page enter">
       <PageHead title="發文紀錄" sub="每一則發過、要發的公告，以及它們在每個頻道的結果。">
-        <Btn variant="ghost" icon="download" onClick={exportCsv} disabled={!list.length}>
-          匯出 CSV
-        </Btn>
+        {!PREVIEW && (
+          <Btn variant="ghost" icon="download" onClick={exportCsv} disabled={!list.length}>
+            匯出 CSV
+          </Btn>
+        )}
         <a class="btn accent" href={href('compose')}>
           <Icon name="pen" />
           撰寫

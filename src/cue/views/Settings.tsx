@@ -14,6 +14,7 @@ import { isEditable, readConfig, readPosts, rerender, toJson } from '../core/ops
 import { dayKey, isValidTimeZone, isoLocal, parseDayKey, wall, zoned } from '../core/time';
 import { PageHead, useData } from '../ui/parts';
 import { SchedulerCard } from './Scheduler';
+import { PREVIEW } from '../app/env';
 
 function Section({ id, title, sub, children }: { id: string; title: string; sub?: ComponentChildren; children: ComponentChildren }) {
   return (
@@ -242,7 +243,7 @@ export function SettingsPage() {
               variant="accent"
               icon="branch"
               onClick={() => {
-                close();
+                if (!PREVIEW) close();
                 go('connect');
               }}
             >
@@ -347,9 +348,11 @@ export function SettingsPage() {
 
       <Section id="data" title="備份" sub={`目前有 ${config.channels.length} 個頻道、${posts.length} 則貼文。備份檔不含 Webhook 網址。`}>
         <div class="row wrap">
-          <Btn icon="download" onClick={exportData}>
-            匯出 JSON
-          </Btn>
+          {!PREVIEW && (
+            <Btn icon="download" onClick={exportData}>
+              匯出 JSON
+            </Btn>
+          )}
           <Btn icon="upload" variant="ghost" onClick={importData}>
             從備份還原
           </Btn>
@@ -357,7 +360,7 @@ export function SettingsPage() {
       </Section>
 
       <p class="tiny faint" style={{ textAlign: 'center' }}>
-        Cue · 和 <a href="../">Office Hour</a> 一起為 TN0006 打造 · 全程免費、沒有伺服器
+        Cue · 和 {PREVIEW ? 'Office Hour' : <a href="../">Office Hour</a>} 一起為 TN0006 打造 · 全程免費、沒有伺服器
       </p>
     </div>
   );
