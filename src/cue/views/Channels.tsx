@@ -9,7 +9,7 @@ import { Icon } from '../../ui/icons';
 import { Btn, Empty, Field, Menu, Seg } from '../../ui/base';
 import { toast } from '../../ui/toast';
 import { app, errorText, save } from '../app/state';
-import { looksLikeChannelLink, newId, parseWebhookUrl, secretName, type Channel, type Mention } from '../core/model';
+import { looksLikeChannelLink, newId, parseWebhookUrl, secretName, usernameProblem, type Channel, type Mention } from '../core/model';
 import { putChannel } from '../core/ops';
 import { fmtDateTime, isoLocal } from '../core/time';
 import { PageHead, useData, useNow } from '../ui/parts';
@@ -76,7 +76,8 @@ function ChannelForm({ initial, close }: { initial: Channel | null; close: (v?: 
         : null;
   const set = (patch: Partial<Channel>) => setC((x) => ({ ...x, ...patch }));
   const needsUrl = !initial || !initial.webhookSavedAt;
-  const canSave = c.name.trim() && !urlError && (hook || !needsUrl || !url.trim());
+  const nameError = usernameProblem(c.username);
+  const canSave = c.name.trim() && !urlError && !nameError && (hook || !needsUrl || !url.trim());
 
   async function submit(e: Event) {
     e.preventDefault();
@@ -145,7 +146,7 @@ function ChannelForm({ initial, close }: { initial: Channel | null; close: (v?: 
           進階：發文身分與預設標註
         </summary>
         <div class="stack" style={{ marginTop: '10px' }}>
-          <Field label="發文者名稱" optional help={`留空就用「${config?.username || 'Webhook 本身的名字'}」。`}>
+          <Field label="發文者名稱" optional error={nameError} help={`留空就用「${config?.username || 'Webhook 本身的名字'}」。`}>
             <input class="input" value={c.username} maxLength={80} onInput={(e) => set({ username: (e.target as HTMLInputElement).value })} />
           </Field>
           <Field label="頭像網址" optional>

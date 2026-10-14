@@ -78,7 +78,7 @@ beforeEach(async () => {
 afterEach(() => vi.unstubAllGlobals());
 
 async function initialised() {
-  await GitHubBackend.initialize('good', ref, { ...defaultConfig('2026-10-01T00:00:00+08:00'), course: 'TN0006' });
+  await GitHubBackend.initialize('good', ref, { ...defaultConfig('2026-10-01T00:00:00+08:00'), course: 'TN0006' }, 1);
   // the fake refs endpoint does not see the tree; write what initialize sent
   files = {
     'config.json': { sha: 'c1', text: JSON.stringify({ ...defaultConfig('2026-10-01T00:00:00+08:00'), course: 'TN0006' }) },
@@ -98,8 +98,8 @@ describe('GitHub backend', () => {
   });
 
   test('initialise creates an orphan branch with both files and a README', async () => {
-    await GitHubBackend.initialize('good', ref);
-    const calls = (fetch as any).mock.calls.map((c: any[]) => [c[1]?.method ?? 'GET', new URL(c[0]).pathname]);
+    await GitHubBackend.initialize('good', ref, undefined, 1);
+    const calls = (fetch as any).mock.calls.map((c: any[]) => [c[1]?.method ?? 'GET', new URL(c[0]).pathname]).slice(0, 3);
     expect(calls).toEqual([
       ['POST', '/repos/o/r/git/trees'],
       ['POST', '/repos/o/r/git/commits'],

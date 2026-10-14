@@ -9,7 +9,7 @@ import { Btn, CopyBtn, Field, QR, Seg } from '../../ui/base';
 import { toast } from '../../ui/toast';
 import { app, close, deviceLink, restartDemo, save, type GitHubSession } from '../app/state';
 import { setTheme, theme, type ThemePref } from '../app/theme';
-import { KIND_ORDER, KINDS, kindStyle, type Config, type KindKey, type Posts } from '../core/model';
+import { KIND_ORDER, KINDS, kindStyle, usernameProblem, type Config, type KindKey, type Posts } from '../core/model';
 import { isEditable, readConfig, readPosts, rerender, toJson } from '../core/ops';
 import { dayKey, isValidTimeZone, isoLocal, parseDayKey, wall, zoned } from '../core/time';
 import { PageHead, useData } from '../ui/parts';
@@ -65,12 +65,13 @@ function CourseForm() {
   const startOk = !c.semesterStart || /^\d{4}-\d{2}-\d{2}$/.test(c.semesterStart);
   const startDow = c.semesterStart && startOk ? wall(zoned(parseDayKey(c.semesterStart).y, parseDayKey(c.semesterStart).m, parseDayKey(c.semesterStart).d, 12, 0, c.timezone), c.timezone).dow : 1;
   const tzOk = isValidTimeZone(c.timezone);
+  const nameError = usernameProblem(c.username);
   return (
     <form
       class="stack"
       onSubmit={(e) => {
         e.preventDefault();
-        if (!tzOk || !startOk) return;
+        if (!tzOk || !startOk || nameError) return;
         saveConfig(
           'Cue：更新課程設定',
           (cfg) => ({
@@ -104,7 +105,7 @@ function CourseForm() {
         <Field label="時區" error={tzOk ? null : '不認得這個時區名稱'} help="所有時間都以這個時區顯示與解讀。">
           <input class="input mono" value={c.timezone} list="tz-list" onInput={(e) => set({ timezone: (e.target as HTMLInputElement).value.trim() })} />
         </Field>
-        <Field label="預設發文者名稱" optional help="Discord 上顯示的名字，頻道可以個別覆寫。">
+        <Field label="預設發文者名稱" optional error={nameError} help="Discord 上顯示的名字，頻道可以個別覆寫。">
           <input class="input" value={c.username} maxLength={80} placeholder="Webhook 本身的名字" onInput={(e) => set({ username: (e.target as HTMLInputElement).value })} />
         </Field>
         <Field label="預設頭像網址" optional>
@@ -117,7 +118,7 @@ function CourseForm() {
         ))}
       </datalist>
       <div class="row">
-        <Btn type="submit" variant="primary" disabled={!dirty || !tzOk || !startOk}>
+        <Btn type="submit" variant="primary" disabled={!dirty || !tzOk || !startOk || Boolean(nameError)}>
           儲存
         </Btn>
         {dirty && (

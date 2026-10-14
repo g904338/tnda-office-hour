@@ -2,7 +2,7 @@
 // coloured bar, fields, the time as a live countdown) or plain Markdown
 // that also works when pasted into Discord by hand.
 
-import { hexToInt, kindStyle, LIMITS, type Config, type Content, type DiscordEmbed, type DiscordPayload, type Mention, type PostStyle } from './model';
+import { hexToInt, kindStyle, LIMITS, usernameProblem, type Config, type Content, type DiscordEmbed, type DiscordPayload, type Mention, type PostStyle } from './model';
 import { DAY, wall } from './time';
 
 export interface RenderInput {
@@ -70,7 +70,7 @@ export function renderPayload(input: RenderInput): DiscordPayload {
   const ping = mentionText(mention);
   const footer = footerText(config);
   const base: DiscordPayload = { allowed_mentions: allowedMentions(mention) };
-  if (config.username.trim()) base.username = clip(config.username.trim(), LIMITS.username);
+  if (config.username.trim() && !usernameProblem(config.username)) base.username = clip(config.username.trim(), LIMITS.username);
   if (/^https:\/\//.test(config.avatar)) base.avatar_url = config.avatar;
   const headline = `${k.emoji} ${k.headline}${label ? ` · ${label}` : ''}`;
 

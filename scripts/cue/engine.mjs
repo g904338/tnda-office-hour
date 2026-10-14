@@ -89,9 +89,12 @@ export function claimedBy(posts, runId) {
 /** The body sent to one channel: the stored payload plus that channel's bot name and avatar. */
 export function payloadFor(post, channel, config) {
   const payload = { ...post.payload };
-  const username = (channel?.username || config.username || '').trim();
+  // Discord rejects some names outright: skip those rather than fail the post
+  const ok = (n) => n && !/discord|clyde/i.test(n) && !/^(everyone|here)$/i.test(n);
+  const username = [channel?.username, config.username].map((n) => String(n ?? '').trim()).find(ok);
   const avatar = channel?.avatar || config.avatar || '';
   if (username) payload.username = username.slice(0, 80);
+  else delete payload.username;
   if (/^https:\/\//.test(avatar)) payload.avatar_url = avatar;
   if (!payload.allowed_mentions) payload.allowed_mentions = { parse: [] };
   return payload;

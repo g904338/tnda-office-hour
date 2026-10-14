@@ -63,9 +63,14 @@ export class GitHubBackend implements Backend {
   }
 
   /** Creates the data branch with empty files. */
-  static async initialize(token: string, ref: RepoRef, config: Config = defaultConfig()): Promise<void> {
+  static async initialize(token: string, ref: RepoRef, config: Config = defaultConfig(), wait = 700): Promise<void> {
     const gh = new GitHub(token, ref);
     await gh.createOrphanBranch({ 'config.json': toJson(config), 'posts.json': toJson(emptyPosts()), 'README.md': DATA_README }, 'Cue：建立資料分支');
+    // a new branch can take a moment to show up in the contents API
+    for (let i = 0; i < 8; i++) {
+      if ((await gh.readFile('config.json')) !== 'missing') return;
+      await new Promise((r) => setTimeout(r, wait));
+    }
   }
 
   private snapshot(): Snapshot {

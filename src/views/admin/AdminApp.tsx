@@ -59,6 +59,10 @@ export function AdminApp({ route }: { route: string[] }) {
           ))}
         </nav>
         <div class="foot">
+          <a class="nav-a" href="./cue/" style={{ margin: '0 -12px' }}>
+            <Icon name="send" />
+            Discord 公告排程
+          </a>
           <LiveBadge />
           <div class="row between">
             <span class="row" style={{ gap: '6px' }}>

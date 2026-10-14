@@ -8,6 +8,10 @@ TN0006「一場體驗如何發生：跨域數位製作實務」的 Office Hour �
 
 ![Office Hour](public/og.png)
 
+> **同一個 repository 裡還有 [Cue · 課堂公告排程](docs/cue.md)**：把上課提醒、作業公告貼進來，自動整理成 Discord 格式，在指定時間送到各個頻道。
+> 網址 <https://g904338.github.io/tnda-office-hour/cue/>（[示範模式](https://g904338.github.io/tnda-office-hour/cue/#/demo)）。資料存在這個 repo 的 `cue-data` 分支，排程交給 GitHub Actions，全程免費。
+> 上線步驟、架構與展示腳本請看 [docs/cue.md](docs/cue.md)。
+
 ---
 
 ## 三種角色
@@ -81,6 +85,7 @@ npm run dev          # http://localhost:5173（沒有 .env.local 時只能用示
 npm test             # 資料庫 API、排程演算法、Discord 通知：52 項
 npm run build && npx vite preview --port 4173
 npm run e2e -- http://localhost:4173/   # 真實瀏覽器跑三種角色（示範模式）
+npm run e2e:cue -- http://localhost:4173/cue/   # Cue：所有流程 + 無障礙掃描
 ```
 
 本機完整雲端堆疊（需要 Docker／Colima）：
@@ -137,6 +142,8 @@ src/views/             student / teacher / admin / Welcome
 src/lib/scheduler.ts   智慧排程（最大流）
 tests/                 Vitest：資料庫規則、排程、示範資料、Discord
 scripts/               端對端測試、雲端安全檢查、PGlite 資產準備
+cue/, src/cue/         Cue（Discord 公告排程），見 docs/cue.md
+scripts/cue/           Cue 的雲端排程器（GitHub Actions 執行）
 ```
 
 ## 三分鐘展示腳本

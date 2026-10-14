@@ -307,6 +307,16 @@ export const STATUS_TEXT: Record<PostStatus, string> = {
 export const MENTION_TEXT = (m: Mention): string =>
   m.type === 'everyone' ? '@everyone' : m.type === 'here' ? '@here' : m.type === 'role' ? `@${m.name || '身分組'}` : '不標註';
 
+/** Discord refuses webhook names like these; null when the name is fine. */
+export function usernameProblem(name: string): string | null {
+  const n = name.trim();
+  if (!n) return null;
+  if (/discord|clyde/i.test(n)) return 'Discord 不接受含有「discord」或「clyde」的名稱。';
+  if (/^(everyone|here)$/i.test(n)) return '不能叫 everyone 或 here。';
+  if (n.length > 80) return '最多 80 個字。';
+  return null;
+}
+
 /** A webhook URL Discord would accept. */
 export function parseWebhookUrl(raw: string): { id: string; token: string; url: string } | null {
   const m = /^https:\/\/(?:(?:ptb|canary)\.)?discord(?:app)?\.com\/api(?:\/v\d+)?\/webhooks\/(\d{15,22})\/([\w-]{20,})\/?(?:\?.*)?$/.exec(raw.trim());

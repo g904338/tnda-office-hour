@@ -166,3 +166,16 @@ describe('schedule', () => {
     expect(fillTokens('第 {n} 次 {日期}', { n: 2, week: null, at: Date.parse('2026-10-27T14:10:00+08:00'), tz: TPE })).toBe('第 2 次 10/27');
   });
 });
+
+describe('webhook names', () => {
+  test('names Discord refuses are left out instead of failing the post', async () => {
+    const { usernameProblem } = await import('../../src/cue/core/model');
+    const E = await import('../../scripts/cue/engine.mjs');
+    expect(usernameProblem('Discord 助教')).toMatch(/discord/);
+    expect(usernameProblem('課程助教')).toBeNull();
+    const p = renderPayload({ content: hw, style: 'embed', mention: { type: 'none' }, config: { ...config, username: 'Clyde' } });
+    expect(p.username).toBeUndefined();
+    const out = E.payloadFor({ payload: p } as any, { username: 'my discord bot' } as any, config as any);
+    expect(out.username).toBe('Cue 小幫手');
+  });
+});
