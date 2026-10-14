@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.6",
+    "@types/libsodium-wrappers": "^0.7.14",
     "axe-core": "^4.14.0",
     "libsodium-wrappers": "^0.7.15",
     "playwright": "^1.64.0",

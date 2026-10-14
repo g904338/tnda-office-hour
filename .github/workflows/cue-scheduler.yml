@@ -1,0 +1,50 @@
+# Cue: sends scheduled Discord announcements.
+#
+# Every five minutes (and right away when someone presses "send now" in Cue)
+# this reads the cue-data branch, posts whatever is due to Discord, and
+# writes back what happened. Webhook URLs live in repository secrets named
+# CUE_WEBHOOK_*, which Cue stores encrypted; they never appear in the repo.
+name: Cue scheduler
+
+on:
+  schedule:
+    # GitHub may start scheduled runs a few minutes late; the job waits for
+    # posts due within the next few minutes so they still go out on time.
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: Why this run was started
+        required: false
+        default: manual
+      test:
+        description: 'Send a test message: <channel id>:<request id>'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cue-scheduler
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: scripts/cue
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Send what is due
+        run: node scripts/cue/scheduler.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CUE_SECRETS: ${{ toJSON(secrets) }}
+          CUE_BRANCH: cue-data
+          CUE_TEST: ${{ github.event.inputs.test }}
+          CUE_LOOKAHEAD_MINUTES: '8'

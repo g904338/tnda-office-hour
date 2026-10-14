@@ -184,6 +184,8 @@ export interface Post {
   deliveries: Delivery[];
   /** a change to messages already in Discord, done by the next scheduler run */
   request: { type: 'delete' | 'edit'; at: string } | null;
+  /** set by the scheduler while it is sending */
+  claim?: { run: string; at: string };
   source: string;
   createdAt: string;
   updatedAt: string;
