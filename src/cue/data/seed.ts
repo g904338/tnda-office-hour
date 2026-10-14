@@ -20,7 +20,7 @@ function channel(id: string, name: string, emoji: string, color: string, note: s
     note,
     secret: secretName(id),
     webhookSavedAt: '2026-09-01T10:00:00+08:00',
-    webhookHint: `…${id.slice(-4)}`,
+    webhookHint: `…${String([...id].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) % 1000000, 7)).padStart(6, '4')}`,
     username: '',
     avatar: '',
     mention: { type: 'none' },
@@ -44,7 +44,9 @@ export function demoConfig(now: number): Config {
       channel('ch_news', '公告', '📢', '#5865f2', '全班必看的課程公告', { mention: { type: 'everyone' } }),
       channel('ch_class', '上課提醒', '📚', '#10b981', '每週上課前一晚自動提醒'),
       channel('ch_hw', '作業繳交', '📝', '#f59e0b', '作業公告與截止提醒'),
-      channel('ch_oh', 'office-hour', '☕', '#a855f7', 'Office Hour 時段與異動'),
+      channel('ch_oh', 'office-hour', '☕', '#a855f7', 'Office Hour 時段與異動', {
+        test: { id: 't_seed', at: isoLocal(now - 20 * 3600_000, TZ), ok: false, error: 'Webhook 已被刪除或網址錯誤，請到頻道設定重新貼上 Webhook（Discord 10015）' },
+      }),
       channel('ch_show', '期末展演', '🎬', '#ec4899', '期末展演籌備與彩排'),
     ],
   };

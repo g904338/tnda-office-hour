@@ -28,7 +28,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
-      - name: Database and scheduler tests
+      - name: Unit tests (database, scheduling, Cue parser and cloud scheduler)
         run: npm test
       - run: npm run build
       - name: End-to-end and accessibility tests (production build, demo mode)
@@ -41,6 +41,8 @@ jobs:
           FAKE_TIME=2026-10-23T19:00:00+08:00 node scripts/e2e.mjs http://localhost:4173/
           FAKE_TIME=2026-10-25T12:00:00+08:00 node scripts/e2e.mjs http://localhost:4173/
           node scripts/a11y.mjs http://localhost:4173/
+          # Cue (the Discord announcement scheduler at /cue/), demo mode
+          node scripts/cue-e2e.mjs http://localhost:4173/cue/
         env:
           CI: '1'
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: ''

@@ -35,6 +35,11 @@ function closeDialog(id: number, value?: unknown) {
   }
 }
 
+/** Closes every open dialog (for example when the page changes underneath them). */
+export function closeAllDialogs() {
+  for (const d of [...dialogs.get()].reverse()) closeDialog(d.id);
+}
+
 export function confirm(opts: {
   title: string;
   body?: ComponentChildren;

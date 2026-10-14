@@ -390,7 +390,7 @@ export function semesterWeek(ms: number, semesterStart: string | undefined, tz: 
 
 const KIND_WORDS: Record<KindKey, Array<[RegExp, number]>> = {
   exam: [
-    [/期中考|期末考|小考|隨堂考|段考|模擬考/g, 6],
+    [/期中考|期末考|小考|隨堂考|段考|模擬考|筆試|口試|期中測驗|期末測驗/g, 6],
     [/考試|測驗|quiz|midterm|final exam|exam/gi, 5],
     [/考(?!慮|量|察|核|驗|古)/g, 1],
     [/考試範圍|小抄|題型|考場|開書|閉書|應考/g, 2],
@@ -402,7 +402,8 @@ const KIND_WORDS: Record<KindKey, Array<[RegExp, number]>> = {
   ],
   class: [
     [/上課|下課|課堂|lecture/gi, 4],
-    [/教室|點名|補課|調課|線上課|實體課|請假|課程內容|本週課程|今天的課/g, 2],
+    [/點名|補課|調課|線上課|實體課|請假|課程內容|本週課程|今天的課/g, 2],
+    [/教室/g, 1],
   ],
   event: [
     [/講座|演講|工作坊|workshop|分享會|說明會|展演|展覽|成果展|發表會|期中發表|期末發表|彩排|參訪|比賽|競賽|活動|聚餐|迎新|派對|典禮|開幕/gi, 4],
@@ -415,10 +416,14 @@ const KIND_WORDS: Record<KindKey, Array<[RegExp, number]>> = {
   notice: [[/公告|通知|宣布|注意|重要|異動|更改|變更|取消|停課|延後|提前|調整/g, 3]],
 };
 
-function scoreKinds(t: string): Record<KindKey, number> {
+function scoreKinds(t: string, title: string): Record<KindKey, number> {
   const scores: Record<KindKey, number> = { class: 0, homework: 0, exam: 0, event: 0, material: 0, notice: 0 };
   for (const k of Object.keys(KIND_WORDS) as KindKey[]) {
-    for (const [re, w] of KIND_WORDS[k]) scores[k] += Math.min(t.match(re)?.length ?? 0, 2) * w;
+    for (const [re, w] of KIND_WORDS[k]) {
+      scores[k] += Math.min(t.match(re)?.length ?? 0, 2) * w;
+      // the first line usually says what the post is: it counts again
+      scores[k] += Math.min(title.match(re)?.length ?? 0, 1) * w;
+    }
   }
   // 停課 is news about a class, not a reminder to attend one
   if (/停課|取消上課|不上課/.test(t)) scores.notice += 4;
@@ -648,7 +653,7 @@ export function parse(raw: string, opts: ParseOptions): ParseResult {
   const primary = [...found].sort((a, b) => b.score - a.score || a.start - b.start)[0] ?? null;
 
   // ---- kind
-  const scores = scoreKinds(t);
+  const scores = scoreKinds(t, nLines.find((l) => l.trim()) ?? '');
   if (primary?.role === 'deadline') scores.homework += 3;
   let kind: KindKey = 'notice';
   let best = 0;

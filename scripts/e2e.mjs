@@ -28,7 +28,7 @@ async function run(name, fn) {
   console.log(`  ✓ ${name} (${Date.now() - t0} ms)`);
 }
 
-const browser = await chromium.launch(process.env.CI ? {} : { channel: 'chrome' });
+const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : process.env.CI ? {} : { channel: 'chrome' });
 
 async function session(viewport, isMobile = false) {
   const ctx = await browser.newContext({

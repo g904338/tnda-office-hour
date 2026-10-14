@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "e2e": "node scripts/e2e.mjs",
+    "e2e:cue": "node scripts/cue-e2e.mjs",
     "db:test-cloud": "node scripts/cloud-smoke.mjs",
     "predev": "node scripts/prepare-pglite.mjs",
     "prebuild": "node scripts/prepare-pglite.mjs",

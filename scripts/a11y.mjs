@@ -6,7 +6,7 @@ import { chromium } from 'playwright';
 
 const base = process.argv[2] ?? 'http://localhost:4173/';
 const axeSource = readFileSync(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8');
-const browser = await chromium.launch(process.env.CI ? {} : { channel: 'chrome' });
+const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : process.env.CI ? {} : { channel: 'chrome' });
 const results = [];
 
 async function scan(page, name) {

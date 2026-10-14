@@ -144,6 +144,8 @@ describe('content', () => {
 
   test('kinds', () => {
     expect(p('期中考 11/4 早上 9 點').content.kind).toBe('exam');
+    // the first line weighs most; 筆試 is an exam even next to 課堂 and 教室
+    expect(p('【期中筆試】\n10/28（三） 早上 9:10–11:00，地點：設計學院 3F 301 教室\n範圍是第 1–8 週的課堂內容\n- 題型：簡答與情境題\n- 可以帶一張 A4 手寫小抄').content.kind).toBe('exam');
     expect(p('下週二停課一次，補課時間另行通知').content.kind).toBe('notice');
     expect(p('講義上傳了，請自行下載 https://drive.google.com/drive/folders/abc').content.kind).toBe('material');
     expect(p('11/14 期末展演彩排').content.kind).toBe('event');
