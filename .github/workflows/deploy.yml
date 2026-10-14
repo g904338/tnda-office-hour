@@ -30,7 +30,13 @@ jobs:
       - run: npm run typecheck
       - name: Database and scheduler tests
         run: npm test
+      - id: pages
+        uses: actions/configure-pages@v6
       - run: npm run build
+        env:
+          # the address Pages actually serves this repository from, so the
+          # build stays right if the repository moves to another account
+          VITE_SITE_URL: ${{ steps.pages.outputs.base_url }}/
       - name: End-to-end and accessibility tests (production build, demo mode)
         run: |
           npx playwright install --with-deps chromium

@@ -78,7 +78,7 @@ flowchart LR
 ```bash
 npm install
 npm run dev          # http://localhost:5173（沒有 .env.local 時只能用示範模式）
-npm test             # 資料庫 API、排程演算法、Discord 通知：52 項
+npm test             # 資料庫 API、排程演算法、Discord 通知、行事曆：63 項
 npm run build && npx vite preview --port 4173
 npm run e2e -- http://localhost:4173/   # 真實瀏覽器跑三種角色（示範模式）
 ```
@@ -110,9 +110,14 @@ psql "<資料庫連線字串>" -f scripts/fresh-start.sql
 
 週次可以在「時段與週次」→「產生週次」一次建立。
 
+### 開學前檢查
+
+1. 打開 Supabase 後台，確認專案沒有暫停。如果暫停了，按 Resume 恢復（免費）。
+2. 到 GitHub repo 的 Actions →「Keep database awake」，如果顯示已停用就按 Enable。公開 repo 連續 60 天沒有 commit 時，GitHub 會自動停用排程。
+
 ### 部署
 
-推到 `main` 後，GitHub Actions 會依序執行型別檢查、單元與資料庫測試、正式建置、真實瀏覽器端對端測試，全部通過才部署到 GitHub Pages。另有每日排程呼叫一次 API，避免 Supabase 免費方案因閒置而暫停。
+推到 `main` 後，GitHub Actions 會依序執行型別檢查、單元與資料庫測試、正式建置、真實瀏覽器端對端測試，全部通過才部署到 GitHub Pages。另有每日排程呼叫一次 API，避免 Supabase 免費方案因閒置而暫停（GitHub 會在 60 天沒有 commit 時停用排程，見「開學前檢查」）。
 
 ## 費用：全部免費
 
@@ -125,7 +130,7 @@ psql "<資料庫連線字串>" -f scripts/fresh-start.sql
 | Google Fonts | Noto Sans TC、IBM Plex Mono | 免費 |
 | Discord Webhook | 自動通知 | 免費 |
 
-Supabase 免費方案提供 500 MB 資料庫、每月 5 GB 流量、200 個同時連線。一門課約 7 組、40 人，一整學期的資料量大約只有幾 MB，連上限的百分之一都不到。免費專案閒置 7 天會暫停，所以 GitHub Actions 每天會呼叫一次 API 讓它保持運作。
+Supabase 免費方案提供 500 MB 資料庫、每月 5 GB 流量、200 個同時連線。一門課約 7 組、40 人，一整學期的資料量大約只有幾 MB，連上限的百分之一都不到。免費專案閒置 7 天會暫停，所以 GitHub Actions 每天會呼叫一次 API 讓它保持運作。即使暫停，Supabase 也會在暫停前一週和暫停當下寄信給組織擁有者，暫停後至少 90 天內都能在後台免費恢復，資料都還在。
 
 ## 專案結構
 
