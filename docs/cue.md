@@ -149,7 +149,8 @@ npm install
 npm run dev                      # http://localhost:5173/cue/
 npm test                         # 包含 Cue 的解析器、渲染、排程、加密、雲端排程器與 GitHub 同步
 npm run build && npx vite preview --port 4173
-npm run e2e:cue -- http://localhost:4173/cue/   # 真實瀏覽器走完所有流程 + 無障礙掃描
+npm run e2e:cue -- http://localhost:4173/cue/          # 示範模式：真實瀏覽器走完所有流程 + 無障礙掃描
+npm run e2e:cue-github -- http://localhost:4173/cue/   # GitHub 模式：假的 GitHub API + 真的排程器 + 假的 Discord
 ```
 
 在本機試雲端排程器（不會真的發到 Discord）：
@@ -169,7 +170,8 @@ scripts/cue/engine.mjs          排程器的狀態機（雲端與示範共用）
 scripts/cue/scheduler.mjs       GitHub Actions 執行的排程器
 .github/workflows/cue-scheduler.yml
 tests/cue/                      Vitest 單元與整合測試
-scripts/cue-e2e.mjs             Playwright 端對端測試 + axe 無障礙掃描
+scripts/cue-e2e.mjs             Playwright 端對端測試（示範模式）+ axe 無障礙掃描
+scripts/cue-e2e-github.mjs      Playwright 端對端測試（GitHub 模式，記憶體裡的假 GitHub 與 Discord）
 ```
 
 ## 三分鐘展示腳本

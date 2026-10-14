@@ -84,6 +84,43 @@ function NextUp({ post }: { post: Post }) {
   );
 }
 
+/** Shown until the basics are done: a channel, a working webhook, a first post. */
+function SetupChecklist() {
+  const { config, posts, backend } = useData();
+  const steps = [
+    { done: true, text: '連接 GitHub，建立資料分支', href: 'settings' },
+    { done: config.channels.length > 0, text: '新增第一個 Discord 頻道', href: 'channels' },
+    { done: config.channels.some((c) => c.test?.ok), text: '傳送測試訊息，確認 Webhook 可用', href: 'channels' },
+    { done: posts.length > 0, text: '貼上第一則公告並排程', href: 'compose' },
+  ];
+  if (backend?.kind !== 'github' || steps.every((s) => s.done)) return null;
+  const next = steps.find((s) => !s.done)!;
+  return (
+    <section class="card setup" aria-labelledby="setup-title">
+      <div class="row between wrap">
+        <h2 class="title-s" id="setup-title">
+          開始使用 · {steps.filter((s) => s.done).length}/{steps.length}
+        </h2>
+        <a class="btn sm accent" href={href(next.href)}>
+          {next.text}
+          <Icon name="arrow" size={16} />
+        </a>
+      </div>
+      <ol class="setup-steps">
+        {steps.map((s) => (
+          <li key={s.text} class={s.done ? 'done' : ''}>
+            <span class="tick" aria-hidden="true">
+              {s.done && <Icon name="check" size={14} />}
+            </span>
+            <a href={href(s.href)}>{s.text}</a>
+            {s.done && <span class="sr-only">（完成）</span>}
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
 function QuickPaste() {
   const [text, setText] = useState('');
   const submit = () => {
@@ -170,6 +207,7 @@ export function Overview() {
 
       <div class="ov-grid">
         <div class="stack loose" style={{ minWidth: 0 }}>
+          <SetupChecklist />
           {next ? (
             <NextUp post={next} />
           ) : (

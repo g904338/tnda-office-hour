@@ -967,6 +967,56 @@ a.dc-title {
   display: grid;
   gap: 10px;
 }
+.setup {
+  display: grid;
+  gap: 12px;
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent), var(--shadow-1);
+}
+.setup-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+}
+.setup-steps li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+.setup-steps a {
+  color: var(--ink);
+  text-decoration: none;
+}
+.setup-steps a:hover {
+  text-decoration: underline;
+}
+.setup-steps .tick {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-2);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+.setup-steps li.done .tick {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: #fff;
+}
+.setup-steps li.done a {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+@media (max-width: 640px) {
+  .setup-steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .sched .sched-icon {
   width: 36px;
   height: 36px;

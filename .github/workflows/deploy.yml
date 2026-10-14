@@ -43,6 +43,8 @@ jobs:
           node scripts/a11y.mjs http://localhost:4173/
           # Cue (the Discord announcement scheduler at /cue/), demo mode
           node scripts/cue-e2e.mjs http://localhost:4173/cue/
+          # Cue against an in-memory GitHub, with the real scheduler and a fake Discord
+          node scripts/cue-e2e-github.mjs http://localhost:4173/cue/
         env:
           CI: '1'
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: ''
