@@ -2,6 +2,10 @@
 
 TN0006「跨域數位製作實務」的 Office Hour 預約平台。學生以小組為單位勾選可以的時段，助教排程後發布，老師只看到排給自己的場次，所有畫面即時同步。使用說明、架構圖、展示腳本在 `README.md`。
 
+- Repo：`tndaixd2026-dot/tnda-office-hour`（public）
+- 網站：https://tndaixd2026-dot.github.io/tnda-office-hour/（示範模式：`#/demo`）
+- 資料庫：Supabase 組織「TNDA Office Hour」，東京區，專案 ref 在 `.env.production` 的網址裡
+
 ## 使用者的長期要求
 
 - **用繁體中文回覆**。介面文字用繁體中文；程式碼註解和 commit message 沿用既有的英文風格。
@@ -73,7 +77,7 @@ TN0006「跨域數位製作實務」的 Office Hour 預約平台。學生以小�
 ## 換電腦或換帳號
 
 - 需要安裝：Node 24、`gh`、Supabase CLI；只有本機雲端測試需要 Colima 和 Docker。
-- 用 `gh repo clone <帳號>/tnda-office-hour` 取得 repo，把 `.secrets/` 放到 repo 根目錄，然後執行 `npm ci` 和 `npx playwright install chromium`。
-- `gh auth login` 時，登入有這個 repo 推送權限的 GitHub 帳號。接著執行 `supabase login`，再執行 `supabase link --project-ref "$(cat .secrets/project-ref.txt)"`；這個帳號要是 Supabase 組織「TNDA Office Hour」的成員。
-- 在 repo 內設定 commit 身分：`git config user.name <帳號>`，並把 `git config user.email` 設成該帳號的 noreply email。
+- `gh auth login` 登入 `tndaixd2026-dot`，用 `gh repo clone tndaixd2026-dot/tnda-office-hour` 取得 repo，把 `.secrets/` 放到 repo 根目錄，然後執行 `npm ci` 和 `npx playwright install chromium`。
+- 執行 `supabase login`，再執行 `supabase link --project-ref "$(cat .secrets/project-ref.txt)"`。登入的 Supabase 帳號必須是組織「TNDA Office Hour」的成員。
+- 在 repo 內設定 commit 身分：`git config user.name tndaixd2026-dot`、`git config user.email 317161189+tndaixd2026-dot@users.noreply.github.com`。
 - 網址：部署時會自動使用 GitHub Pages 的實際網址。搬到別的帳號後，要把 `README.md`、`.env.production`、`supabase/config.toml` 裡的舊網址一起更新。
