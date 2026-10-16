@@ -93,10 +93,11 @@ npm run e2e:cloud -- http://localhost:5173/ LOCALG02 LOCALADMIN01
 
 ### 資料庫變更
 
-在 `supabase/migrations/` 新增一個檔案（不要修改已部署的檔案），然後：
+在 `supabase/migrations/` 新增一個檔案（不要修改已部署的檔案），用 `npm test` 確認後推到 `main`。GitHub Actions 會在所有測試通過後，自動把新的 migration 套用到正式資料庫，再部署網站。資料庫密碼存在 repo 的 Actions secret `SUPABASE_DB_PASSWORD`；其他分支和 PR 只會列出將要套用的 migration，不會真的寫入。
+
+需要手動推送時：
 
 ```bash
-npm test
 supabase db push
 ```
 
@@ -117,14 +118,14 @@ psql "<資料庫連線字串>" -f scripts/fresh-start.sql
 
 ### 部署
 
-推到 `main` 後，GitHub Actions 會依序執行型別檢查、單元與資料庫測試、正式建置、真實瀏覽器端對端測試，全部通過才部署到 GitHub Pages。另有每日排程呼叫一次 API，避免 Supabase 免費方案因閒置而暫停（GitHub 會在 60 天沒有 commit 時停用排程，見「開學前檢查」）。
+推到 `main` 後，GitHub Actions 會依序執行型別檢查、單元與資料庫測試、正式建置、真實瀏覽器端對端測試，全部通過才把新的 migration 推到 Supabase，再部署到 GitHub Pages。另有每日排程呼叫一次 API，避免 Supabase 免費方案因閒置而暫停（GitHub 會在 60 天沒有 commit 時停用排程，見「開學前檢查」）。
 
 ## 費用：全部免費
 
 | 服務 | 用途 | 方案 |
 |---|---|---|
 | GitHub Pages | 網站 | 公開 repo 免費 |
-| GitHub Actions | 自動測試、部署、每日喚醒 | 公開 repo 不限分鐘數 |
+| GitHub Actions | 自動測試、資料庫 migration、部署、每日喚醒 | 公開 repo 不限分鐘數 |
 | Supabase | 資料庫、API、即時同步、Discord 通知 | Free 方案（組織沒有綁定任何付款方式，不可能產生費用） |
 | jsDelivr | 示範模式的資料庫引擎 | 免費 |
 | Google Fonts | Noto Sans TC、IBM Plex Mono | 免費 |

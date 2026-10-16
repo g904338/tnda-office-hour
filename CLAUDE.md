@@ -18,6 +18,7 @@ TN0006「跨域數位製作實務」的 Office Hour 預約平台。學生以小�
 - 小組、老師、助教的代碼和資料庫密碼，**不要貼進對話、commit、issue 或 log**。產生或更換後寫進 `.secrets/`。
 - `.secrets/`（已 gitignore）：`db-password.txt`、`admin-code.txt`、`project-ref.txt`。換電腦時用 AirDrop 這類離線方式搬，不要經過 Git、Email 或聊天。
 - 助教登入連結由使用者自己保管在 repo 外。
+- GitHub repo secret `SUPABASE_DB_PASSWORD`：資料庫密碼，給 GitHub Actions 推 migration 用。更換資料庫密碼時要一起更新（repo → Settings → Secrets and variables → Actions）。
 - `.env.production` 裡的 Supabase publishable key 本來就是公開的（只能呼叫 `oh_*` 函式），可以 commit。
 
 ## 架構
@@ -54,8 +55,8 @@ TN0006「跨域數位製作實務」的 Office Hour 預約平台。學生以小�
    node scripts/a11y.mjs http://localhost:4173/
    ```
    要測多人即時同步時，改用本機 Supabase：`colima start`、`supabase start`、`npm run db:reset-local`，再執行 `npm run e2e:cloud -- http://localhost:5173/ LOCALG02 LOCALADMIN01`。這兩個代碼只存在本機資料庫。
-3. 有新的 migration 時，執行 `supabase db push --yes` 推到正式資料庫。**絕對不要**對正式資料庫執行 `supabase db reset`，`scripts/local-reset.sh` 也只能用在本機。
-4. Commit 後 push 到 `main`。GitHub Actions 會依序跑型別檢查、測試、建置、三個時間點的 E2E 和 axe 掃描，全部通過才部署到 Pages。用 `gh run watch` 等結果。
+3. 新的 migration 不用手動推：push 到 `main` 後，GitHub Actions 的 `migrate` job 會在測試全部通過後執行 `supabase db push`，再部署網站。其他分支和 PR 只會列出待套用的 migration（dry run）。需要手動推時，在 Mac 上執行 `supabase db push --yes`。**絕對不要**對正式資料庫執行 `supabase db reset`，`scripts/local-reset.sh` 也只能用在本機。
+4. Commit 後 push 到 `main`。GitHub Actions 會依序跑型別檢查、測試、建置、三個時間點的 E2E 和 axe 掃描，全部通過才推送 migration、部署到 Pages。用 `gh run watch` 等結果。
 5. 到正式網站驗證：`npm run db:test-cloud`（唯讀的雲端安全檢查），再打開網站，親自看一次改過的畫面。
 
 ## 容易出錯的地方
@@ -81,3 +82,4 @@ TN0006「跨域數位製作實務」的 Office Hour 預約平台。學生以小�
 - 執行 `supabase login`，再執行 `supabase link --project-ref "$(cat .secrets/project-ref.txt)"`。登入的 Supabase 帳號必須是組織「TNDA Office Hour」的成員。
 - 在 repo 內設定 commit 身分：`git config user.name tndaixd2026-dot`、`git config user.email 317161189+tndaixd2026-dot@users.noreply.github.com`。
 - 網址：部署時會自動使用 GitHub Pages 的實際網址。搬到別的帳號後，要把 `README.md`、`.env.production`、`supabase/config.toml` 裡的舊網址一起更新。
+- 搬到別的 repo 後，要在新 repo 重新設定 secret `SUPABASE_DB_PASSWORD`，否則 `main` 的部署會在 `migrate` 這一步停下。

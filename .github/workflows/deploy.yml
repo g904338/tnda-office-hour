@@ -62,9 +62,45 @@ jobs:
         with:
           path: dist
 
+  # Applies new supabase/migrations files to the live database once every
+  # test has passed, before the site that may call them goes out. Other
+  # branches and pull requests only list what would be applied.
+  migrate:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.121.0
+      - name: Push database migrations
+        env:
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          # session-mode pooler: runners have no IPv6 for the direct db host
+          POOLER_HOST: aws-0-ap-northeast-1.pooler.supabase.com
+          LIVE: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          if [ -z "$SUPABASE_DB_PASSWORD" ]; then
+            if [ "$LIVE" = true ]; then
+              echo "::error::Add the database password as the SUPABASE_DB_PASSWORD repository secret"
+              exit 1
+            fi
+            echo "::notice::No SUPABASE_DB_PASSWORD available, skipping the migration check"
+            exit 0
+          fi
+          ref=$(sed -n 's#^VITE_SUPABASE_URL=https://\([a-z0-9]*\)\.supabase\.co.*#\1#p' .env.production)
+          pw=$(node -e 'process.stdout.write(encodeURIComponent(process.env.SUPABASE_DB_PASSWORD))')
+          echo "::add-mask::$pw"
+          url="postgresql://postgres.$ref:$pw@$POOLER_HOST:5432/postgres"
+          if [ "$LIVE" = true ]; then
+            supabase db push --db-url "$url" --yes
+          else
+            supabase db push --db-url "$url" --dry-run
+          fi
+
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: build
+    needs: [build, migrate]
     runs-on: ubuntu-latest
     environment:
       name: github-pages
