@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { ApiError } from '../api/engine';
 import type { JoinResult, PeekResult, Settings } from '../api/types';
 import { errorText } from '../app/messages';
 import { go } from '../app/router';
@@ -60,13 +61,48 @@ export function ClockArt() {
 export function Welcome({ initialCode }: { initialCode?: string }) {
   const { engine, demoLoading } = useApp();
   const [settings, setSettings] = useState<Settings | null>(null);
+  // students and teachers sign in by name; invite links (and admins) use codes
+  const [mode, setMode] = useState<'name' | 'code'>(initialCode ? 'code' : 'name');
+  const [who, setWho] = useState('');
   const [code, setCode] = useState(formatCode(initialCode ?? ''));
   const [peek, setPeek] = useState<PeekResult | null>(null);
   const [name, setName] = useState('');
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const whoRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const codeRef = useRef<HTMLInputElement>(null);
+
+  function switchMode(m: 'name' | 'code') {
+    setMode(m);
+    setErr(null);
+    setTimeout(() => (m === 'name' ? whoRef : codeRef).current?.focus(), 0);
+  }
+
+  async function login() {
+    if (!engine) return;
+    if (!who.trim()) {
+      setErr('請輸入你的名字。');
+      whoRef.current?.focus();
+      return;
+    }
+    setBusy(true);
+    setErr(null);
+    try {
+      const r = await engine.call<JoinResult>('oh_login', { p_name: who.trim() });
+      if (!r.ok) {
+        setErr(errorText(new ApiError(r.error ?? 'NAME_UNKNOWN')));
+        whoRef.current?.focus();
+        return;
+      }
+      signedIn(r);
+      go(r.session?.role === 'admin' ? 'admin' : '', { replace: true });
+    } catch (e) {
+      setErr(errorText(e));
+    } finally {
+      setBusy(false);
+    }
+  }
 
   useEffect(() => {
     engine
@@ -95,7 +131,7 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
     try {
       const r = await engine.call<PeekResult>('oh_peek', { p_code: raw });
       if (!r.ok) {
-        setErr(errorText({ code: r.error ?? 'CODE_INVALID' } as any));
+        setErr(errorText(new ApiError(r.error ?? 'CODE_INVALID')));
         codeRef.current?.focus();
       }
       setPeek(r.ok ? r : null);
@@ -117,7 +153,7 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
     try {
       const r = await engine.call<JoinResult>('oh_join', { p_code: code.replace(/-/g, ''), p_name: name.trim() || null });
       if (!r.ok) {
-        setErr(errorText({ code: r.error } as any));
+        setErr(errorText(new ApiError(r.error ?? 'CODE_INVALID')));
         if (r.error === 'CODE_INVALID') setPeek(null);
         return;
       }
@@ -131,6 +167,24 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
   }
 
   const host = settings?.host_label || 'PM';
+
+  const offline = (
+    <div class="notice info">
+      <Icon name="info" />
+      <span>這個網站還沒有連接雲端資料庫。你可以先用示範模式看看完整功能。</span>
+    </div>
+  );
+  const demo = (
+    <>
+      <div class="divider" />
+      <div class="stack tight">
+        <p class="small muted">{mode === 'name' ? '想先看看怎麼用？' : '還沒拿到代碼，或想先看看怎麼用？'}</p>
+        <Btn icon="play" loading={demoLoading} onClick={() => startDemo('student')}>
+          試玩示範（學生、助教、老師）
+        </Btn>
+      </div>
+    </>
+  );
 
   return (
     <main class="welcome">
@@ -153,7 +207,47 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
 
       <section class="welcome-main">
         <div class="welcome-card enter">
-          {!peek?.ok ? (
+          {!peek?.ok && mode === 'name' ? (
+            <form
+              class="stack loose"
+              onSubmit={(e) => {
+                e.preventDefault();
+                login();
+              }}
+            >
+              <div class="stack tight">
+                <h2 class="title-l">輸入你的名字</h2>
+                <p class="muted">學生和老師輸入名字就能登入。</p>
+              </div>
+              {HAS_CLOUD ? (
+                <>
+                  <Field label="名字" error={err}>
+                    <input
+                      ref={whoRef}
+                      class="input"
+                      value={who}
+                      maxLength={40}
+                      autoComplete="name"
+                      placeholder="例：林小晴"
+                      onInput={(e) => {
+                        setWho((e.target as HTMLInputElement).value);
+                        setErr(null);
+                      }}
+                    />
+                  </Field>
+                  <Btn type="submit" variant="primary" size="lg" block loading={busy}>
+                    登入
+                  </Btn>
+                  <button type="button" class="link-btn small" style={{ justifySelf: 'start' }} onClick={() => switchMode('code')}>
+                    我有邀請代碼
+                  </button>
+                </>
+              ) : (
+                offline
+              )}
+              {demo}
+            </form>
+          ) : !peek?.ok ? (
             <form
               class="stack loose"
               onSubmit={(e) => {
@@ -187,22 +281,14 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
                   <Btn type="submit" variant="primary" size="lg" block loading={busy}>
                     繼續
                   </Btn>
+                  <button type="button" class="link-btn small" style={{ justifySelf: 'start' }} onClick={() => switchMode('name')}>
+                    改用名字登入
+                  </button>
                 </>
               ) : (
-                <div class="notice info">
-                  <Icon name="info" />
-                  <span>這個網站還沒有連接雲端資料庫。你可以先用示範模式看看完整功能。</span>
-                </div>
+                offline
               )}
-              <div class="divider" />
-              <div class="stack tight">
-                <p class="small muted">
-                  還沒拿到代碼，或想先看看怎麼用？
-                </p>
-                <Btn icon="play" loading={demoLoading} onClick={() => startDemo('student')}>
-                  試玩示範（學生、助教、老師）
-                </Btn>
-              </div>
+              {demo}
             </form>
           ) : (
             <form

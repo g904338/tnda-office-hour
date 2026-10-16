@@ -63,8 +63,13 @@ try {
 
   await run('welcome screen', async () => {
     await page.goto(base, { waitUntil: 'networkidle' });
-    await page.getByRole('heading', { name: '輸入邀請代碼' }).waitFor();
+    await page.getByRole('heading', { name: '輸入你的名字' }).waitFor();
     check(await page.getByRole('button', { name: /試玩示範/ }).isVisible(), 'demo button missing');
+    // invite codes are one tap away, and back
+    await page.getByRole('button', { name: '我有邀請代碼' }).click();
+    await page.getByRole('heading', { name: '輸入邀請代碼' }).waitFor();
+    await page.getByRole('button', { name: '改用名字登入' }).click();
+    await page.getByRole('heading', { name: '輸入你的名字' }).waitFor();
   });
 
   await run('demo boots in the browser', async () => {
@@ -167,6 +172,25 @@ try {
       await page.getByRole('complementary', { name: '管理選單' }).getByRole('link', { name: label }).click();
       await page.getByRole('heading', { name: heading }).first().waitFor();
     }
+  });
+
+  await run('admin edits a group roster', async () => {
+    await page.getByRole('complementary', { name: '管理選單' }).getByRole('link', { name: '小組與邀請' }).click();
+    await page.getByRole('button', { name: '編輯第 1 組的學生名單' }).click();
+    const d = page.getByRole('dialog', { name: '第 1 組的學生名單' });
+    await d.getByLabel('學生名單').fill('吳思妤\nE2E 同學\n張家豪');
+    await d.getByRole('button', { name: '儲存' }).click();
+    await page.getByText('已更新學生名單').waitFor();
+    await page.locator('.chip', { hasText: 'E2E 同學' }).waitFor();
+    // a name already on another group's roster is refused, and the text is kept
+    await page.getByRole('button', { name: '編輯第 1 組的學生名單' }).click();
+    await d.getByLabel('學生名單').fill('吳思妤\n陳柏宇');
+    await d.getByRole('button', { name: '儲存' }).click();
+    await page.getByText(/「陳柏宇」已經在其他組/).waitFor();
+    check((await d.getByLabel('學生名單').inputValue()).includes('陳柏宇'), 'roster text should be kept after an error');
+    await d.getByRole('button', { name: '取消' }).click();
+    await page.getByRole('complementary', { name: '管理選單' }).getByRole('link', { name: '設定' }).click();
+    await page.getByRole('heading', { name: '課程與規則' }).first().waitFor();
   });
 
   await run('admin changes a setting', async () => {

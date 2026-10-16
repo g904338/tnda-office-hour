@@ -42,6 +42,8 @@ export function eventText(e: ActivityEvent, groups: Array<{ id: number; no: numb
       return `${who} 修改了${g}`;
     case 'config.group.rotated':
       return `${who} 更換了${g}的邀請代碼`;
+    case 'config.group.roster':
+      return `${who} 更新了${g}的學生名單`;
     default:
       if (e.kind.startsWith('config.')) return `${who} 修改了${e.kind.includes('teacher') ? '老師' : e.kind.includes('block') ? '開放時段' : e.kind.includes('closure') ? '休息日' : e.kind.includes('week') ? '週次' : e.kind.includes('admin') ? '助教' : '設定'}`;
       return `${who} ${e.kind}`;

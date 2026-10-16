@@ -66,7 +66,12 @@ begin
     insert into app.sessions (token_hash, role, group_id, name, created_at, seen_at)
     values (app.hash_token(app.new_token()), 'student', (select id from app.groups where no = m.no), m.name,
             app.now() - interval '20 days', app.now() - interval '1 day');
+    insert into app.roster (group_id, name) values ((select id from app.groups where no = m.no), m.name);
   end loop;
+  -- on the roster, but not signed in yet
+  insert into app.roster (group_id, name)
+  select (select id from app.groups where no = x.no), x.name
+    from (values (2, '林小晴'), (5, '林冠宇'), (7, '張書維')) as x (no, name);
 
   -- two weeks ago
   perform app._demo_request(w_prev2, 2, '陳柏宇', '題目發想怎麼收斂', '列了十個方向，想選兩個深入。', null, 1, array['3 10:00'], interval '18 days');

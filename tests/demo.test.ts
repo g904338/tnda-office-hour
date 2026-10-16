@@ -16,6 +16,8 @@ describe('demo data', () => {
       const ss = await db.call('oh_student_state', { p_token: student.token });
       expect(ss.appointments.length).toBeGreaterThan(0);
       expect(ss.members).toContain('林小晴');
+      const byName = await db.call('oh_login', { p_name: '林小晴' });
+      expect(byName.session).toMatchObject({ role: 'student', group: { no: 2 } });
       const teacher = await db.call('oh_join', { p_code: 'DEMOT00001' });
       const ts = await db.call('oh_teacher_state', { p_token: teacher.token });
       expect(ts.me.name).toBe('Joseph');

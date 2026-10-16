@@ -16,16 +16,19 @@ const FIELD: Record<string, string> = {
   week: '週次的開始日必須是星期一。',
   weeks: '週數需在 1–52 之間。',
   closure: '請選擇日期。',
+  roster: '名單最多 200 人，每個名字最多 20 字。',
   items: '排程資料不正確，請重新整理後再試。',
   kind: '不支援的操作。',
 };
 
 const MESSAGES: Record<string, string> = {
-  AUTH: '登入已失效，請重新輸入代碼。',
+  AUTH: '登入已失效，請重新登入。',
   FORBIDDEN: '這個身份沒有權限做這件事。',
   RATE_LIMIT: '嘗試次數太多，請 10 分鐘後再試。',
   CODE_INVALID: '找不到這個代碼，請確認後再試一次。',
   NAME_REQUIRED: '請輸入你的名字。',
+  NAME_UNKNOWN: '找不到這個名字。請確認寫法和助教的名單一樣，或改用邀請連結。',
+  NAME_AMBIGUOUS: '有人和你同名，請改用邀請連結登入。',
   SLOT_INVALID: '有時段已經不開放，請重新選擇。',
   WEEK_CLOSED: '這週已暫停預約。',
   CONFLICT: '組員剛剛更新了需求。',
@@ -53,6 +56,8 @@ export function errorText(e: unknown, s?: Pick<Settings, 'lead_days' | 'cancel_h
   switch (e.code) {
     case 'VALIDATION':
       return FIELD[e.detail] ?? '輸入的資料不正確。';
+    case 'NAME_TAKEN':
+      return e.detail ? `「${e.detail}」已經在其他組的名單或老師名單裡，名字不能重複。` : '有名字和其他人重複了，請重新整理後再試。';
     case 'NOT_FOUND':
       return '找不到這筆資料，可能已經被刪除或修改了。';
     case 'SLOT_LATE':

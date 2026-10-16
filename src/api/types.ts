@@ -34,7 +34,7 @@ export interface SessionInfo {
 
 export interface JoinResult {
   ok: boolean;
-  error?: 'CODE_INVALID' | 'NAME_REQUIRED';
+  error?: 'CODE_INVALID' | 'NAME_REQUIRED' | 'NAME_UNKNOWN' | 'NAME_AMBIGUOUS';
   token?: string;
   session?: SessionInfo;
 }
@@ -217,6 +217,7 @@ export interface ConfigGroup {
   active: boolean;
   webhook: string | null;
   members: Array<{ id: number; name: string; created_at: string; seen_at: string }>;
+  roster: string[];
   used: boolean;
 }
 

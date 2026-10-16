@@ -104,7 +104,7 @@ export function GroupsPage() {
           <p class="eyebrow">小組與邀請</p>
           <h1 class="title-l">{cfg.groups.length} 個小組</h1>
           <p class="muted small" style={{ maxWidth: '560px' }}>
-            每組一個邀請代碼。把邀請連結貼到各組的 Discord，同學點開、輸入名字就能加入，整組共用同一份預約。
+            在每組的「學生名單」填上同學的名字，同學到首頁輸入自己的名字就能登入；也可以把邀請連結貼到各組的 Discord，點開、輸入名字加入。整組共用同一份預約。
           </p>
         </div>
         <div class="row wrap">
@@ -127,8 +127,30 @@ export function GroupsPage() {
 
 function GroupCard({ g, now, save, reload }: { g: ConfigGroup; now: number; save: (p: Record<string, unknown>, ok?: string) => Promise<unknown>; reload: () => void }) {
   const { call } = useApi();
-  const { run } = useBusy();
+  const { busy, run } = useBusy();
   const link = inviteLink(g.code);
+
+  const editRoster = async () => {
+    let text = g.roster.join('\n');
+    // reopen with what was typed if saving fails (e.g. a name already used elsewhere)
+    for (;;) {
+      const v = await ask({
+        title: `第 ${g.no} 組的學生名單`,
+        body: '一行一個名字。同學在首頁輸入一樣的名字，就能直接登入這組（不分大小寫、忽略空格）。名字不能和其他組或老師重複。',
+        label: '學生名單',
+        placeholder: '林小晴\n王大明',
+        initial: text,
+        multiline: true,
+        optional: true,
+        ok: '儲存',
+      });
+      if (v === null) return;
+      text = v;
+      const r = await run('roster', () => call('oh_admin_roster', { p_group: g.id, p_names: v.split('\n') }), { ok: '已更新學生名單。' });
+      reload();
+      if (r) return;
+    }
+  };
   return (
     <div class={`card stack ${g.active ? '' : 'inactive'}`}>
       <div class="row between">
@@ -233,7 +255,26 @@ function GroupCard({ g, now, save, reload }: { g: ConfigGroup; now: number; save
         </span>
       </div>
       <div class="stack tight">
-        <span class="eyebrow">已加入 {g.members.length} 人</span>
+        <div class="row between">
+          <span class="eyebrow">學生名單 {g.roster.length} 人</span>
+          <Btn size="sm" variant="ghost" icon="edit" loading={busy === 'roster'} onClick={editRoster} aria-label={`編輯第 ${g.no} 組的學生名單`}>
+            編輯
+          </Btn>
+        </div>
+        {g.roster.length ? (
+          <div class="row wrap">
+            {g.roster.map((n) => (
+              <span key={n} class="chip outline">
+                {n}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <span class="small muted">還沒有名單。加入名字後，同學在首頁輸入名字就能登入這組。</span>
+        )}
+      </div>
+      <div class="stack tight">
+        <span class="eyebrow">已登入 {g.members.length} 人</span>
         {g.members.length ? (
           <div class="row wrap">
             {g.members.map((m) => (
@@ -244,7 +285,7 @@ function GroupCard({ g, now, save, reload }: { g: ConfigGroup; now: number; save
                 style={{ cursor: 'pointer' }}
                 title={`加入於 ${agoText(m.created_at, now)}，最近 ${agoText(m.seen_at, now)}使用`}
                 onClick={async () => {
-                  if (!(await confirm({ title: `讓「${m.name}」登出？`, body: '這台裝置之後需要重新輸入代碼。適合用在有人換手機、或填錯組的時候。', ok: '登出這個裝置', danger: true }))) return;
+                  if (!(await confirm({ title: `讓「${m.name}」登出？`, body: '這台裝置之後需要重新登入。適合用在有人換手機、或填錯組的時候。', ok: '登出這個裝置', danger: true }))) return;
                   await run('revoke', () => call('oh_admin_delete', { p_kind: 'session', p_id: m.id }), { ok: '已登出。' });
                   reload();
                 }}
@@ -255,7 +296,7 @@ function GroupCard({ g, now, save, reload }: { g: ConfigGroup; now: number; save
             ))}
           </div>
         ) : (
-          <span class="small muted">還沒有人加入。把邀請連結傳給這組吧。</span>
+          <span class="small muted">還沒有人登入。</span>
         )}
       </div>
       <DiscordRow g={g} save={save} />
@@ -393,7 +434,7 @@ export function TeachersPage() {
           <p class="eyebrow">老師</p>
           <h1 class="title-l">{host}</h1>
           <p class="muted small" style={{ maxWidth: '560px' }}>
-            每位老師一個專屬連結。打開就能看到自己的場次、各組題目與進度，也能一鍵加入行事曆。老師不需要做任何設定。
+            老師到首頁輸入自己的名字就能登入，或打開專屬連結。登入後可以看到自己的場次、各組題目與進度，也能一鍵加入行事曆。老師不需要做任何設定。
           </p>
         </div>
         <Btn

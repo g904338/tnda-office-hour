@@ -38,6 +38,10 @@ ok(r.status === 400 && e.message === 'AUTH', 'bad tokens are refused');
 r = await rpc('oh_peek', { p_code: 'ZZZZZZZZ' });
 ok((await r.json()).ok === false, 'unknown codes are rejected');
 
+r = await rpc('oh_login', { p_name: `沒有這個人${Date.now()}` });
+const login = await r.json();
+ok(r.ok && login.ok === false && login.error === 'NAME_UNKNOWN' && !login.token, 'unknown names are rejected');
+
 r = await fetch(`${url}/graphql/v1`, { method: 'POST', headers, body: JSON.stringify({ query: '{ __schema { queryType { fields { name } } } }' }) });
 const gql = await r.json().catch(() => ({}));
 const fields = gql?.data?.__schema?.queryType?.fields?.map((f) => f.name) ?? [];

@@ -564,6 +564,92 @@ describe('administration', () => {
   });
 });
 
+describe('name login', () => {
+  let db: TestDb;
+  let admin: string;
+  beforeAll(async () => {
+    db = await makeDb();
+    await db.setNow(WED);
+    admin = await join(db, (await db.codes()).admin);
+  });
+
+  const roster = (no: number, names: unknown) =>
+    groupId(db, no).then((id) => db.call('oh_admin_roster', { p_token: admin, p_group: id, p_names: names }));
+
+  it('keeps a cleaned, de-duplicated roster per group, in order', async () => {
+    const r = await roster(1, ['  吳思妤 ', '張家豪', '', '張 家豪', 'Amy  Chen', null]);
+    expect(r.roster).toEqual(['吳思妤', '張家豪', 'Amy Chen']);
+    const cfg = await db.call('oh_admin_config', { p_token: admin });
+    expect(cfg.groups.find((g: any) => g.no === 1).roster).toEqual(['吳思妤', '張家豪', 'Amy Chen']);
+    expect(cfg.groups.find((g: any) => g.no === 2).roster).toEqual([]);
+    // saving again replaces the list
+    expect((await roster(1, ['吳思妤', 'Amy Chen'])).roster).toEqual(['吳思妤', 'Amy Chen']);
+  });
+
+  it('signs a student in to their group by name, ignoring case, spaces and width', async () => {
+    const r = await db.call('oh_login', { p_name: ' ａｍｙ chen ' });
+    expect(r.ok).toBe(true);
+    expect(r.token).toMatch(/^[0-9a-f]{64}$/);
+    expect(r.session).toMatchObject({ role: 'student', name: 'Amy Chen', group: { no: 1 } });
+    const st = await db.call('oh_student_state', { p_token: r.token });
+    expect(st.me.group.no).toBe(1);
+    const ev = await db.one("select data from app.events where kind = 'member.joined' order by id desc limit 1");
+    expect(ev.data).toEqual({ via: 'name' });
+  });
+
+  it('signs a teacher in by name, but never an admin', async () => {
+    const t = await db.call('oh_login', { p_name: 'tim' });
+    expect(t.session).toMatchObject({ role: 'teacher', name: 'Tim' });
+    await db.call('oh_teacher_state', { p_token: t.token });
+    expect(await db.call('oh_login', { p_name: '助教' })).toEqual({ ok: false, error: 'NAME_UNKNOWN' });
+  });
+
+  it('rejects empty and unknown names, and counts unknown ones as guesses', async () => {
+    await db.sql('delete from app.join_attempts');
+    expect(await db.call('oh_login', { p_name: '   ' })).toEqual({ ok: false, error: 'NAME_REQUIRED' });
+    expect(await db.call('oh_login', { p_name: '張家豪' })).toEqual({ ok: false, error: 'NAME_UNKNOWN' }); // removed from the roster
+    expect((await db.one('select count(*)::int as n from app.join_attempts')).n).toBe(1);
+    for (let i = 0; i < 19; i++) await db.call('oh_login', { p_name: `路人${i}` });
+    await expectCode(db.call('oh_login', { p_name: '吳思妤' }), 'RATE_LIMIT');
+    await db.sql('delete from app.join_attempts');
+  });
+
+  it('does not sign in members of a disabled group', async () => {
+    const id = await groupId(db, 1);
+    await db.call('oh_admin_save', { p_token: admin, p_kind: 'group', p: { id, active: false } });
+    expect(await db.call('oh_login', { p_name: '吳思妤' })).toEqual({ ok: false, error: 'NAME_UNKNOWN' });
+    await db.call('oh_admin_save', { p_token: admin, p_kind: 'group', p: { id, active: true } });
+    expect((await db.call('oh_login', { p_name: '吳思妤' })).ok).toBe(true);
+  });
+
+  it('keeps names unique across groups and teachers', async () => {
+    const e = await expectCode(roster(2, ['陳柏宇', '吳 思妤', 'TIM']), 'NAME_TAKEN');
+    expect(e.detail).toBe('吳 思妤、TIM');
+    expect((await roster(2, ['陳柏宇'])).roster).toEqual(['陳柏宇']);
+    // a teacher added later with a student's name makes the name ambiguous
+    await db.call('oh_admin_save', { p_token: admin, p_kind: 'teacher', p: { name: '陳柏宇' } });
+    expect(await db.call('oh_login', { p_name: '陳柏宇' })).toEqual({ ok: false, error: 'NAME_AMBIGUOUS' });
+  });
+
+  it('validates roster input and requires an admin', async () => {
+    await expectCode(roster(3, { not: 'a list' }), 'VALIDATION', 'roster');
+    await expectCode(roster(3, ['這個名字實在是太長了超過二十個字的上限了吧對吧']), 'VALIDATION', 'roster');
+    await expectCode(db.call('oh_admin_roster', { p_token: admin, p_group: 9999, p_names: [] }), 'NOT_FOUND');
+    const student = (await db.call('oh_login', { p_name: '吳思妤' })).token;
+    await expectCode(db.call('oh_admin_roster', { p_token: student, p_group: 1, p_names: [] }), 'FORBIDDEN');
+  });
+
+  it('drops the roster with its group', async () => {
+    const r = await db.call('oh_admin_save', { p_token: admin, p_kind: 'group', p: { name: '臨時組' } });
+    const id = (await db.one("select id from app.groups where name = '臨時組'")).id;
+    expect(r).toBeTruthy();
+    await db.call('oh_admin_roster', { p_token: admin, p_group: id, p_names: ['臨時同學'] });
+    await db.call('oh_admin_delete', { p_token: admin, p_kind: 'group', p_id: id });
+    expect(await db.call('oh_login', { p_name: '臨時同學' })).toEqual({ ok: false, error: 'NAME_UNKNOWN' });
+    expect((await db.one('select count(*)::int as n from app.roster where group_id = $1', [id])).n).toBe(0);
+  });
+});
+
 describe('lockdown', () => {
   it('gives the anon role nothing but the oh_ functions', async () => {
     const db = await makeDb();
@@ -572,6 +658,8 @@ describe('lockdown', () => {
     await expect(db.sql('select app.gen_code(8)')).rejects.toThrow(/permission denied/);
     const r = await db.call('oh_peek', { p_code: 'NOPE1234' });
     expect(r.ok).toBe(false);
+    await expect(db.sql('select * from app.roster')).rejects.toThrow(/permission denied/);
+    expect(await db.call('oh_login', { p_name: '沒有這個人' })).toEqual({ ok: false, error: 'NAME_UNKNOWN' });
     await db.sql('reset role');
   });
 
