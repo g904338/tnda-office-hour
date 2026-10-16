@@ -8,6 +8,7 @@ import { slotLines, timeRange, minutesText } from '../../lib/format';
 import { addDays, addMinutes, agoText, dayLabel, instant, mdPad, relativeDay, tzNote, untilText } from '../../lib/time';
 import { ask, confirm } from '../../ui/dialog';
 import { toast } from '../../ui/toast';
+import { RECORDING_NOTE, RECORDING_SHORT } from '../../config';
 import { Icon } from '../../ui/icons';
 import { BrandMark, Btn, Empty, LiveBadge, Loading, Menu, Place, WeekStrip, safeHref } from '../../ui/kit';
 import { openCalendarDialog } from '../CalendarSubscribe';
@@ -246,6 +247,10 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
               <Icon name="pin" size={16} />
               <Place value={st.settings.location} />
             </span>
+            <span>
+              <Icon name="video" size={16} />
+              {RECORDING_SHORT}
+            </span>
             {next.teacher && (
               <span>
                 <Icon name="user" size={16} />
@@ -441,6 +446,10 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
             <dd>
               <Place value={st.settings.location} />
             </dd>
+          </div>
+          <div>
+            <dt>錄影</dt>
+            <dd>{RECORDING_NOTE}</dd>
           </div>
           <div>
             <dt>每週上限</dt>

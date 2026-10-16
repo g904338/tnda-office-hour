@@ -7,6 +7,7 @@ import { greeting, timeRange } from '../../lib/format';
 import { addMinutes, agoText, DOW, dayLabel, instant, md, relativeDay, tzNote, untilText } from '../../lib/time';
 import { confirm } from '../../ui/dialog';
 import { toast } from '../../ui/toast';
+import { RECORDING_NOTE, RECORDING_SHORT } from '../../config';
 import { Icon } from '../../ui/icons';
 import { BrandMark, Btn, Empty, LiveBadge, Loading, Menu, Place, safeHref } from '../../ui/kit';
 import { openCalendarDialog } from '../CalendarSubscribe';
@@ -107,6 +108,10 @@ function TeacherHome({ st }: { st: TeacherState }) {
         <h1 class="title-l">
           {upcoming.length ? `接下來有 ${upcoming.length} 場 Office Hour` : '目前沒有排定的 Office Hour'}
         </h1>
+        <p class="small muted row" style={{ gap: '6px' }}>
+          <Icon name="video" size={16} />
+          {RECORDING_NOTE}
+        </p>
       </div>
 
       {next && (
@@ -136,6 +141,10 @@ function TeacherHome({ st }: { st: TeacherState }) {
             <span>
               <Icon name="pin" size={16} />
               <Place value={st.settings.location} />
+            </span>
+            <span>
+              <Icon name="video" size={16} />
+              {RECORDING_SHORT}
             </span>
             {next.request && (
               <span>

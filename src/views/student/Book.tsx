@@ -7,6 +7,7 @@ import { local } from '../../app/store';
 import { minutesText, slotLines } from '../../lib/format';
 import { addDays, agoText, mdPad } from '../../lib/time';
 import { confirm } from '../../ui/dialog';
+import { RECORDING_NOTE } from '../../config';
 import { Icon } from '../../ui/icons';
 import { Btn, Field, Seg, WeekStrip } from '../../ui/kit';
 import { toast } from '../../ui/toast';
@@ -323,7 +324,7 @@ export function Book({ st, weekId, reload }: { st: StudentState; weekId: number;
                 {server?.status === 'open' ? '更新需求' : '送出預約需求'}
               </Btn>
               <p class="tiny faint" style={{ textAlign: 'center' }}>
-                同組任何人都能修改這份需求，助教會從勾選的時段中安排。
+                同組任何人都能修改這份需求，助教會從勾選的時段中安排。{RECORDING_NOTE}
               </p>
             </div>
           </div>
