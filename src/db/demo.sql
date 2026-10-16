@@ -96,7 +96,7 @@ begin
   perform app._demo_request(w_cur, 5, '周子芸', '預算超支怎麼辦', '估價比預算多兩成。', null, 1, array['3 10:00'], interval '6 days');
   perform app._demo_request(w_cur, 6, '謝昀哲', '風格定案前的最後確認', '收斂到兩版 moodboard。', null, 1, array['5 11:00'], interval '6 days');
   perform app._demo_appt(w_cur, 1, 'Joseph', 1, '17:30');
-  perform app._demo_appt(w_cur, 2, 'Prolong', 3, '10:00');
+  perform app._demo_appt(w_cur, 2, 'Prolong', 3, '10:30');
   perform app._demo_appt(w_cur, 5, 'Joseph', 3, '10:00');
   perform app._demo_appt(w_cur, 3, 'Tim', 4, '16:30');
   perform app._demo_appt(w_cur, 6, 'Prolong', 5, '11:00');

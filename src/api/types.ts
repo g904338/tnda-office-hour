@@ -82,6 +82,8 @@ export interface StudentWeek {
 export interface StudentSlot extends SlotRef {
   cap: number;
   late: boolean;
+  /** already confirmed for another group */
+  full: boolean;
   demand: number;
 }
 

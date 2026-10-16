@@ -24,8 +24,26 @@ const req = (group_id: number, slots: Array<[string, string]>, want = 1, created
 });
 
 describe('autoSchedule', () => {
-  it('fills a two-teacher slot with two groups', () => {
+  it('puts one group in a slot by default, however many teachers are free (one meeting room)', () => {
     const out = autoSchedule(base({
+      slots: [{ d: D.wed, t: '10:00', teachers: [1, 2] }],
+      requests: [req(1, [[D.wed, '10:00']]), req(2, [[D.wed, '10:00']])],
+    }));
+    expect(out).toEqual([{ group_id: 1, teacher_id: 1, d: D.wed, t: '10:00' }]);
+  });
+
+  it('does not add a group to a slot another group already has', () => {
+    const out = autoSchedule(base({
+      slots: [{ d: D.wed, t: '10:00', teachers: [1, 2] }],
+      appointments: [{ group_id: 1, teacher_id: 1, d: D.wed, t: '10:00', status: 'draft' }],
+      requests: [req(2, [[D.wed, '10:00']])],
+    }));
+    expect(out).toEqual([]);
+  });
+
+  it('fills a two-teacher slot with two groups when there are rooms for both', () => {
+    const out = autoSchedule(base({
+      perSlot: 2,
       slots: [{ d: D.wed, t: '10:00', teachers: [1, 2] }],
       requests: [req(1, [[D.wed, '10:00']]), req(2, [[D.wed, '10:00']])],
     }));
@@ -93,6 +111,7 @@ describe('autoSchedule', () => {
 
   it('respects what is already booked', () => {
     const out = autoSchedule(base({
+      perSlot: 2,
       slots: [
         { d: D.wed, t: '10:00', teachers: [1, 2] },
         { d: D.wed, t: '10:30', teachers: [1] },

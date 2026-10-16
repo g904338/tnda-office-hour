@@ -49,6 +49,7 @@ export const ISSUE: Record<string, string> = {
   CAP_DAY: '超過這組的每日上限',
   NOT_REQUESTED: '這組沒有勾選這個時段',
   PAST: '這個時間已經過了',
+  SLOT_TAKEN: '這個時段已經排了別組（只有一個會議室）',
 };
 
 export function errorText(e: unknown, s?: Pick<Settings, 'lead_days' | 'cancel_hours'>): string {

@@ -151,7 +151,7 @@ describe('student requests', () => {
     expect(st.members).toEqual(['A', 'B']);
     expect(st.slots).toHaveLength(24);
     const wed10 = st.slots.find((s: any) => s.d === W7.wed && s.t === '10:00');
-    expect(wed10).toMatchObject({ cap: 2, late: false, demand: 0 });
+    expect(wed10).toMatchObject({ cap: 1, late: false, full: false, demand: 0 }); // two PMs, one meeting room
     expect(st.request).toBeNull();
     expect(st.weeks).toHaveLength(13);
     expect(st.weeks[0]).toMatchObject({ label: 'W7', bookable: true, requested: false, booked: 0 });
@@ -343,6 +343,21 @@ describe('scheduling', () => {
     );
   });
 
+  it('keeps one group per time slot (one meeting room)', async () => {
+    // group 1 has Wednesday 10:00 with Prolong; Joseph is free then, but the room is not
+    const e = await expectCode(
+      db.call('oh_admin_assign', { p_token: admin, p_week: w7, p_group: ids.g2, p_teacher: ids.joseph, p_d: W7.wed, p_t: '10:00' }),
+      'NEEDS_FORCE',
+    );
+    expect((e as DbError).detail).toBe('SLOT_TAKEN');
+    const other = await db.call('oh_student_state', { p_token: g2, p_week: w7 });
+    const wed = other.slots.find((x: any) => x.d === W7.wed && x.t === '10:00');
+    expect(wed).toMatchObject({ cap: 1, full: true });
+    expect(other.slots.find((x: any) => x.d === W7.wed && x.t === '10:30').full).toBe(false);
+    const mine = await db.call('oh_student_state', { p_token: g1, p_week: w7 });
+    expect(mine.slots.find((x: any) => x.d === W7.wed && x.t === '10:00').full).toBe(false);
+  });
+
   it('asks for confirmation before breaking the rules', async () => {
     // group 1 already has Wednesday: a second slot that day breaks the daily cap
     let e = await expectCode(
@@ -398,20 +413,22 @@ describe('scheduling', () => {
       'TEACHER_BUSY',
     );
     expect((await db.call('oh_admin_state', { p_token: admin, p_week: w7 })).appointments).toHaveLength(1);
+    // Joseph is free on Wednesday 10:00, but group 1 already has that slot
+    const e = await expectCode(
+      db.call('oh_admin_apply', {
+        p_token: admin, p_week: w7, p_items: [{ group_id: ids.g3, teacher_id: ids.joseph, d: W7.wed, t: '10:00' }],
+      }),
+      'NEEDS_FORCE',
+    );
+    expect((e as DbError).detail).toBe('SLOT_TAKEN');
     const ok = await db.call('oh_admin_apply', {
-      p_token: admin, p_week: w7, p_items: [
-        { group_id: ids.g2, teacher_id: ids.joseph, d: W7.mon, t: '17:00' },
-        { group_id: ids.g3, teacher_id: ids.joseph, d: W7.wed, t: '10:00' },
-      ],
+      p_token: admin, p_week: w7, p_items: [{ group_id: ids.g2, teacher_id: ids.joseph, d: W7.mon, t: '17:00' }],
     });
-    expect(ok.count).toBe(2);
+    expect(ok.count).toBe(1);
     await expectCode(db.call('oh_admin_apply', { p_token: admin, p_week: w7, p_items: [{ group_id: 'x' }] }), 'VALIDATION', 'items');
     await db.call('oh_admin_publish', { p_token: admin, p_week: w7 });
     const t = await db.call('oh_teacher_state', { p_token: joseph });
-    expect(t.mine.map((m: any) => [m.d, m.t, m.group.no])).toEqual([
-      [W7.mon, '17:00', 2],
-      [W7.wed, '10:00', 3],
-    ]);
+    expect(t.mine.map((m: any) => [m.d, m.t, m.group.no])).toEqual([[W7.mon, '17:00', 2]]);
     expect(t.mine[0].request).toMatchObject({ topic: '感測器延遲', progress: '第一版原型完成' });
   });
 
@@ -432,8 +449,8 @@ describe('scheduling', () => {
   });
 
   it('will not withdraw a request with confirmed sessions', async () => {
-    const st = await db.call('oh_student_state', { p_token: g3 });
-    await expectCode(db.call('oh_request_withdraw', { p_token: g3, p_week: w7, p_version: st.request.version }), 'HAS_APPOINTMENTS');
+    const st = await db.call('oh_student_state', { p_token: g1, p_week: w7 });
+    await expectCode(db.call('oh_request_withdraw', { p_token: g1, p_week: w7, p_version: st.request.version }), 'HAS_APPOINTMENTS');
   });
 
   it('respects holidays and teacher leave', async () => {

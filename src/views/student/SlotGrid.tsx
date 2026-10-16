@@ -111,7 +111,15 @@ export function SlotGrid({ weekStart, today, slots, closures, picks, saved, slot
                     </div>
                   );
                 }
-                const lockedOn = s.late; // kept from before the deadline: can only be removed
+                if (s.full && !(on && saved.has(k))) {
+                  return (
+                    <div class="cell late" key={k} title={`${label}（已排給別組）`}>
+                      已排滿
+                    </div>
+                  );
+                }
+                // kept from before the deadline, or before another group got the slot: can only be removed
+                const lockedOn = s.late || s.full;
                 const set = (v: boolean) => {
                   if (lockedOn && v) return;
                   onChange(k, v);
@@ -122,7 +130,7 @@ export function SlotGrid({ weekStart, today, slots, closures, picks, saved, slot
                     key={k}
                     class="cell"
                     aria-pressed={on}
-                    aria-label={`${label}${s.cap > 1 ? `，×${s.cap} 位 PM` : ''}${s.demand ? `，已有 ${s.demand} 組勾選` : ''}${lockedOn ? '，已過截止，只能取消' : ''}`}
+                    aria-label={`${label}${s.cap > 1 ? `，×${s.cap} 位 PM` : ''}${s.demand ? `，已有 ${s.demand} 組勾選` : ''}${s.late ? '，已過截止，只能取消' : s.full ? '，已排給別組，只能取消' : ''}`}
                     title={`${label}${s.cap > 1 ? ` · ${s.cap} 位 PM` : ''}${s.demand ? ` · 已有 ${s.demand} 組勾選` : ''}`}
                     data-k={k}
                     data-r={ri}

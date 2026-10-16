@@ -25,6 +25,7 @@ TN0006「跨域數位製作實務」的 Office Hour 預約平台。學生以小�
 
 - 前端：Vite + Preact 11 + TypeScript，hash 路由，`base: './'`，所以換帳號或改 repo 名稱都不影響網站運作。部署在 GitHub Pages；邀請連結從 `location` 組出來。
 - 後端：Supabase（Postgres 17）。資料表都放在私有的 `app` schema（RLS 開啟、沒有 policy、沒有 grant）。瀏覽器**只能**呼叫 `public.oh_*`（SECURITY DEFINER、`set search_path = ''`）。登入方式是用代碼或名字換 session token，資料庫只存 token 的 SHA-256。名字登入（`oh_login`）：學生比對 `app.roster`（助教在「小組與邀請」維護的學生名單），老師比對 `app.teachers.name`，助教比對 `app.admins.name`（只限 `name_login` 為 true 的帳號），比較鍵是 `app.name_key()`（NFKC、小寫、去空白）。名為「助教」的原始帳號 `name_login = false`，只能用代碼登入，是備用帳號，`.secrets/admin-code.txt` 就是它的代碼。這是使用者明確選擇的便利性取捨（知道名字就能登入），不要擅自改回代碼制。
+- 會議地點與時段容量：所有場次都在設定「地點」裡的同一個 Google Meet 會議室（網址會顯示成連結，`Place` 元件）。所以**同一時段只排一組**，不管幾位老師開放：排程器 `autoSchedule` 的 `perSlot` 預設 1、`app.assign` 對已有別組的時段回報軟性問題 `SLOT_TAKEN`、`oh_student_state` 的 `full` 讓學生看到「已排滿」。要改回多會議室時，這三處要一起改。
 - 即時同步：資料表的 statement trigger 呼叫 `app.ping()`，送到私有 Realtime 頻道 `oh-sync`（RLS 只允許收聽）。前端收到後重抓資料（節流 1.5 秒），另外在視窗取得焦點、恢復連線時，以及每 60 秒也會重抓。
 - 示範模式（`#/demo`）：在瀏覽器裡用 PGlite 跑**同一套** migration，再載入 `src/db/demo.sql`（日期以今天為基準）。
 - Discord：用 pg_net 非同步送出，並設 `allowed_mentions: {parse: []}`，學生寫的 @everyone 不會真的標記所有人。

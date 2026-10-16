@@ -50,6 +50,8 @@ export interface SchedInput {
   dayCap: number;
   /** slots starting before this (local 'YYYY-MM-DD HH:MM') are skipped */
   notBefore?: string;
+  /** groups per time slot, whatever the number of free teachers (one meeting room: 1) */
+  perSlot?: number;
 }
 
 export interface Proposal {
@@ -122,13 +124,20 @@ export function autoSchedule(input: SchedInput): Proposal[] {
   const live = input.appointments.filter((a) => a.status !== 'cancelled');
   const groups = new Map(input.groups.map((g) => [g.id, g]));
 
-  // free teachers per slot
+  // free teachers per slot, and how many more groups each slot can take
+  const perSlot = input.perSlot ?? 1;
   const free = new Map<string, number[]>();
+  const room = new Map<string, number>();
   for (const s of input.slots) {
     if (input.notBefore && key(s.d, s.t) < input.notBefore) continue;
-    const busy = new Set(live.filter((a) => a.d === s.d && a.t === s.t).map((a) => a.teacher_id));
+    const here = live.filter((a) => a.d === s.d && a.t === s.t);
+    const busy = new Set(here.map((a) => a.teacher_id));
     const ts = s.teachers.filter((t) => !busy.has(t));
-    if (ts.length) free.set(key(s.d, s.t), ts);
+    const left = Math.min(ts.length, perSlot - here.length);
+    if (left > 0) {
+      free.set(key(s.d, s.t), ts);
+      room.set(key(s.d, s.t), left);
+    }
   }
 
   // how contested each slot is, so quieter slots are tried first
@@ -163,15 +172,15 @@ export function autoSchedule(input: SchedInput): Proposal[] {
 
     const gNode = `g:${r.group_id}`;
     for (const s of picks) {
-      const room = input.dayCap - (perDay.get(s.d) ?? 0);
-      if (room <= 0) continue;
+      const dayRoom = input.dayCap - (perDay.get(s.d) ?? 0);
+      if (dayRoom <= 0) continue;
       const dayNode = `gd:${r.group_id}:${s.d}`;
-      if (f.residual(gNode, dayNode) === 0) f.add(gNode, dayNode, room);
+      if (f.residual(gNode, dayNode) === 0) f.add(gNode, dayNode, dayRoom);
       f.add(dayNode, `s:${key(s.d, s.t)}`, 1);
     }
     needs.push({ group: r.group_id, remaining, created: r.created_at, total: g.total, no: g.no });
   }
-  for (const [k, ts] of free) f.add(`s:${k}`, 'T', ts.length);
+  for (const [k] of free) f.add(`s:${k}`, 'T', room.get(k)!);
 
   needs.sort((a, b) => a.total - b.total || a.created.localeCompare(b.created) || a.no - b.no);
 
