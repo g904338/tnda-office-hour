@@ -29,7 +29,7 @@ export function eventText(e: ActivityEvent, groups: Array<{ id: number; no: numb
     case 'appt.moved':
       return `${who} 把${g}改到${at}`;
     case 'appt.autofilled':
-      return `${who} 用智慧排程建立了 ${d.count} 筆草稿`;
+      return `${who} 用閃身步排程法建立了 ${d.count} 筆草稿`;
     case 'appt.published':
       return `${who} 發布了 ${d.count} 筆排程`;
     case 'appt.discarded':

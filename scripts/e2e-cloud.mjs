@@ -94,7 +94,7 @@ try {
   await run('admin sees the request live and schedules it', async () => {
     await admin.locator('.weeks .wk', { hasText: weekLabel }).first().click();
     await admin.getByText(`乙改過的題目-${RUN}`).waitFor({ timeout: 10000 });
-    await admin.getByRole('button', { name: '智慧排程' }).click();
+    await admin.getByRole('button', { name: '閃身步排程法' }).click();
     await admin.getByRole('button', { name: '直接發布' }).click();
     await admin.getByRole('dialog', { name: /已發布/ }).waitFor();
     await admin.getByRole('button', { name: '完成', exact: true }).click();

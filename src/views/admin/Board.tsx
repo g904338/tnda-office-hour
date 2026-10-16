@@ -180,10 +180,10 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
     const served = new Map<number, number>();
     for (const p of proposal) served.set(p.group_id, (served.get(p.group_id) ?? 0) + 1);
     const left = pending.filter((q) => needOf(q) - (served.get(q.group_id) ?? 0) > 0);
-    const go2 = await openDialog<boolean>('智慧排程結果', (close) => (
+    const go2 = await openDialog<boolean>('閃身步排程法結果', (close) => (
       <>
         <div class="stack tight">
-          <p class="eyebrow">智慧排程</p>
+          <p class="eyebrow">閃身步排程法</p>
           <h2>已建立 {proposal.length} 筆草稿</h2>
           <p class="muted small">優先照顧本學期討論次數較少、較早送出的組，並盡量讓同一組延續上次的 {st.settings.host_label}。草稿只有助教看得到。</p>
         </div>
@@ -460,7 +460,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
           </div>
           <div class="toolbar">
             <Btn icon="spark" onClick={auto} loading={busy === 'auto'} disabled={!pending.length}>
-              智慧排程
+              閃身步排程法
             </Btn>
             <Btn variant="primary" icon="send" onClick={() => publish()} loading={busy === 'publish'} disabled={!drafts.length}>
               發布{drafts.length ? ` ${drafts.length} 筆` : ''}

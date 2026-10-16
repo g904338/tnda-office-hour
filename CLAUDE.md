@@ -39,7 +39,7 @@ TN0006「跨域數位製作實務」的 Office Hour 預約平台。學生以小�
 | `src/api/` | `cloud.ts`（Supabase）和 `demo.ts`（PGlite）實作同一個 `Engine` 介面 |
 | `src/app/` | 登入狀態、hooks（`useLive` 負責即時重抓）、路由 |
 | `src/views/` | `student/`、`teacher/`、`admin/`、`Welcome.tsx` |
-| `src/lib/` | 時間計算、智慧排程（最大流）、ICS／CSV 匯出 |
+| `src/lib/` | 時間計算、閃身步排程法（最大流）、ICS／CSV 匯出 |
 | `src/ui/`、`src/styles/app.css` | 元件、對話框、圖示、toast、樣式 |
 | `tests/` | Vitest；資料庫規則用 PGlite 執行真正的 SQL |
 | `scripts/` | E2E、axe 掃描、雲端檢查、本機重置、學期重置 |

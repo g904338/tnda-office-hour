@@ -125,11 +125,11 @@ try {
   await run('admin auto-schedules and publishes', async () => {
     await role(page, '助教');
     await page.getByRole('heading', { name: /需求/ }).first().waitFor();
-    const auto = page.getByRole('button', { name: '智慧排程' });
+    const auto = page.getByRole('button', { name: '閃身步排程法' });
     await auto.waitFor();
     check(await auto.isEnabled(), 'auto-schedule should be enabled with pending requests');
     await auto.click();
-    await page.getByRole('dialog', { name: '智慧排程結果' }).waitFor();
+    await page.getByRole('dialog', { name: '閃身步排程法結果' }).waitFor();
     const drafts = await page.getByRole('dialog').locator('.li').count();
     check(drafts > 0, 'auto-schedule produced no drafts');
     await page.getByRole('button', { name: '直接發布' }).click();
