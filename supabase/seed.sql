@@ -6,7 +6,7 @@ update app.settings set
   course_code  = 'TN0006',
   course_title = '一場體驗如何發生：跨域數位製作實務',
   host_label   = '叁式 PM',
-  location     = 'Discord 各組聊天室',
+  location     = 'Google Meet',
   lead_days    = 4,
   week_cap     = 2,
   day_cap      = 1,

@@ -8,7 +8,7 @@ import { addMinutes, agoText, DOW, dayLabel, instant, md, relativeDay, tzNote, u
 import { confirm } from '../../ui/dialog';
 import { toast } from '../../ui/toast';
 import { Icon } from '../../ui/icons';
-import { BrandMark, Btn, Empty, LiveBadge, Loading, Menu, safeHref } from '../../ui/kit';
+import { BrandMark, Btn, Empty, LiveBadge, Loading, Menu, Place, safeHref } from '../../ui/kit';
 import { openCalendarDialog } from '../CalendarSubscribe';
 import { ErrorState } from '../student/StudentApp';
 
@@ -135,7 +135,7 @@ function TeacherHome({ st }: { st: TeacherState }) {
           <div class="meta">
             <span>
               <Icon name="pin" size={16} />
-              {st.settings.location || '線上'}
+              <Place value={st.settings.location} />
             </span>
             {next.request && (
               <span>

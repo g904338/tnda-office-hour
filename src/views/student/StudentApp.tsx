@@ -9,7 +9,7 @@ import { addDays, addMinutes, agoText, dayLabel, instant, mdPad, relativeDay, tz
 import { ask, confirm } from '../../ui/dialog';
 import { toast } from '../../ui/toast';
 import { Icon } from '../../ui/icons';
-import { BrandMark, Btn, Empty, LiveBadge, Loading, Menu, WeekStrip, safeHref } from '../../ui/kit';
+import { BrandMark, Btn, Empty, LiveBadge, Loading, Menu, Place, WeekStrip, safeHref } from '../../ui/kit';
 import { openCalendarDialog } from '../CalendarSubscribe';
 import { Book } from './Book';
 
@@ -244,7 +244,7 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
           <div class="meta">
             <span>
               <Icon name="pin" size={16} />
-              {st.settings.location || '線上'}
+              <Place value={st.settings.location} />
             </span>
             {next.teacher && (
               <span>
@@ -438,7 +438,9 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
         <dl class="rules">
           <div>
             <dt>地點</dt>
-            <dd>{st.settings.location || '線上'}</dd>
+            <dd>
+              <Place value={st.settings.location} />
+            </dd>
           </div>
           <div>
             <dt>每週上限</dt>

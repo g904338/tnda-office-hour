@@ -333,3 +333,21 @@ export function safeHref(url: string | null | undefined): string | undefined {
   if (!url) return undefined;
   return /^https?:\/\//i.test(url) ? url : undefined;
 }
+
+/** Where sessions happen: a link when it is a URL (e.g. a Google Meet room), plain text otherwise. */
+export function Place({ value }: { value: string }) {
+  const href = safeHref(value.trim());
+  if (!href) return <>{value || '線上'}</>;
+  let host = '';
+  try {
+    host = new URL(href).hostname;
+  } catch {
+    return <>{value}</>;
+  }
+  const label = /(^|\.)meet\.google\.com$/i.test(host) ? 'Google Meet 會議室' : href.replace(/^https?:\/\//i, '');
+  return (
+    <a class="place" href={href} target="_blank" rel="noopener noreferrer">
+      {label}
+    </a>
+  );
+}
