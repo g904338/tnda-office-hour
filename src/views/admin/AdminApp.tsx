@@ -71,7 +71,7 @@ export function AdminApp({ route }: { route: string[] }) {
               icon="logout"
               aria-label="登出"
               onClick={async () => {
-                if (await confirm({ title: '登出這台裝置？', body: '之後需要再輸入一次助教代碼。', ok: '登出', danger: true })) signOut();
+                if (await confirm({ title: '登出這台裝置？', body: '之後需要重新輸入名字或代碼才能回來。', ok: '登出', danger: true })) signOut();
               }}
             />
           </div>

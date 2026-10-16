@@ -131,7 +131,7 @@ function StudentTop({ st }: { st?: StudentState }) {
                   role="menuitem"
                   onClick={async () => {
                     close();
-                    if (await confirm({ title: '登出這台裝置？', body: '之後需要再輸入一次小組代碼才能回來。', ok: '登出', danger: true })) signOut();
+                    if (await confirm({ title: '登出這台裝置？', body: '之後需要重新輸入名字或邀請代碼才能回來。', ok: '登出', danger: true })) signOut();
                   }}
                 >
                   <Icon name="logout" /> 登出

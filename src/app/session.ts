@@ -97,7 +97,7 @@ export function expire() {
   if (s.demo) return;
   local.remove(AUTH_KEY);
   app.set({ ...s, auth: null });
-  toast('登入已失效，請重新輸入代碼。', { kind: 'error' });
+  toast('登入已失效，請重新登入。', { kind: 'error' });
   go('', { replace: true });
 }
 

@@ -48,7 +48,7 @@ export function TeacherApp() {
                   role="menuitem"
                   onClick={async () => {
                     close();
-                    if (await confirm({ title: '登出這台裝置？', body: '之後需要再輸入一次你的代碼。', ok: '登出', danger: true })) signOut();
+                    if (await confirm({ title: '登出這台裝置？', body: '之後需要重新輸入名字或代碼才能回來。', ok: '登出', danger: true })) signOut();
                   }}
                 >
                   <Icon name="logout" /> 登出
