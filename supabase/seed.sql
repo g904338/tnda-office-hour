@@ -27,7 +27,8 @@ insert into app.teachers (name, code, sort) values
   ('Prolong', app.new_code(10), 2),
   ('Tim',     app.new_code(10), 3);
 
-insert into app.admins (name, code) values ('助教', app.new_code(12));
+-- a role word anyone could guess, so this account signs in with its code only
+insert into app.admins (name, code, name_login) values ('助教', app.new_code(12), false);
 
 -- Weekly availability (1 = Monday)
 insert into app.blocks (teacher_id, dow, start_time, end_time)

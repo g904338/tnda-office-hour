@@ -597,11 +597,26 @@ describe('name login', () => {
     expect(ev.data).toEqual({ via: 'name' });
   });
 
-  it('signs a teacher in by name, but never an admin', async () => {
+  it('signs a teacher in by name', async () => {
     const t = await db.call('oh_login', { p_name: 'tim' });
     expect(t.session).toMatchObject({ role: 'teacher', name: 'Tim' });
     await db.call('oh_teacher_state', { p_token: t.token });
+  });
+
+  it('signs admins in by name, except the code-only 助教 account', async () => {
     expect(await db.call('oh_login', { p_name: '助教' })).toEqual({ ok: false, error: 'NAME_UNKNOWN' });
+    const cfg0 = await db.call('oh_admin_config', { p_token: admin });
+    expect(cfg0.admins.find((a: any) => a.name === '助教').name_login).toBe(false);
+    const added = await db.call('oh_admin_save', { p_token: admin, p_kind: 'admin', p: { name: '黃瑞恩' } });
+    const a = await db.call('oh_login', { p_name: ' 黃 瑞恩' });
+    expect(a.session).toMatchObject({ role: 'admin', name: '黃瑞恩' });
+    await db.call('oh_admin_state', { p_token: a.token });
+    const cfg = await db.call('oh_admin_config', { p_token: a.token });
+    expect(cfg.admins.find((x: any) => x.name === '黃瑞恩')).toMatchObject({ name_login: true, me: true });
+    // a disabled admin cannot sign in by name
+    await db.call('oh_admin_save', { p_token: admin, p_kind: 'admin', p: { id: added.id, active: false } });
+    expect(await db.call('oh_login', { p_name: '黃瑞恩' })).toEqual({ ok: false, error: 'NAME_UNKNOWN' });
+    await db.call('oh_admin_save', { p_token: admin, p_kind: 'admin', p: { id: added.id, active: true } });
   });
 
   it('rejects empty and unknown names, and counts unknown ones as guesses', async () => {
@@ -623,8 +638,9 @@ describe('name login', () => {
   });
 
   it('keeps names unique across groups and teachers', async () => {
-    const e = await expectCode(roster(2, ['陳柏宇', '吳 思妤', 'TIM']), 'NAME_TAKEN');
-    expect(e.detail).toBe('吳 思妤、TIM');
+    const e = await expectCode(roster(2, ['陳柏宇', '吳 思妤', 'TIM', '黃瑞恩']), 'NAME_TAKEN');
+    expect(e.detail).toBe('吳 思妤、TIM、黃瑞恩');
+    expect((await roster(2, ['助教'])).roster).toEqual(['助教']); // the code-only admin name is free
     expect((await roster(2, ['陳柏宇'])).roster).toEqual(['陳柏宇']);
     // a teacher added later with a student's name makes the name ambiguous
     await db.call('oh_admin_save', { p_token: admin, p_kind: 'teacher', p: { name: '陳柏宇' } });

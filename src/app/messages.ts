@@ -57,7 +57,7 @@ export function errorText(e: unknown, s?: Pick<Settings, 'lead_days' | 'cancel_h
     case 'VALIDATION':
       return FIELD[e.detail] ?? '輸入的資料不正確。';
     case 'NAME_TAKEN':
-      return e.detail ? `「${e.detail}」已經在其他組的名單或老師名單裡，名字不能重複。` : '有名字和其他人重複了，請重新整理後再試。';
+      return e.detail ? `「${e.detail}」已經在其他組的名單，或是老師、助教的名字，名字不能重複。` : '有名字和其他人重複了，請重新整理後再試。';
     case 'NOT_FOUND':
       return '找不到這筆資料，可能已經被刪除或修改了。';
     case 'SLOT_LATE':

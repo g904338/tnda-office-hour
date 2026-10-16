@@ -130,7 +130,7 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
             size="sm"
             icon="plus"
             onClick={async () => {
-              const name = await ask({ title: '新增助教', label: '名字', maxLength: 40, ok: '新增', body: '會產生一組新的助教代碼，請私下交給對方。' });
+              const name = await ask({ title: '新增助教', label: '名字', maxLength: 40, ok: '新增', body: '對方在首頁輸入這個名字就能登入，也可以用這裡的登入連結。請輸入對方的全名。' });
               if (!name) return;
               await run('admin', () => call('oh_admin_save', { p_kind: 'admin', p: { name } }), { ok: '已新增助教。' });
               reload();
@@ -141,7 +141,7 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
         </div>
         <div class="notice warn">
           <Icon name="alert" />
-          <span class="small">助教代碼等同管理權限，請不要貼到公開頻道。有疑慮時可以隨時更換。</span>
+          <span class="small">助教擁有全部管理權限。可用名字登入的助教，只要知道名字就能登入，請只新增真正的助教。助教代碼請不要貼到公開頻道。</span>
         </div>
         <div class="list">
           {cfg.admins.map((a) => (
@@ -150,7 +150,9 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
                 <b>
                   {a.name} {a.me && <span class="chip">你</span>}
                 </b>
-                <span class="tiny muted">{a.devices} 台裝置登入中</span>
+                <span class="tiny muted">
+                  {a.name_login ? '可用名字登入' : '只能用代碼登入'}・{a.devices} 台裝置登入中
+                </span>
               </div>
               <span class="mono small" style={{ letterSpacing: '0.08em' }}>
                 {shown === a.id ? prettyCode(a.code) : '••••-••••-••••'}
@@ -167,7 +169,7 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
                 icon="edit"
                 aria-label="修改名字"
                 onClick={async () => {
-                  const name = await ask({ title: '修改助教名字', label: '名字', initial: a.name, maxLength: 40, ok: '儲存', body: '新名字會出現在動態紀錄和排程紀錄裡。' });
+                  const name = await ask({ title: '修改助教名字', label: '名字', initial: a.name, maxLength: 40, ok: '儲存', body: a.name_login ? '新名字會出現在動態紀錄和排程紀錄裡，登入時也要輸入新名字。' : '新名字會出現在動態紀錄和排程紀錄裡。' });
                   if (!name) return;
                   await run('rename', () => call('oh_admin_save', { p_kind: 'admin', p: { id: a.id, name } }), { ok: '已更新名字。' });
                   reload();

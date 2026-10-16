@@ -236,6 +236,7 @@ export interface ConfigAdmin {
   name: string;
   code: string;
   active: boolean;
+  name_login: boolean;
   me: boolean;
   devices: number;
 }

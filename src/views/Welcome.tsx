@@ -217,7 +217,7 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
             >
               <div class="stack tight">
                 <h2 class="title-l">輸入你的名字</h2>
-                <p class="muted">學生和老師輸入名字就能登入。</p>
+                <p class="muted">學生、老師和助教輸入名字就能登入。</p>
               </div>
               {HAS_CLOUD ? (
                 <>
