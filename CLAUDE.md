@@ -1,6 +1,6 @@
 # Office Hour 預約平台：給 Claude 的工作說明
 
-TN0006「跨域數位製作實務」的 Office Hour 預約平台。學生以小組為單位勾選可以的時段，助教排程後發布，老師只看到排給自己的場次，所有畫面即時同步。使用說明、架構圖、展示腳本在 `README.md`。
+TN0006「跨域數位製作實務」的 Office Hour 預約平台，名稱是「叁式 30 分鐘，一週三次」（`src/config.ts` 的 `APP_NAME`，另外寫在 `index.html` 和 `public/manifest.webmanifest`）。規則是每組每週最多 3 次、每次 30 分鐘、一天一次（設定裡的每週上限 3 格、每天上限 1 格）。學生以小組為單位勾選可以的時段，助教排程後發布，老師只看到排給自己的場次，所有畫面即時同步。使用說明、架構圖、展示腳本在 `README.md`。
 
 - Repo：`tndaixd2026-dot/tnda-office-hour`（public）
 - 網站：https://tndaixd2026-dot.github.io/tnda-office-hour/（示範模式：`#/demo`）

@@ -8,7 +8,7 @@ update app.settings set
   host_label   = '叁式 PM',
   location     = 'Google Meet',
   lead_days    = 4,
-  week_cap     = 2,
+  week_cap     = 3,
   day_cap      = 1,
   cancel_hours = 24
 where id = 1;

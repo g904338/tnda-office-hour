@@ -2,6 +2,7 @@ import { cloneElement, isValidElement, type ButtonHTMLAttributes, type Component
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { renderSVG } from 'uqr';
 import { useEngineStatus } from '../app/hooks';
+import { APP_NAME, APP_SHORT_NAME } from '../config';
 import { useApp } from '../app/session';
 import { addDays, mdPad } from '../lib/time';
 import { Icon, type IconName } from './icons';
@@ -14,7 +15,10 @@ export function BrandMark({ code, sub }: { code?: string; sub?: string }) {
         OH
       </span>
       <span class="stack" style={{ gap: '0px', lineHeight: 1.2 }}>
-        <span class="brand-name">Office Hour</span>
+        <span class="brand-name">
+          {APP_SHORT_NAME}
+          <span class="brand-tail">{APP_NAME.slice(APP_SHORT_NAME.length)}</span>
+        </span>
         {(code || sub) && <span class="brand-code">{[code, sub].filter(Boolean).join(' · ')}</span>}
       </span>
     </span>
@@ -28,7 +32,7 @@ export function LiveBadge() {
   return (
     <span class={`live ${s}`} title={demo ? '資料只存在這個分頁' : '資料會即時同步到每個人的畫面'}>
       <i aria-hidden="true" />
-      {text}
+      <span class="live-text">{text}</span>
     </span>
   );
 }

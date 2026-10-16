@@ -136,6 +136,7 @@ describe('student requests', () => {
   let c2: string; // group 2
   beforeAll(async () => {
     db = await makeDb();
+    await db.sql('update app.settings set week_cap = 2'); // these cases are written around a two-slot weekly cap
     await db.setNow(WED);
     const { groups } = await db.codes();
     a1 = await join(db, groups[1], 'A');
@@ -279,6 +280,7 @@ describe('scheduling', () => {
 
   beforeAll(async () => {
     db = await makeDb();
+    await db.sql('update app.settings set week_cap = 2'); // these cases are written around a two-slot weekly cap
     await db.setNow(WED);
     const c = await db.codes();
     admin = await join(db, c.admin);
@@ -479,7 +481,7 @@ describe('administration', () => {
 
   it('updates settings within bounds', async () => {
     const s = await db.call('oh_admin_save', { p_token: admin, p_kind: 'settings', p: { lead_days: 3, notice: ' 期中週暫停 ', show_teacher_names: true } });
-    expect(s).toMatchObject({ lead_days: 3, notice: '期中週暫停', show_teacher_names: true, week_cap: 2 });
+    expect(s).toMatchObject({ lead_days: 3, notice: '期中週暫停', show_teacher_names: true, week_cap: 3 });
     await expectCode(db.call('oh_admin_save', { p_token: admin, p_kind: 'settings', p: { lead_days: 99 } }), 'VALIDATION', 'settings');
     await expectCode(db.call('oh_admin_save', { p_token: admin, p_kind: 'settings', p: { week_cap: 'many' } }), 'VALIDATION', 'settings');
     await expectCode(db.call('oh_admin_save', { p_token: admin, p_kind: 'nope', p: {} }), 'VALIDATION', 'kind');

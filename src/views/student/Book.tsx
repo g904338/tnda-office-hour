@@ -149,10 +149,12 @@ export function Book({ st, weekId, reload }: { st: StudentState; weekId: number;
   };
 
   const weekOptions = st.weeks.filter((w) => w.open && (w.bookable || w.id === weekId));
+  // "n 次" reads with the platform's name; the hint under the grid says how many days it takes
+  const total = (m: number) => (m < 60 ? `${m} 分鐘` : `${m / 60} 小時`);
   const wantOptions = Array.from({ length: st.settings.week_cap }, (_, i) => i + 1).map((n) => ({
     value: n,
-    label: minutesText(n * mins),
-    sub: n > 1 && st.settings.day_cap < n ? `分 ${Math.ceil(n / st.settings.day_cap)} 天` : undefined,
+    label: `${n} 次`,
+    sub: total(n * mins),
   }));
   const needDays = Math.ceil(d.want / st.settings.day_cap);
 
@@ -279,8 +281,8 @@ export function Book({ st, weekId, reload }: { st: StudentState; weekId: number;
               寫下想討論的事
             </h2>
             <div class="field">
-              <span class="label">想約多久</span>
-              <Seg label="想約多久" value={d.want} options={wantOptions} onChange={(v) => set('want', v)} />
+              <span class="label">想約幾次</span>
+              <Seg label="想約幾次" value={d.want} options={wantOptions} onChange={(v) => set('want', v)} />
             </div>
             <Field label="想討論的題目" error={tried ? errors.topic : null} count={d.topic.length} max={80}>
               <input
