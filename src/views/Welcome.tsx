@@ -4,7 +4,7 @@ import type { JoinResult, PeekResult, Settings } from '../api/types';
 import { errorText } from '../app/messages';
 import { go } from '../app/router';
 import { signedIn, startDemo, useApp } from '../app/session';
-import { HAS_CLOUD } from '../config';
+import { APP_NAME, APP_SHORT_NAME, HAS_CLOUD } from '../config';
 import { Icon } from '../ui/icons';
 import { BrandMark, Btn, Field } from '../ui/kit';
 
@@ -198,8 +198,9 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
             </p>
           )}
           <h1 class="title-xl">
-            和{host}
-            <br />約 30 分鐘。
+            {APP_SHORT_NAME}，
+            <br />
+            {APP_NAME.slice(APP_SHORT_NAME.length + 1)}。
           </h1>
           <p class="lede">勾選你們可以的時段，助教排好時間後，全組的畫面會同時更新。不用來回傳訊息，也不會漏掉。</p>
         </div>

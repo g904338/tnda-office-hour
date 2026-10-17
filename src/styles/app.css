@@ -415,10 +415,12 @@ p {
   letter-spacing: -0.01em;
   white-space: nowrap;
 }
-/* phones: the top bar keeps only the short name; the narrowest ones
-   show the connection status as just its dot (the text stays for screen readers) */
+/* phones: the top bar (and the sign-in page, whose headline spells the
+   name out) keep only the short name; the narrowest ones show the
+   connection status as just its dot (the text stays for screen readers) */
 @media (max-width: 640px) {
-  .topbar .brand-tail {
+  .topbar .brand-tail,
+  .welcome-art .brand-tail {
     display: none;
   }
 }
