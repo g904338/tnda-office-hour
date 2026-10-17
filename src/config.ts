@@ -6,7 +6,7 @@ export const SUPABASE_KEY: string = import.meta.env.VITE_SUPABASE_KEY ?? '';
 export const HAS_CLOUD = Boolean(SUPABASE_URL && SUPABASE_KEY);
 
 // The platform's name, shown next to the logo (also in index.html and the manifest).
-export const APP_NAME = '叁式 30 分鐘，一週三次';
+export const APP_NAME = '叁式 30 分鐘 一週三次';
 // Sessions are recorded; students and teachers are told wherever a session shows up.
 export const RECORDING_NOTE = '討論時 Google Meet 會錄影，僅作為紀錄使用';
 export const RECORDING_SHORT = '會錄影，僅作紀錄用';
