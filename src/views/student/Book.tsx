@@ -79,10 +79,10 @@ export function Book({ st, weekId, reload }: { st: StudentState; weekId: number;
   const mins = st.settings.slot_minutes;
 
   const errors = {
-    picks: effective.length === 0 ? '請在時段表至少勾選一格。' : null,
-    topic: !d.topic.trim() ? '請寫下想討論的題目，PM 可以先準備。' : d.topic.trim().length > 80 ? '題目最多 80 字。' : null,
-    progress: !d.progress.trim() ? '請簡單說明目前做到哪裡。' : d.progress.length > 1000 ? '最多 1000 字。' : null,
-    link: d.link.trim() && !LINK_RE.test(d.link.trim()) ? '請貼完整網址（https:// 開頭）。' : null,
+    picks: effective.length === 0 ? '請在時段表至少勾選一格' : null,
+    topic: !d.topic.trim() ? '請寫下想討論的題目，PM 可以先準備' : d.topic.trim().length > 80 ? '題目最多 80 字' : null,
+    progress: !d.progress.trim() ? '請簡單說明目前做到哪裡' : d.progress.length > 1000 ? '最多 1000 字' : null,
+    link: d.link.trim() && !LINK_RE.test(d.link.trim()) ? '請貼完整網址（https:// 開頭）' : null,
   };
   const valid = !errors.picks && !errors.topic && !errors.progress && !errors.link;
 
@@ -121,7 +121,7 @@ export function Book({ st, weekId, reload }: { st: StudentState; weekId: number;
     );
     if (r) {
       local.remove(draftKey);
-      toast(server?.status === 'open' ? '需求已更新，組員會即時看到。' : '已送出！助教排好時間後，首頁會即時更新。', { ms: 5000 });
+      toast(server?.status === 'open' ? '需求已更新，組員會即時看到' : '已送出！助教排好時間後，首頁會即時更新', { ms: 5000 });
       go('');
       reload();
     }
@@ -145,7 +145,7 @@ export function Book({ st, weekId, reload }: { st: StudentState; weekId: number;
   }
 
   const back = async () => {
-    if (dirty && !(await confirm({ title: '放棄這次的修改？', body: '還沒送出的內容會保留在這台裝置上，下次回來可以繼續。', ok: '先離開', cancel: '繼續填' }))) return;
+    if (dirty && !(await confirm({ title: '放棄這次的修改？', body: '還沒送出的內容會保留在這台裝置上，下次回來可以繼續', ok: '先離開', cancel: '繼續填' }))) return;
     go('');
   };
 
@@ -178,7 +178,7 @@ export function Book({ st, weekId, reload }: { st: StudentState; weekId: number;
             value={weekId}
             onPick={async (id) => {
               if (id === weekId) return;
-              if (dirty && !(await confirm({ title: '切換週次？', body: '這週還沒送出的內容會保留在這台裝置上。', ok: '切換' }))) return;
+              if (dirty && !(await confirm({ title: '切換週次？', body: '這週還沒送出的內容會保留在這台裝置上', ok: '切換' }))) return;
               go(`book/${id}`, { replace: true });
             }}
             items={weekOptions.map((w) => ({ id: w.id, start: w.start, label: w.label, status: w.requested ? '已送出' : '可預約', on: w.requested }))}
@@ -190,7 +190,7 @@ export function Book({ st, weekId, reload }: { st: StudentState; weekId: number;
         <div class="notice info" role="status">
           <Icon name="users" />
           <div class="grow">
-            <b>{server?.author ?? '組員'}</b> 剛剛{server?.status === 'withdrawn' ? '撤回' : '更新'}了這份需求。
+            <b>{server?.author ?? '組員'}</b> 剛剛{server?.status === 'withdrawn' ? '撤回' : '更新'}了這份需求
           </div>
           <Btn size="sm" onClick={() => adopt(server)}>
             載入最新版本
@@ -263,13 +263,13 @@ export function Book({ st, weekId, reload }: { st: StudentState; weekId: number;
                 </div>
                 {days.size < needDays && (
                   <p class="small" style={{ color: 'var(--warn)' }}>
-                    想約 {minutesText(d.want * mins)} 需要分 {needDays} 天，請至少勾選 {needDays} 天的時段。
+                    想約 {minutesText(d.want * mins)} 需要分 {needDays} 天，請至少勾選 {needDays} 天的時段
                   </p>
                 )}
               </>
             ) : (
               <p class={`small ${tried ? '' : 'muted'}`} style={tried ? { color: 'var(--danger)' } : undefined}>
-                {tried ? errors.picks : '還沒勾選。點一下格子就能勾選，再點一次取消；用滑鼠可以按住拖曳一次選多格。'}
+                {tried ? errors.picks : '還沒勾選。點一下格子就能勾選，再點一次取消；用滑鼠可以按住拖曳一次選多格'}
               </p>
             )}
           </div>
@@ -308,7 +308,7 @@ export function Book({ st, weekId, reload }: { st: StudentState; weekId: number;
               label="雲端資料夾連結"
               optional
               error={tried ? errors.link : null}
-              help="請把共用設為「知道連結的任何人都能檢視」，PM 才打得開。"
+              help="請把共用設為「知道連結的任何人都能檢視」，PM 才打得開"
             >
               <input
                 class="input"

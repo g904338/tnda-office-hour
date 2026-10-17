@@ -48,7 +48,7 @@ export function SlotGrid({ weekStart, today, slots, closures, picks, saved, slot
   });
 
   if (!times.length) {
-    return <p class="empty">這週沒有開放的時段。</p>;
+    return <p class="empty">這週沒有開放的時段</p>;
   }
 
   // arrow keys move between cells like a spreadsheet

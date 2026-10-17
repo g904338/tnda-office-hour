@@ -59,7 +59,7 @@ function Guard({ children, reset }: { children: ComponentChildren; reset: string
           OH
         </span>
         <p class="title-m">這個畫面出了點問題</p>
-        <p class="small muted">資料都還在。重新整理通常就能解決；如果一直發生，請截圖給助教。</p>
+        <p class="small muted">資料都還在。重新整理通常就能解決；如果一直發生，請截圖給助教</p>
         <div class="row">
           <Btn variant="primary" icon="rotate" onClick={() => location.reload()}>
             重新整理
@@ -87,7 +87,7 @@ function DemoLoading({ progress }: { progress: number }) {
           <i style={{ width: `${Math.max(4, pct)}%`, background: 'var(--accent)', transition: 'width .2s' }} />
         </div>
         <p class="tiny faint" style={{ textAlign: 'center' }}>
-          一個完整的 Postgres 資料庫會在你的瀏覽器裡執行，第一次約需下載 5 MB。
+          一個完整的 Postgres 資料庫會在你的瀏覽器裡執行，第一次約需下載 5 MB
         </p>
       </div>
     </div>

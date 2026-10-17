@@ -9,8 +9,8 @@ import { Icon } from '../ui/icons';
 import { BrandMark, Btn, Field } from '../ui/kit';
 
 const ROLE_TEXT = {
-  teacher: '查看你的 Office Hour 行程，以及每組事先寫好的題目與進度。',
-  admin: '管理預約需求、排程、小組代碼與所有設定。',
+  teacher: '查看你的 Office Hour 行程，以及每組事先寫好的題目與進度',
+  admin: '管理預約需求、排程、小組代碼與所有設定',
 };
 
 function formatCode(v: string) {
@@ -82,7 +82,7 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
   async function login() {
     if (!engine) return;
     if (!who.trim()) {
-      setErr('請輸入你的名字。');
+      setErr('請輸入你的名字');
       whoRef.current?.focus();
       return;
     }
@@ -123,7 +123,7 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
     if (!engine) return;
     const raw = c.replace(/-/g, '');
     if (raw.length < 8) {
-      setErr('代碼是 8–12 個英數字。');
+      setErr('代碼是 8–12 個英數字');
       return;
     }
     setBusy(true);
@@ -145,7 +145,7 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
   async function join() {
     if (!engine || !peek?.ok) return;
     if (peek.role === 'student' && !name.trim()) {
-      setErr('請輸入你的名字。');
+      setErr('請輸入你的名字');
       return;
     }
     setBusy(true);
@@ -171,7 +171,7 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
   const offline = (
     <div class="notice info">
       <Icon name="info" />
-      <span>這個網站還沒有連接雲端資料庫。你可以先用示範模式看看完整功能。</span>
+      <span>這個網站還沒有連接雲端資料庫。你可以先用示範模式看看完整功能</span>
     </div>
   );
   const demo = (
@@ -198,11 +198,11 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
             </p>
           )}
           <h1 class="title-xl">
-            {APP_SHORT_NAME}，
+            {APP_SHORT_NAME}
             <br />
-            {APP_NAME.slice(APP_SHORT_NAME.length + 1)}。
+            {APP_NAME.slice(APP_SHORT_NAME.length + 1)}
           </h1>
-          <p class="lede">勾選你們可以的時段，助教排好時間後，全組的畫面會同時更新。不用來回傳訊息，也不會漏掉。</p>
+          <p class="lede">勾選你們可以的時段，助教排好時間後，全組的畫面會同時更新。不用來回傳訊息，也不會漏掉</p>
         </div>
       </section>
 
@@ -218,7 +218,7 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
             >
               <div class="stack tight">
                 <h2 class="title-l">輸入你的名字</h2>
-                <p class="muted">學生、老師和助教輸入名字就能登入。</p>
+                <p class="muted">學生、老師和助教輸入名字就能登入</p>
               </div>
               {HAS_CLOUD ? (
                 <>
@@ -258,7 +258,7 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
             >
               <div class="stack tight">
                 <h2 class="title-l">輸入邀請代碼</h2>
-                <p class="muted">代碼由助教提供，點邀請連結會自動帶入。</p>
+                <p class="muted">代碼由助教提供，點邀請連結會自動帶入</p>
               </div>
               {HAS_CLOUD ? (
                 <>
@@ -310,7 +310,7 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
                       </h2>
                     </div>
                   </div>
-                  <Field label="你的名字" help="讓組員和助教知道需求是誰填的。" error={err}>
+                  <Field label="你的名字" help="讓組員和助教知道需求是誰填的" error={err}>
                     <input
                       ref={nameRef}
                       class="input"
@@ -356,7 +356,7 @@ export function Welcome({ initialCode }: { initialCode?: string }) {
             </form>
           )}
           <p class="tiny faint">
-            我們只記錄你的名字與組別，用來顯示誰填寫了需求。登入資訊只存在這台裝置上。
+            我們只記錄你的名字與組別，用來顯示誰填寫了需求。登入資訊只存在這台裝置上
           </p>
         </div>
       </section>

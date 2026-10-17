@@ -259,7 +259,7 @@ export async function copyText(text: string, done = '已複製') {
       ok = false;
     }
     ta.remove();
-    toast(ok ? done : '無法自動複製，請手動選取文字。', { kind: ok ? 'info' : 'error' });
+    toast(ok ? done : '無法自動複製，請手動選取文字', { kind: ok ? 'info' : 'error' });
   }
 }
 

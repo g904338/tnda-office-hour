@@ -24,7 +24,7 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
   const set = <K extends keyof Settings>(k: K, v: Settings[K]) => setS((x) => ({ ...x, [k]: v }));
 
   const save = async () => {
-    const r = await run('settings', () => call('oh_admin_save', { p_kind: 'settings', p: s }), { ok: '設定已儲存，所有人的畫面會立刻更新。' });
+    const r = await run('settings', () => call('oh_admin_save', { p_kind: 'settings', p: s }), { ok: '設定已儲存，所有人的畫面會立刻更新' });
     if (r) reload();
   };
 
@@ -74,7 +74,7 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
           </div>
           <div class="row top wrap">
             <div class="grow" style={{ minWidth: '180px' }}>
-              <Field label="老師的稱呼" help="顯示給學生看，例如「叁式 PM」、「業師」。">
+              <Field label="老師的稱呼" help="顯示給學生看，例如「叁式 PM」、「業師」">
                 <input class="input" value={s.host_label} maxLength={20} onInput={(e) => set('host_label', (e.target as HTMLInputElement).value)} />
               </Field>
             </div>
@@ -84,7 +84,7 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
               </Field>
             </div>
           </div>
-          <Field label="給學生的公告" optional help="會顯示在學生首頁最上方，例如期中週暫停、換地點。" count={s.notice.length} max={500}>
+          <Field label="給學生的公告" optional help="會顯示在學生首頁最上方，例如期中週暫停、換地點" count={s.notice.length} max={500}>
             <textarea class="textarea" value={s.notice} maxLength={500} rows={3} onInput={(e) => set('notice', (e.target as HTMLTextAreaElement).value)} />
           </Field>
         </section>
@@ -101,14 +101,14 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
           </div>
           <div class="row top wrap">
             <div class="grow" style={{ minWidth: '200px' }}>
-              {num('lead_days', '預約截止（天前）', 0, 60, '學生最晚要在當天的幾天前勾選。')}
+              {num('lead_days', '預約截止（天前）', 0, 60, '學生最晚要在當天的幾天前勾選')}
             </div>
             <div class="grow" style={{ minWidth: '200px' }}>
-              {num('cancel_hours', '學生可取消（小時前）', 0, 336, '超過這個時間，只能請助教取消。')}
+              {num('cancel_hours', '學生可取消（小時前）', 0, 336, '超過這個時間，只能請助教取消')}
             </div>
           </div>
           <Switch checked={s.show_teacher_names} onChange={(v) => set('show_teacher_names', v)} label={`讓學生看到是哪位${s.host_label}`} />
-          <p class="tiny muted">每格固定 {s.slot_minutes} 分鐘。規則只影響之後的操作；已經排定的場次不會變動。</p>
+          <p class="tiny muted">每格固定 {s.slot_minutes} 分鐘。規則只影響之後的操作；已經排定的場次不會變動</p>
         </section>
 
         <div class="row" style={{ position: 'sticky', bottom: '16px', justifyContent: 'flex-end' }}>
@@ -130,9 +130,9 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
             size="sm"
             icon="plus"
             onClick={async () => {
-              const name = await ask({ title: '新增助教', label: '名字', maxLength: 40, ok: '新增', body: '對方在首頁輸入這個名字就能登入，也可以用這裡的登入連結。請輸入對方的全名。' });
+              const name = await ask({ title: '新增助教', label: '名字', maxLength: 40, ok: '新增', body: '對方在首頁輸入這個名字就能登入，也可以用這裡的登入連結。請輸入對方的全名' });
               if (!name) return;
-              await run('admin', () => call('oh_admin_save', { p_kind: 'admin', p: { name } }), { ok: '已新增助教。' });
+              await run('admin', () => call('oh_admin_save', { p_kind: 'admin', p: { name } }), { ok: '已新增助教' });
               reload();
             }}
           >
@@ -141,7 +141,7 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
         </div>
         <div class="notice warn">
           <Icon name="alert" />
-          <span class="small">助教擁有全部管理權限。可用名字登入的助教，只要知道名字就能登入，請只新增真正的助教。助教代碼請不要貼到公開頻道。</span>
+          <span class="small">助教擁有全部管理權限。可用名字登入的助教，只要知道名字就能登入，請只新增真正的助教。助教代碼請不要貼到公開頻道</span>
         </div>
         <div class="list">
           {cfg.admins.map((a) => (
@@ -169,9 +169,9 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
                 icon="edit"
                 aria-label="修改名字"
                 onClick={async () => {
-                  const name = await ask({ title: '修改助教名字', label: '名字', initial: a.name, maxLength: 40, ok: '儲存', body: a.name_login ? '新名字會出現在動態紀錄和排程紀錄裡，登入時也要輸入新名字。' : '新名字會出現在動態紀錄和排程紀錄裡。' });
+                  const name = await ask({ title: '修改助教名字', label: '名字', initial: a.name, maxLength: 40, ok: '儲存', body: a.name_login ? '新名字會出現在動態紀錄和排程紀錄裡，登入時也要輸入新名字' : '新名字會出現在動態紀錄和排程紀錄裡' });
                   if (!name) return;
-                  await run('rename', () => call('oh_admin_save', { p_kind: 'admin', p: { id: a.id, name } }), { ok: '已更新名字。' });
+                  await run('rename', () => call('oh_admin_save', { p_kind: 'admin', p: { id: a.id, name } }), { ok: '已更新名字' });
                   reload();
                 }}
               />
@@ -192,8 +192,8 @@ function SettingsView({ cfg, reload }: { cfg: AdminConfig; reload: () => void })
                   icon="trash"
                   aria-label="刪除助教"
                   onClick={async () => {
-                    if (!(await confirm({ title: `刪除助教「${a.name}」？`, body: '對方的所有裝置會立刻登出。', ok: '刪除', danger: true }))) return;
-                    await run('del', () => call('oh_admin_delete', { p_kind: 'admin', p_id: a.id }), { ok: '已刪除。' });
+                    if (!(await confirm({ title: `刪除助教「${a.name}」？`, body: '對方的所有裝置會立刻登出', ok: '刪除', danger: true }))) return;
+                    await run('del', () => call('oh_admin_delete', { p_kind: 'admin', p_id: a.id }), { ok: '已刪除' });
                     reload();
                   }}
                 />

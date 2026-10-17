@@ -97,7 +97,7 @@ export function expire() {
   if (s.demo) return;
   local.remove(AUTH_KEY);
   app.set({ ...s, auth: null });
-  toast('登入已失效，請重新登入。', { kind: 'error' });
+  toast('登入已失效，請重新登入', { kind: 'error' });
   go('', { replace: true });
 }
 
@@ -131,7 +131,7 @@ export async function startDemo(role: Role = 'student') {
   } catch (e) {
     console.error(e);
     app.set((x) => ({ ...x, demoLoading: false }));
-    toast('示範模式載入失敗，請重新整理再試一次。', { kind: 'error' });
+    toast('示範模式載入失敗，請重新整理再試一次', { kind: 'error' });
   }
 }
 

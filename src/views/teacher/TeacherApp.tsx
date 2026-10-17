@@ -49,7 +49,7 @@ export function TeacherApp() {
                   role="menuitem"
                   onClick={async () => {
                     close();
-                    if (await confirm({ title: '登出這台裝置？', body: '之後需要重新輸入名字或代碼才能回來。', ok: '登出', danger: true })) signOut();
+                    if (await confirm({ title: '登出這台裝置？', body: '之後需要重新輸入名字或代碼才能回來', ok: '登出', danger: true })) signOut();
                   }}
                 >
                   <Icon name="logout" /> 登出
@@ -175,7 +175,7 @@ function TeacherHome({ st }: { st: TeacherState }) {
         </div>
         {byDay.size === 0 ? (
           <Empty icon="calendar" title="還沒有排到你的場次">
-            助教排好時間後，這裡會即時出現各組的題目與進度。
+            助教排好時間後，這裡會即時出現各組的題目與進度
           </Empty>
         ) : (
           <div class="stack">
@@ -216,7 +216,7 @@ function TeacherHome({ st }: { st: TeacherState }) {
             ))}
           </div>
         ) : (
-          <p class="muted small">目前沒有設定開放時段。</p>
+          <p class="muted small">目前沒有設定開放時段</p>
         )}
         {st.closures.length > 0 && (
           <div class="row wrap">
@@ -271,7 +271,7 @@ function SessionCard({ s, mins, now }: { s: TeacherSession; mins: number; now: n
             </div>
           </>
         ) : (
-          <p class="small muted">這組沒有填寫題目。</p>
+          <p class="small muted">這組沒有填寫題目</p>
         )}
       </div>
     </div>

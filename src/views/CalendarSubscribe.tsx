@@ -38,12 +38,12 @@ function CalendarDialog({ who, download, close }: { who: 'teacher' | 'student'; 
   const reset = async () => {
     const ok = await confirm({
       title: '重新產生訂閱連結？',
-      body: `舊連結會立刻失效${who === 'student' ? '（組員訂閱的也會）' : ''}，需要用新連結重新訂閱一次。連結外流時才需要這麼做。`,
+      body: `舊連結會立刻失效${who === 'student' ? '（組員訂閱的也會）' : ''}，需要用新連結重新訂閱一次。連結外流時才需要這麼做`,
       ok: '重新產生',
       danger: true,
     });
     if (!ok) return;
-    const r = await run('reset', () => call<{ feed: string }>('oh_calendar_feed', { p_reset: true }), { ok: '已產生新連結。' });
+    const r = await run('reset', () => call<{ feed: string }>('oh_calendar_feed', { p_reset: true }), { ok: '已產生新連結' });
     if (r) setFeed(r.feed);
   };
 
@@ -52,14 +52,14 @@ function CalendarDialog({ who, download, close }: { who: 'teacher' | 'student'; 
       <div class="stack tight">
         <h2>訂閱行事曆</h2>
         <p class="muted small">
-          訂閱一次，之後{who === 'teacher' ? '排給你的' : '你們這組的'}場次都會自動出現在行事曆裡，時間異動或取消也會跟著更新，開始前 15 分鐘提醒。
+          訂閱一次，之後{who === 'teacher' ? '排給你的' : '你們這組的'}場次都會自動出現在行事曆裡，時間異動或取消也會跟著更新，開始前 15 分鐘提醒
         </p>
       </div>
 
       {demo ? (
         <div class="notice info">
           <Icon name="info" />
-          <span class="small">示範模式沒有雲端資料庫，所以不能訂閱；正式網站可以。你仍然可以下載目前的場次。</span>
+          <span class="small">示範模式沒有雲端資料庫，所以不能訂閱；正式網站可以。你仍然可以下載目前的場次</span>
         </div>
       ) : !feed ? (
         <div class="row" style={{ justifyContent: 'center', padding: '16px' }}>
@@ -88,7 +88,7 @@ function CalendarDialog({ who, download, close }: { who: 'teacher' | 'student'; 
             </div>
           </div>
           <p class="tiny muted">
-            這個網址就是你的行事曆內容{who === 'teacher' ? '（包含各組的題目與進度）' : ''}，請不要貼到公開的地方。Google 日曆大約每幾小時更新一次；Apple 行事曆可以在訂閱設定裡改成每 15 分鐘。
+            這個網址就是你的行事曆內容{who === 'teacher' ? '（包含各組的題目與進度）' : ''}，請不要貼到公開的地方。Google 日曆大約每幾小時更新一次；Apple 行事曆可以在訂閱設定裡改成每 15 分鐘
           </p>
         </div>
       )}

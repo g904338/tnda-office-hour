@@ -36,7 +36,7 @@ async function rotateFlow(kind: 'group' | 'teacher' | 'admin', label: string, ru
   ));
   if (!choice) return null;
   return run('rotate', () => call<{ code: string; revoked: number }>('oh_admin_rotate', { p_kind: kind, p_id: id, p_revoke: choice === 'revoke' }), {
-    ok: choice === 'revoke' ? '已更換代碼，並登出所有裝置。' : '已更換代碼。',
+    ok: choice === 'revoke' ? '已更換代碼，並登出所有裝置' : '已更換代碼',
   });
 }
 
@@ -56,7 +56,7 @@ export function GroupsPage() {
   const add = async () => {
     const name = await ask({ title: '新增小組', label: '組名', placeholder: '可以之後再改', optional: true, maxLength: 40, ok: '新增' });
     if (name === null) return;
-    await save({ name }, '已新增小組。');
+    await save({ name }, '已新增小組');
   };
 
   const wall = () =>
@@ -75,7 +75,7 @@ export function GroupsPage() {
               </Btn>
             </div>
           </div>
-          <p class="muted small no-print">可以直接投影在教室，各組用手機掃描自己的 QR Code 加入。</p>
+          <p class="muted small no-print">可以直接投影在教室，各組用手機掃描自己的 QR Code 加入</p>
           <div class="qr-wall">
             {cfg.groups
               .filter((g) => g.active)
@@ -104,7 +104,7 @@ export function GroupsPage() {
           <p class="eyebrow">小組與邀請</p>
           <h1 class="title-l">{cfg.groups.length} 個小組</h1>
           <p class="muted small" style={{ maxWidth: '560px' }}>
-            在每組的「學生名單」填上同學的名字，同學到首頁輸入自己的名字就能登入；也可以把邀請連結貼到各組的 Discord，點開、輸入名字加入。整組共用同一份預約。
+            在每組的「學生名單」填上同學的名字，同學到首頁輸入自己的名字就能登入；也可以把邀請連結貼到各組的 Discord，點開、輸入名字加入。整組共用同一份預約
           </p>
         </div>
         <div class="row wrap">
@@ -136,7 +136,7 @@ function GroupCard({ g, now, save, reload }: { g: ConfigGroup; now: number; save
     for (;;) {
       const v = await ask({
         title: `第 ${g.no} 組的學生名單`,
-        body: '一行一個名字。同學在首頁輸入一樣的名字，就能直接登入這組（不分大小寫、忽略空格）。名字不能和其他組或老師重複。',
+        body: '一行一個名字。同學在首頁輸入一樣的名字，就能直接登入這組（不分大小寫、忽略空格）。名字不能和其他組或老師重複',
         label: '學生名單',
         placeholder: '林小晴\n王大明',
         initial: text,
@@ -146,7 +146,7 @@ function GroupCard({ g, now, save, reload }: { g: ConfigGroup; now: number; save
       });
       if (v === null) return;
       text = v;
-      const r = await run('roster', () => call('oh_admin_roster', { p_group: g.id, p_names: v.split('\n') }), { ok: '已更新學生名單。' });
+      const r = await run('roster', () => call('oh_admin_roster', { p_group: g.id, p_names: v.split('\n') }), { ok: '已更新學生名單' });
       reload();
       if (r) return;
     }
@@ -168,7 +168,7 @@ function GroupCard({ g, now, save, reload }: { g: ConfigGroup; now: number; save
                 onClick={async () => {
                   close();
                   const name = await ask({ title: `第 ${g.no} 組的組名`, label: '組名', initial: g.name, optional: true, maxLength: 40, ok: '儲存' });
-                  if (name !== null) save({ id: g.id, name }, '已更新。');
+                  if (name !== null) save({ id: g.id, name }, '已更新');
                 }}
               >
                 <Icon name="edit" /> 修改組名
@@ -183,7 +183,7 @@ function GroupCard({ g, now, save, reload }: { g: ConfigGroup; now: number; save
                   if (v === null) return;
                   const n = Number(v);
                   if (!Number.isInteger(n) || n < 1 || n > 999) return;
-                  save({ id: g.id, no: n }, '已更新編號。');
+                  save({ id: g.id, no: n }, '已更新編號');
                 }}
               >
                 <Icon name="layers" /> 修改編號
@@ -207,8 +207,8 @@ function GroupCard({ g, now, save, reload }: { g: ConfigGroup; now: number; save
                   role="menuitem"
                   onClick={async () => {
                     close();
-                    if (!(await confirm({ title: `刪除第 ${g.no} 組？`, body: '這組還沒有任何預約紀錄，刪除後無法復原。', ok: '刪除', danger: true }))) return;
-                    await run('del', () => call('oh_admin_delete', { p_kind: 'group', p_id: g.id }), { ok: '已刪除。' });
+                    if (!(await confirm({ title: `刪除第 ${g.no} 組？`, body: '這組還沒有任何預約紀錄，刪除後無法復原', ok: '刪除', danger: true }))) return;
+                    await run('del', () => call('oh_admin_delete', { p_kind: 'group', p_id: g.id }), { ok: '已刪除' });
                     reload();
                   }}
                 >
@@ -270,7 +270,7 @@ function GroupCard({ g, now, save, reload }: { g: ConfigGroup; now: number; save
             ))}
           </div>
         ) : (
-          <span class="small muted">還沒有名單。加入名字後，同學在首頁輸入名字就能登入這組。</span>
+          <span class="small muted">還沒有名單。加入名字後，同學在首頁輸入名字就能登入這組</span>
         )}
       </div>
       <div class="stack tight">
@@ -285,8 +285,8 @@ function GroupCard({ g, now, save, reload }: { g: ConfigGroup; now: number; save
                 style={{ cursor: 'pointer' }}
                 title={`加入於 ${agoText(m.created_at, now)}，最近 ${agoText(m.seen_at, now)}使用`}
                 onClick={async () => {
-                  if (!(await confirm({ title: `讓「${m.name}」登出？`, body: '這台裝置之後需要重新登入。適合用在有人換手機、或填錯組的時候。', ok: '登出這個裝置', danger: true }))) return;
-                  await run('revoke', () => call('oh_admin_delete', { p_kind: 'session', p_id: m.id }), { ok: '已登出。' });
+                  if (!(await confirm({ title: `讓「${m.name}」登出？`, body: '這台裝置之後需要重新登入。適合用在有人換手機、或填錯組的時候', ok: '登出這個裝置', danger: true }))) return;
+                  await run('revoke', () => call('oh_admin_delete', { p_kind: 'session', p_id: m.id }), { ok: '已登出' });
                   reload();
                 }}
               >
@@ -296,11 +296,11 @@ function GroupCard({ g, now, save, reload }: { g: ConfigGroup; now: number; save
             ))}
           </div>
         ) : (
-          <span class="small muted">還沒有人登入。</span>
+          <span class="small muted">還沒有人登入</span>
         )}
       </div>
       <DiscordRow g={g} save={save} />
-      <Switch checked={g.active} onChange={(v) => save({ id: g.id, active: v }, v ? '已啟用。' : '已停用，這組的成員會被登出。')} label={g.active ? '啟用中' : '已停用'} />
+      <Switch checked={g.active} onChange={(v) => save({ id: g.id, active: v }, v ? '已啟用' : '已停用，這組的成員會被登出')} label={g.active ? '啟用中' : '已停用'} />
     </div>
   );
 }
@@ -318,7 +318,7 @@ function DiscordRow({ g, save }: { g: ConfigGroup; save: (p: Record<string, unkn
     const r = await run('test', () => call<{ request_id: number | null; available: boolean }>('oh_admin_webhook_test', { p_group: g.id }));
     if (!r) return;
     if (!r.available || !r.request_id) {
-      toast('這個環境不會真的傳送 Discord 訊息（示範模式）。');
+      toast('這個環境不會真的傳送 Discord 訊息（示範模式）');
       return;
     }
     toast('已送出測試訊息，確認中…');
@@ -326,17 +326,17 @@ function DiscordRow({ g, save }: { g: ConfigGroup; save: (p: Record<string, unkn
       await new Promise((res) => setTimeout(res, wait));
       const s = await call<{ state: string; code?: number }>('oh_admin_webhook_status', { p_request: r.request_id }).catch(() => null);
       if (!s || s.state === 'pending') continue;
-      if (s.state === 'ok') toast(`Discord 已收到：第 ${g.no} 組的頻道會收到通知。`, { ms: 5000 });
+      if (s.state === 'ok') toast(`Discord 已收到：第 ${g.no} 組的頻道會收到通知`, { ms: 5000 });
       else
         toast(
           s.code === 404 || s.code === 401
-            ? '這個 Webhook 已失效，請在 Discord 重新建立後再貼上。'
-            : `Discord 沒有收到（狀態碼 ${s.code ?? '未知'}），請檢查 Webhook。`,
+            ? '這個 Webhook 已失效，請在 Discord 重新建立後再貼上'
+            : `Discord 沒有收到（狀態碼 ${s.code ?? '未知'}），請檢查 Webhook`,
           { kind: 'error', ms: 8000 },
         );
       return;
     }
-    toast('Discord 還沒回應，請稍後到頻道確認是否收到測試訊息。');
+    toast('Discord 還沒回應，請稍後到頻道確認是否收到測試訊息');
   };
 
   return (
@@ -376,7 +376,7 @@ function WebhookForm({ g, close, save }: { g: ConfigGroup; close: () => void; sa
       onSubmit={async (e) => {
         e.preventDefault();
         if (bad) return;
-        const r = await save({ id: g.id, webhook: v || null }, v ? '已連結 Discord，之後的排程會自動通知。' : '已取消 Discord 連結。');
+        const r = await save({ id: g.id, webhook: v || null }, v ? '已連結 Discord，之後的排程會自動通知' : '已取消 Discord 連結');
         if (r) close();
       }}
     >
@@ -384,11 +384,11 @@ function WebhookForm({ g, close, save }: { g: ConfigGroup; close: () => void; sa
         第 {g.no} 組的 Discord 通知
       </h2>
       <ol class="small muted" style={{ margin: 0, paddingLeft: '20px', display: 'grid', gap: '4px' }}>
-        <li>在 Discord 對這組的頻道按「編輯頻道」→「整合」→「Webhook」。</li>
-        <li>按「新 Webhook」，再按「複製 Webhook 網址」。</li>
-        <li>貼到下面。之後時間確定、異動或取消時，這個頻道會自動收到訊息。</li>
+        <li>在 Discord 對這組的頻道按「編輯頻道」→「整合」→「Webhook」</li>
+        <li>按「新 Webhook」，再按「複製 Webhook 網址」</li>
+        <li>貼到下面。之後時間確定、異動或取消時，這個頻道會自動收到訊息</li>
       </ol>
-      <Field label="Webhook 網址" error={bad ? '這不是 Discord 的 Webhook 網址。' : null} help="只有助教看得到這個網址。">
+      <Field label="Webhook 網址" error={bad ? '這不是 Discord 的 Webhook 網址' : null} help="只有助教看得到這個網址">
         <input
           class="input mono"
           style={{ fontSize: '13px' }}
@@ -434,7 +434,7 @@ export function TeachersPage() {
           <p class="eyebrow">老師</p>
           <h1 class="title-l">{host}</h1>
           <p class="muted small" style={{ maxWidth: '560px' }}>
-            老師到首頁輸入自己的名字就能登入，或打開專屬連結。登入後可以看到自己的場次、各組題目與進度，也能一鍵加入行事曆。老師不需要做任何設定。
+            老師到首頁輸入自己的名字就能登入，或打開專屬連結。登入後可以看到自己的場次、各組題目與進度，也能一鍵加入行事曆。老師不需要做任何設定
           </p>
         </div>
         <Btn
@@ -443,7 +443,7 @@ export function TeachersPage() {
           loading={busy === 'save'}
           onClick={async () => {
             const name = await ask({ title: `新增${host}`, label: '名字', maxLength: 40, ok: '新增' });
-            if (name) save({ name }, '已新增。記得到「時段與週次」設定開放時段。');
+            if (name) save({ name }, '已新增。記得到「時段與週次」設定開放時段');
           }}
         >
           新增老師
@@ -478,7 +478,7 @@ function TeacherRow({ t, save, reload }: { t: ConfigTeacher; save: (p: Record<st
       <Btn size="sm" icon="copy" onClick={() => copyText(link, `已複製 ${t.name} 的專屬連結`)}>
         專屬連結
       </Btn>
-      <Switch checked={t.active} name={`${t.name} 啟用中`} onChange={(v) => save({ id: t.id, active: v }, v ? '已啟用。' : '已停用：這位老師的時段不再開放。')} label="" />
+      <Switch checked={t.active} name={`${t.name} 啟用中`} onChange={(v) => save({ id: t.id, active: v }, v ? '已啟用' : '已停用：這位老師的時段不再開放')} label="" />
       <Menu label={`${t.name} 選單`} trigger={<Icon name="more" />}>
         {(close) => (
           <>
@@ -489,7 +489,7 @@ function TeacherRow({ t, save, reload }: { t: ConfigTeacher; save: (p: Record<st
               onClick={async () => {
                 close();
                 const name = await ask({ title: '修改名字', label: '名字', initial: t.name, maxLength: 40, ok: '儲存' });
-                if (name) save({ id: t.id, name }, '已更新。');
+                if (name) save({ id: t.id, name }, '已更新');
               }}
             >
               <Icon name="edit" /> 修改名字
@@ -513,8 +513,8 @@ function TeacherRow({ t, save, reload }: { t: ConfigTeacher; save: (p: Record<st
                 role="menuitem"
                 onClick={async () => {
                   close();
-                  if (!(await confirm({ title: `刪除 ${t.name}？`, body: '會一併刪除這位老師的開放時段。', ok: '刪除', danger: true }))) return;
-                  await run('del', () => call('oh_admin_delete', { p_kind: 'teacher', p_id: t.id }), { ok: '已刪除。' });
+                  if (!(await confirm({ title: `刪除 ${t.name}？`, body: '會一併刪除這位老師的開放時段', ok: '刪除', danger: true }))) return;
+                  await run('del', () => call('oh_admin_delete', { p_kind: 'teacher', p_id: t.id }), { ok: '已刪除' });
                   reload();
                 }}
               >

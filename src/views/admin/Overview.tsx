@@ -168,7 +168,7 @@ export function Overview() {
                 ))}
               </div>
             ) : (
-              <p class="muted small">還沒有任何動態。</p>
+              <p class="muted small">還沒有任何動態</p>
             )}
           </div>
         </section>

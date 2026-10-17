@@ -100,7 +100,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
     if (moving?.status === 'confirmed') {
       const ok = await confirm({
         title: '移動已發布的場次？',
-        body: `${groupName(st.groups, moving.group_id)} 會從 ${dayLabel(moving.d)} ${moving.t} 改到 ${dayLabel(args.d)} ${args.t}（${tName(args.teacher)}）。這組和老師的畫面會立刻更新，有連結 Discord 的話也會收到通知。`,
+        body: `${groupName(st.groups, moving.group_id)} 會從 ${dayLabel(moving.d)} ${moving.t} 改到 ${dayLabel(args.d)} ${args.t}（${tName(args.teacher)}）。這組和老師的畫面會立刻更新，有連結 Discord 的話也會收到通知`,
         ok: '移動',
       });
       if (!ok) return;
@@ -128,7 +128,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
                 <li key={x}>{x}</li>
               ))}
             </ul>
-            <p>如果已經和這組或老師確認過，仍然可以安排。</p>
+            <p>如果已經和這組或老師確認過，仍然可以安排</p>
           </>
         ),
         ok: '仍要安排',
@@ -145,14 +145,14 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
     } else {
       const reason = await ask({
         title: `取消${g}的 ${dayLabel(a.d)} ${a.t}？`,
-        body: '這組和老師的畫面會立刻顯示已取消，時段也會釋出。',
+        body: '這組和老師的畫面會立刻顯示已取消，時段也會釋出',
         label: '原因（會顯示給這組）',
         optional: true,
         maxLength: 200,
         ok: '取消這場',
       });
       if (reason === null) return;
-      await run('remove', () => call('oh_admin_remove', { p_id: a.id, p_reason: reason }), { ok: '已取消。' });
+      await run('remove', () => call('oh_admin_remove', { p_id: a.id, p_reason: reason }), { ok: '已取消' });
     }
     reload();
   }
@@ -168,7 +168,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
       notBefore: nowStamp,
     });
     if (!proposal.length) {
-      toast('沒有可以再自動安排的組別：待排的組勾的時段都已經滿了。');
+      toast('沒有可以再自動安排的組別：待排的組勾的時段都已經滿了');
       return;
     }
     const r = await run('auto', () => call<{ count: number }>('oh_admin_apply', { p_week: st.week_id, p_items: proposal }));
@@ -185,7 +185,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
         <div class="stack tight">
           <p class="eyebrow">閃身步排程法</p>
           <h2>已建立 {proposal.length} 筆草稿</h2>
-          <p class="muted small">優先照顧本學期討論次數較少、較早送出的組，並盡量讓同一組延續上次的 {st.settings.host_label}。草稿只有助教看得到。</p>
+          <p class="muted small">優先照顧本學期討論次數較少、較早送出的組，並盡量讓同一組延續上次的 {st.settings.host_label}。草稿只有助教看得到</p>
         </div>
         <div class="list">
           {proposal.map((p, i) => (
@@ -200,7 +200,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
           <div class="notice warn">
             <Icon name="alert" />
             <span>
-              {left.map((q) => groupName(st.groups, q.group_id)).join('、')} 勾選的時段已經排滿，沒辦法再安排。可以在 Discord 請他們多勾幾格，或手動安排其他時段。
+              {left.map((q) => groupName(st.groups, q.group_id)).join('、')} 勾選的時段已經排滿，沒辦法再安排。可以在 Discord 請他們多勾幾格，或手動安排其他時段
             </span>
           </div>
         )}
@@ -222,7 +222,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
     if (!skipConfirm) {
       const ok = await confirm({
         title: `發布 ${n ?? ''} 筆排程？`,
-        body: '發布後，各組與老師的畫面會立刻更新。',
+        body: '發布後，各組與老師的畫面會立刻更新',
         ok: '發布',
       });
       if (!ok) return;
@@ -231,7 +231,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
     reload();
     if (!r) return;
     if (!r.published.length) {
-      toast('沒有需要發布的草稿。');
+      toast('沒有需要發布的草稿');
       return;
     }
     const all = [...st.appointments.filter((a) => a.status === 'confirmed'), ...r.published];
@@ -246,7 +246,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
       <>
         <div class="stack tight">
           <h2>{title}</h2>
-          <p class="muted small">各組在平台上已經看得到；有連結 Discord 的組別也已經自動收到通知。其他組可以複製下面的訊息，貼到他們的聊天室。</p>
+          <p class="muted small">各組在平台上已經看得到；有連結 Discord 的組別也已經自動收到通知。其他組可以複製下面的訊息，貼到他們的聊天室</p>
         </div>
         <div class="stack">
           {texts.map(({ gid, text }) => (
@@ -273,8 +273,8 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
   }
 
   async function discard() {
-    if (!(await confirm({ title: `清除 ${drafts.length} 筆草稿？`, body: '只會刪除還沒發布的草稿，已發布的不受影響。', ok: '清除', danger: true }))) return;
-    await run('discard', () => call('oh_admin_discard', { p_week: st.week_id }), { ok: '已清除草稿。' });
+    if (!(await confirm({ title: `清除 ${drafts.length} 筆草稿？`, body: '只會刪除還沒發布的草稿，已發布的不受影響', ok: '清除', danger: true }))) return;
+    await run('discard', () => call('oh_admin_discard', { p_week: st.week_id }), { ok: '已清除草稿' });
     reload();
   }
 
@@ -316,7 +316,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
             })}
           </div>
         ) : (
-          <p class="muted small">沒有小組勾選這個時段。</p>
+          <p class="muted small">沒有小組勾選這個時段</p>
         )}
         {others.length > 0 && (
           <details>
@@ -386,7 +386,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
           </dl>
         )}
         <p class="tiny faint">
-          {a.created_by} 安排{a.published_at ? `，${agoText(a.published_at, clock.now())}發布` : ''}。在桌機上可以直接把這格拖到其他時段。
+          {a.created_by} 安排{a.published_at ? `，${agoText(a.published_at, clock.now())}發布` : ''}。在桌機上可以直接把這格拖到其他時段
         </p>
         <div class="actions">
           <button type="button" class="btn danger" onClick={() => close('remove')}>
@@ -434,7 +434,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
     return (
       <main class="page">
         <Empty icon="calendar" title="還沒有任何週次">
-          先到「時段與週次」建立學期的週次。
+          先到「時段與週次」建立學期的週次
         </Empty>
       </main>
     );
@@ -543,7 +543,7 @@ function BoardView({ st, reload }: { st: AdminState; reload: () => void }) {
         <section aria-label="排程表" class="stack">
           {times.length === 0 ? (
             <Empty icon="calendar" title="這週沒有開放時段">
-              到「時段與週次」設定老師的開放時段。
+              到「時段與週次」設定老師的開放時段
             </Empty>
           ) : (
             <>
@@ -826,21 +826,21 @@ function SetupGuide({ st }: { st: AdminState }) {
     {
       done: joined === active.length && active.length > 0,
       title: `邀請各組加入（${joined}/${active.length} 組已有人加入）`,
-      body: '把每組的邀請連結貼到該組的 Discord，或在課堂上投影 QR Code 讓大家掃描。',
+      body: '把每組的邀請連結貼到該組的 Discord，或在課堂上投影 QR Code 讓大家掃描',
       href: href('admin/groups'),
       cta: '小組與邀請',
     },
     {
       done: false,
       title: '把專屬連結傳給老師',
-      body: '老師打開就能看到自己的場次，也能訂閱行事曆，不需要任何設定。',
+      body: '老師打開就能看到自己的場次，也能訂閱行事曆，不需要任何設定',
       href: href('admin/teachers'),
       cta: '老師',
     },
     {
       done: false,
       title: '確認開放時段與週次',
-      body: '國定假日、老師請假、哪幾週開放預約，都在這裡調整。',
+      body: '國定假日、老師請假、哪幾週開放預約，都在這裡調整',
       href: href('admin/calendar'),
       cta: '時段與週次',
     },

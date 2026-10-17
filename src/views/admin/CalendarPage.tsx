@@ -23,7 +23,7 @@ export function CalendarPage() {
   };
   const del = async (kind: string, id: number, title: string) => {
     if (!(await confirm({ title, ok: '刪除', danger: true }))) return;
-    await run('del', () => call('oh_admin_delete', { p_kind: kind, p_id: id }), { ok: '已刪除。' });
+    await run('del', () => call('oh_admin_delete', { p_kind: kind, p_id: id }), { ok: '已刪除' });
     reload();
   };
 
@@ -37,7 +37,7 @@ export function CalendarPage() {
         <p class="eyebrow">時段與週次</p>
         <h1 class="title-l">什麼時候可以約</h1>
         <p class="muted small" style={{ maxWidth: '600px' }}>
-          開放時段決定學生能勾哪些格子；休息日會整天關閉；週次決定學生可以預約哪幾週。改動會立刻同步到所有人的畫面。
+          開放時段決定學生能勾哪些格子；休息日會整天關閉；週次決定學生可以預約哪幾週。改動會立刻同步到所有人的畫面
         </p>
       </div>
 
@@ -84,7 +84,7 @@ export function CalendarPage() {
           </Btn>
         </div>
         {closures.length === 0 ? (
-          <p class="muted small">沒有設定休息日。國定假日或老師請假時，在這裡加上就會自動關閉當天的時段。</p>
+          <p class="muted small">沒有設定休息日。國定假日或老師請假時，在這裡加上就會自動關閉當天的時段</p>
         ) : (
           <div class="list">
             {closures.map((c) => (
@@ -163,7 +163,7 @@ function BlockForm({ cfg, b, close, save }: { cfg: AdminConfig; b: Block | null;
             valid_from: kind === 'weekly' && from ? from : null,
             valid_to: kind === 'weekly' && to ? to : null,
           },
-          '已儲存時段。',
+          '已儲存時段',
         );
         if (r) close();
       }}
@@ -262,7 +262,7 @@ function ClosureForm({ cfg, c, close, save }: { cfg: AdminConfig; c: Closure | n
       class="stack"
       onSubmit={async (e) => {
         e.preventDefault();
-        const r = await save('closure', { id: c?.id, d, teacher_id: who || null, reason }, '已儲存。');
+        const r = await save('closure', { id: c?.id, d, teacher_id: who || null, reason }, '已儲存');
         if (r) close();
       }}
     >
@@ -280,10 +280,10 @@ function ClosureForm({ cfg, c, close, save }: { cfg: AdminConfig; c: Closure | n
           ))}
         </select>
       </Field>
-      <Field label="說明" optional help="例：元旦、校慶、出差。會顯示在時段表上。">
+      <Field label="說明" optional help="例：元旦、校慶、出差。會顯示在時段表上">
         <input class="input" value={reason} maxLength={40} onInput={(e) => setReason((e.target as HTMLInputElement).value)} />
       </Field>
-      <p class="tiny muted">已經排定在這天的場次不會自動取消，請到排程頁確認。</p>
+      <p class="tiny muted">已經排定在這天的場次不會自動取消，請到排程頁確認</p>
       <div class="actions">
         <button type="button" class="btn" onClick={close}>
           取消
@@ -311,7 +311,7 @@ function Weeks({ cfg, save, del, reload }: { cfg: AdminConfig; save: Save; del: 
       </div>
       {cfg.weeks.length === 0 ? (
         <Empty icon="calendar" title="還沒有週次">
-          按「產生週次」一次建立整個學期。
+          按「產生週次」一次建立整個學期
         </Empty>
       ) : (
         <div class="table-wrap">
@@ -355,7 +355,7 @@ function Weeks({ cfg, save, del, reload }: { cfg: AdminConfig; save: Save; del: 
                     <Switch
                       checked={w.open}
                       name={`${w.label || mdPad(w.start)} 開放預約`}
-                      onChange={(v) => save('week', { id: w.id, open: v }, v ? '已開放。' : '已暫停這週的預約。')}
+                      onChange={(v) => save('week', { id: w.id, open: v }, v ? '已開放' : '已暫停這週的預約')}
                       label=""
                     />
                   </td>
@@ -389,7 +389,7 @@ function GenerateForm({ close, run, call, reload }: { close: () => void; run: Re
       }}
     >
       <h2>產生週次</h2>
-      <p class="muted small">從選定日期所在的那一週開始，連續建立數週。已經存在的週次會略過。</p>
+      <p class="muted small">從選定日期所在的那一週開始，連續建立數週。已經存在的週次會略過</p>
       <Field label="從哪一天開始">
         <input class="input" type="date" required value={start} onInput={(e) => setStart((e.target as HTMLInputElement).value)} />
       </Field>

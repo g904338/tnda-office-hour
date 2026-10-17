@@ -69,7 +69,7 @@ export function ErrorState({ onRetry }: { onRetry: () => void }) {
       <div class="stack" style={{ justifyItems: 'center', maxWidth: '360px' }}>
         <Icon name="wave" size={28} />
         <p class="title-m">暫時連不上</p>
-        <p class="muted small">可能是網路不穩，資料都還在。恢復連線後會自動更新。</p>
+        <p class="muted small">可能是網路不穩，資料都還在。恢復連線後會自動更新</p>
         <Btn icon="rotate" onClick={onRetry}>
           重新載入
         </Btn>
@@ -120,7 +120,7 @@ function StudentTop({ st }: { st?: StudentState }) {
                     close();
                     const name = await ask({ title: '修改名字', label: '你的名字', initial: st.me.name, maxLength: 20, ok: '儲存' });
                     if (!name) return;
-                    const s = await run('rename', () => call<SessionInfo>('oh_rename', { p_name: name }), { ok: '已更新名字。' });
+                    const s = await run('rename', () => call<SessionInfo>('oh_rename', { p_name: name }), { ok: '已更新名字' });
                     if (s) updateSession(s);
                   }}
                 >
@@ -132,7 +132,7 @@ function StudentTop({ st }: { st?: StudentState }) {
                   role="menuitem"
                   onClick={async () => {
                     close();
-                    if (await confirm({ title: '登出這台裝置？', body: '之後需要重新輸入名字或邀請代碼才能回來。', ok: '登出', danger: true })) signOut();
+                    if (await confirm({ title: '登出這台裝置？', body: '之後需要重新輸入名字或邀請代碼才能回來', ok: '登出', danger: true })) signOut();
                   }}
                 >
                   <Icon name="logout" /> 登出
@@ -168,7 +168,7 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
   const cancel = async (a: StudentAppointment) => {
     const reason = await ask({
       title: `取消 ${dayLabel(a.d)} ${a.t} 的 Office Hour？`,
-      body: '取消後這個時段會釋出給其他組，助教與 PM 會即時看到。',
+      body: '取消後這個時段會釋出給其他組，助教與 PM 會即時看到',
       label: '原因',
       placeholder: '例：組員生病，想改到下週',
       optional: true,
@@ -176,7 +176,7 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
       ok: '確定取消',
     });
     if (reason === null) return;
-    await run('cancel', () => call('oh_appointment_cancel', { p_id: a.id, p_reason: reason }), { ok: '已取消，時段已釋出。' });
+    await run('cancel', () => call('oh_appointment_cancel', { p_id: a.id, p_reason: reason }), { ok: '已取消，時段已釋出' });
     reload();
   };
 
@@ -202,12 +202,12 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
     if (!req) return;
     const ok = await confirm({
       title: '撤回這週的需求？',
-      body: '組員和助教都會看到需求已撤回。之後可以隨時重新送出，內容會保留。',
+      body: '組員和助教都會看到需求已撤回。之後可以隨時重新送出，內容會保留',
       ok: '撤回',
       danger: true,
     });
     if (!ok) return;
-    await run('withdraw', () => call('oh_request_withdraw', { p_week: req.week_id, p_version: req.version }), { ok: '已撤回需求。' });
+    await run('withdraw', () => call('oh_request_withdraw', { p_week: req.week_id, p_version: req.version }), { ok: '已撤回需求' });
     reload();
   };
 
@@ -274,7 +274,7 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
               </Btn>
             ) : (
               <span class="small" style={{ opacity: 0.7 }}>
-                距離開始不到 {st.settings.cancel_hours} 小時，要取消請在 Discord 告訴助教。
+                距離開始不到 {st.settings.cancel_hours} 小時，要取消請在 Discord 告訴助教
               </span>
             )}
           </div>
@@ -292,7 +292,7 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
         <section class="hero calm" aria-label="預約狀態">
           <p class="eyebrow">{pendingWeek.label || mdPad(pendingWeek.start)} 的需求已送出</p>
           <h1 class="title-l">助教正在安排時間</h1>
-          <p class="muted">時間確定後，這個畫面會即時更新，全組會同時看到。</p>
+          <p class="muted">時間確定後，這個畫面會即時更新，全組會同時看到</p>
         </section>
       ) : (
         <section class="hero calm" aria-label="預約狀態">
@@ -300,7 +300,7 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
             {st.me.name}，{st.settings.host_label} 的 Office Hour 每次 {minutesText(mins)}
           </p>
           <h1 class="title-l">還沒有排定的時段</h1>
-          <p class="muted">勾選你們這週可以的時段，越多越容易排到。整組共用一份需求，誰來填都可以。</p>
+          <p class="muted">勾選你們這週可以的時段，越多越容易排到。整組共用一份需求，誰來填都可以</p>
           {firstBookable && (
             <div>
               <Btn variant="primary" size="lg" icon="arrow" onClick={() => go(`book/${firstBookable.id}`)}>
@@ -408,9 +408,9 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
               </div>
             ) : week.bookable ? (
               <div class="stack">
-                {req?.status === 'withdrawn' && <p class="small muted">這週的需求已撤回（{req.author}）。重新送出時會帶入原本的內容。</p>}
+                {req?.status === 'withdrawn' && <p class="small muted">這週的需求已撤回（{req.author}）。重新送出時會帶入原本的內容</p>}
                 <p class="muted">
-                  勾選這週所有可以的時段，再寫下想討論的題目和目前進度，助教會從中幫你們排 {minutesText(mins)}到{minutesText(mins * st.settings.week_cap)}。
+                  勾選這週所有可以的時段，再寫下想討論的題目和目前進度，助教會從中幫你們排 {minutesText(mins)}到{minutesText(mins * st.settings.week_cap)}
                 </p>
                 <div>
                   <Btn variant="primary" size="lg" icon="arrow" onClick={() => go(`book/${week.id}`)}>
@@ -421,7 +421,7 @@ function Home({ st, setWeek, reload }: { st: StudentState; setWeek: (id: number)
             ) : (
               weekAppts.length === 0 && (
                 <Empty icon="clock" title={week.open ? '這週已過預約截止' : '這週暫停預約'}>
-                  {week.open ? `需要在當天的 ${st.settings.lead_days} 天前預約。看看下一週吧。` : '有問題可以在 Discord 詢問助教。'}
+                  {week.open ? `需要在當天的 ${st.settings.lead_days} 天前預約。看看下一週吧` : '有問題可以在 Discord 詢問助教'}
                 </Empty>
               )
             )}
